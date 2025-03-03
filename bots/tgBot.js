@@ -4,15 +4,79 @@ const {
   createConversation,
 } = require("@grammyjs/conversations");
 const TG_BOT_API_KEY = process.env.TG_BOT_API_KEY;
+const akave = require('../services/akave'); // Import the S3 service
 
 const bot = new Bot(TG_BOT_API_KEY);
+
+// Registration cache
+const registrationCache = new Map();
+const CACHE_TTL = 1000 * 60 * 5; // 5 minutes
 
 // Initialize minimal session
 bot.use(session({ initial: () => ({}) }));
 bot.use(conversations());
 
+// Helper function to check user registration with caching
+async function checkUserRegistration(userId) {
+  const now = Date.now();
+  
+  // Check cache first
+  if (registrationCache.has(userId)) {
+    const cached = registrationCache.get(userId);
+    if (now < cached.expiresAt) {
+      return cached.isRegistered;
+    }
+    // Cache expired, remove it
+    registrationCache.delete(userId);
+  }
+
+  try {
+    const isRegistered = await akave.checkUserExists(userId);
+    // Cache the result
+    registrationCache.set(userId, {
+      isRegistered,
+      expiresAt: now + CACHE_TTL
+    });
+    return isRegistered;
+  } catch (error) {
+    console.error('Failed to check registration:', error);
+    return false;
+  }
+}
+
+// Helper to invalidate cache (use when user registers)
+function invalidateRegistrationCache(userId) {
+  registrationCache.delete(userId);
+}
+
+// Clean up expired cache entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [userId, data] of registrationCache.entries()) {
+    if (now >= data.expiresAt) {
+      registrationCache.delete(userId);
+    }
+  }
+}, CACHE_TTL);
+
 // Daily check-in conversation
 async function dailyCheckIn(conversation, ctx) {
+  // Check registration first
+  const isRegistered = await checkUserRegistration(ctx.from.id);
+  if (!isRegistered) {
+    await ctx.reply(
+      "Looks like you haven't registered yet! Please open the mini app first to complete registration.",
+      {
+        reply_markup: {
+          inline_keyboard: [[
+            { text: "Open Mini App", web_app: { url: "https://your-domain.com/miniapp/" } }
+          ]]
+        }
+      }
+    );
+    return;
+  }
+
   // Mood options with emojis
   const moodOptions = {
     "great ☀️": "great",
@@ -127,16 +191,60 @@ bot.command("checkin", async (ctx) => {
 
 // generate menu
 bot.command("menu", async (ctx) => {
-  await ctx.reply("Hello! I'm the Asterisk bot. Here are my options:", {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "Check In", callback_data: "checkin" }],
-        [{ text: "Open Mini App", web_app: { url: "https://your-domain.com/miniapp/" } }]
-      ]
-    }
-  });
+  const isRegistered = await checkUserRegistration(ctx.from.id);
+  
+  if (isRegistered) {
+    await ctx.reply("Hello! I'm the Asterisk bot. Here are my options:", {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "Check In", callback_data: "checkin" }],
+          [{ text: "Open Mini App", web_app: { url: "https://your-domain.com/miniapp/" } }]
+        ]
+      }
+    });
+  } else {
+    await ctx.reply(
+      "Welcome to Asterisk! To get started, please register in our mini app:", {
+      reply_markup: {
+        inline_keyboard: [
+          [{ 
+            text: "Register Now", 
+            web_app: { url: "https://your-domain.com/miniapp/" }
+          }]
+        ]
+      }
+    });
+  }
+});
+
+// Handle checkin button click
+bot.callbackQuery("checkin", async (ctx) => {
+  const isRegistered = await checkUserRegistration(ctx.from.id);
+  
+  if (!isRegistered) {
+    await ctx.reply(
+      "You'll need to register first before checking in. Please register in our mini app:",
+      {
+        reply_markup: {
+          inline_keyboard: [[
+            { text: "Register Now", web_app: { url: "https://your-domain.com/miniapp/" } }
+          ]]
+        }
+      }
+    );
+    return;
+  }
+  
+  await ctx.conversation.enter("dailyCheckIn");
 });
 
 // Start the bot
 bot.start();
+
+// Export for use in other files if needed
+module.exports = {
+  bot,
+  checkUserRegistration,
+  invalidateRegistrationCache
+};
 
