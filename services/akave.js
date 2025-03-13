@@ -7,17 +7,19 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 
 class AkaveService {
   constructor() {
+    // Will be configured with Akave's S3-compatible endpoint and credentials
     this.s3Client = new S3Client({
-      region: process.env.AWS_REGION,
+      region: process.env.AKAVE_REGION,
+      endpoint: process.env.AKAVE_ENDPOINT, // Akave's S3-compatible endpoint
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        accessKeyId: process.env.AKAVE_ACCESS_KEY,
+        secretAccessKey: process.env.AKAVE_SECRET_KEY
       }
     })
-    this.bucketName = process.env.AWS_BUCKET_NAME
+    this.bucketName = process.env.AKAVE_BUCKET_NAME
   }
 
-  // Upload data to S3
+  // Upload data to Akave storage
   async uploadData(userId, data, type = 'daily-checkin') {
     const key = `${type}/${userId}/${Date.now()}.json`
     
@@ -30,14 +32,18 @@ class AkaveService {
       })
 
       await this.s3Client.send(command)
-      return { success: true, key }
+      return { 
+        success: true, 
+        key,
+        ...data 
+      }
     } catch (error) {
-      console.error('S3 upload error:', error)
+      console.error('Akave upload error:', error)
       throw new Error('Failed to upload data')
     }
   }
 
-  // Get data from S3
+  // Get data from Akave storage
   async getData(key) {
     try {
       const command = new GetObjectCommand({
@@ -47,9 +53,12 @@ class AkaveService {
 
       const response = await this.s3Client.send(command)
       const data = await response.Body.transformToString()
-      return JSON.parse(data)
+      return {
+        key,
+        ...JSON.parse(data)
+      }
     } catch (error) {
-      console.error('S3 get error:', error)
+      console.error('Akave get error:', error)
       throw new Error('Failed to get data')
     }
   }
@@ -63,9 +72,12 @@ class AkaveService {
       })
 
       const response = await this.s3Client.send(command)
-      return response.Contents || []
+      const dataPromises = (response.Contents || []).map(obj => 
+        this.getData(obj.Key)
+      )
+      return Promise.all(dataPromises)
     } catch (error) {
-      console.error('S3 list error:', error)
+      console.error('Akave list error:', error)
       throw new Error('Failed to list data')
     }
   }
@@ -74,14 +86,10 @@ class AkaveService {
   async getUserDataRange(userId, startDate, endDate, type = 'daily-checkin') {
     try {
       const files = await this.listUserData(userId, type)
-      const dataPromises = files
-        .filter(file => {
-          const timestamp = parseInt(file.Key.split('/').pop().split('.')[0])
-          return timestamp >= startDate && timestamp <= endDate
-        })
-        .map(file => this.getData(file.Key))
-
-      return await Promise.all(dataPromises)
+      return files.filter(file => {
+        const timestamp = parseInt(file.key.split('/').pop().split('.')[0])
+        return timestamp >= startDate && timestamp <= endDate
+      })
     } catch (error) {
       console.error('Data range error:', error)
       throw new Error('Failed to get data range')

@@ -7,26 +7,33 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const form = ref({
-  condition: '',
-  diagnosisType: 'Self Diagnosed',
-  diagnosisMethod: '',
-  medications: '',
+  condition_name: '',
+  is_self_diagnosed: true,
+  diagnosis_method: '',
   treatments: '',
   subtype: '',
-  firstSymptomDate: '',
-  wantsFutureStudies: false
+  first_symptom_date: '',
+  wants_future_studies: false
 })
+
+const diagnosisMethods = ['Doctor', 'Research', 'Other']
+const treatmentOptions = ['CBT', 'Medication', 'Lifestyle Changes', 'Other']
+const symptomDateRanges = [
+  '0-5 years old',
+  '6-10 years old',
+  '11-15 years old',
+  '16-20 years old',
+  '21-25 years old',
+  '26+ years old'
+]
 
 async function handleSave() {
   try {
     await userStore.updateHealthCondition(form.value)
+    router.push('/profile')
   } catch (error) {
     console.error('Failed to save health condition:', error)
   }
-}
-
-function goBack() {
-  router.push('/profile')
 }
 </script>
 
@@ -36,7 +43,7 @@ function goBack() {
       <v-btn 
         icon="mdi-arrow-left" 
         variant="text" 
-        @click="goBack"
+        @click="router.push('/profile')"
       />
       <h1 class="text-h5 font-weight-bold primary-color ml-4">
         Health Conditions
@@ -45,30 +52,22 @@ function goBack() {
 
     <v-form @submit.prevent="handleSave">
       <v-text-field
-        v-model="form.condition"
+        v-model="form.condition_name"
         label="Condition"
         variant="outlined"
         class="mb-4"
       />
 
       <div class="text-subtitle-1 mb-2">Diagnosis Type</div>
-      <v-radio-group v-model="form.diagnosisType" class="mb-4">
-        <v-radio label="Self Diagnosed" value="Self Diagnosed" />
-        <v-radio label="Professionally Diagnosed" value="Professionally Diagnosed" />
+      <v-radio-group v-model="form.is_self_diagnosed" class="mb-4">
+        <v-radio :label="'Self Diagnosed'" :value="true" />
+        <v-radio :label="'Professionally Diagnosed'" :value="false" />
       </v-radio-group>
 
       <v-select
-        v-model="form.diagnosisMethod"
+        v-model="form.diagnosis_method"
         label="How did you arrive at this diagnosis?"
-        :items="['Doctor', 'Research', 'Other']"
-        variant="outlined"
-        class="mb-4"
-      />
-
-      <v-select
-        v-model="form.medications"
-        label="Medications related to this condition"
-        :items="['Meds']"
+        :items="diagnosisMethods"
         variant="outlined"
         class="mb-4"
       />
@@ -76,35 +75,37 @@ function goBack() {
       <v-select
         v-model="form.treatments"
         label="Treatments related to this condition"
-        :items="['CBT']"
+        :items="treatmentOptions"
         variant="outlined"
         class="mb-4"
       />
 
-      <v-select
+      <v-text-field
         v-model="form.subtype"
         label="Disorder Subtype (if applicable)"
-        :items="['None']"
         variant="outlined"
         class="mb-4"
       />
 
       <v-select
-        v-model="form.firstSymptomDate"
+        v-model="form.first_symptom_date"
         label="When did you experience your first symptom?"
-        :items="['6-10 years old']"
+        :items="symptomDateRanges"
         variant="outlined"
         class="mb-4"
       />
 
-      <div class="text-subtitle-1 mb-2">
-        Please help invite you to compensated focus groups in the future. Would you like to receive invitations?
-      </div>
       <v-switch
-        v-model="form.wantsFutureStudies"
-        :label="form.wantsFutureStudies ? 'Yes' : 'No'"
+        v-model="form.wants_future_studies"
+        :label="form.wants_future_studies ? 'Yes' : 'No'"
         class="mb-6"
-      />
+      >
+        <template #label>
+          <div class="text-subtitle-1">
+            Would you like to receive invitations to compensated focus groups in the future?
+          </div>
+        </template>
+      </v-switch>
 
       <v-btn
         type="submit"

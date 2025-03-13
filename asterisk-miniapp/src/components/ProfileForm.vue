@@ -7,14 +7,40 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const form = ref({
-  nickname: '',
-  age: 0,
-  ethnicity: '',
-  location: '',
-  healthConditions: [],
-  medications: [],
-  isPregnant: false
+  profile: {
+    nickname: '',
+    age_range: '20-25',
+    ethnicity: '',
+    location: '',
+    is_pregnant: false
+  },
+  research_opt_in: false,
+  disease_states: [] as Array<{
+    condition_name: string;
+    is_self_diagnosed: boolean;
+    diagnosis_method: string;
+    treatments: string;
+    subtype: string;
+    first_symptom_date: string;
+    wants_future_studies: boolean;
+  }>,
+  medications: [] as Array<{
+    med_name: string;
+    verified: boolean;
+    related_condition: string;
+  }>
 })
+
+const ageRanges = [
+  '18-20',
+  '20-25',
+  '25-30',
+  '30-35',
+  '35-40',
+  '40-45',
+  '45-50',
+  '50+'
+]
 
 async function handleSave() {
   try {
@@ -41,29 +67,29 @@ async function handleSave() {
 
     <v-form @submit.prevent="handleSave">
       <v-text-field
-        v-model="form.nickname"
+        v-model="form.profile.nickname"
         label="Nickname"
         variant="outlined"
         class="mb-4"
       />
 
-      <v-text-field
-        v-model="form.age"
-        label="Age"
-        type="number"
+      <v-select
+        v-model="form.profile.age_range"
+        :items="ageRanges"
+        label="Age Range"
         variant="outlined"
         class="mb-4"
       />
 
       <v-text-field
-        v-model="form.ethnicity"
+        v-model="form.profile.ethnicity"
         label="Ethnicity"
         variant="outlined"
         class="mb-4"
       />
 
       <v-text-field
-        v-model="form.location"
+        v-model="form.profile.location"
         label="Location"
         variant="outlined"
         class="mb-4"
@@ -81,9 +107,9 @@ async function handleSave() {
           <v-icon end>mdi-chevron-right</v-icon>
         </v-btn>
       </div>
-      <v-chip-group v-model="form.healthConditions" column class="mb-4">
-        <v-chip v-for="condition in form.healthConditions" :key="condition">
-          {{ condition }}
+      <v-chip-group column class="mb-4">
+        <v-chip v-for="condition in form.disease_states" :key="condition.condition_name">
+          {{ condition.condition_name }}
         </v-chip>
       </v-chip-group>
 
@@ -98,17 +124,21 @@ async function handleSave() {
           <v-icon end>mdi-chevron-right</v-icon>
         </v-btn>
       </div>
-      <v-chip-group v-model="form.medications" column class="mb-4">
-        <v-chip v-for="med in form.medications" :key="med">
-          {{ med }}
+      <v-chip-group column class="mb-4">
+        <v-chip v-for="med in form.medications" :key="med.med_name">
+          {{ med.med_name }}
         </v-chip>
       </v-chip-group>
 
-      <v-select
-        v-model="form.isPregnant"
-        label="Pregnant"
-        :items="[true, false]"
-        variant="outlined"
+      <v-switch
+        v-model="form.profile.is_pregnant"
+        :label="form.profile.is_pregnant ? 'Yes' : 'No'"
+        class="mb-4"
+      />
+
+      <v-switch
+        v-model="form.research_opt_in"
+        label="Opt in to research studies"
         class="mb-6"
       />
 
