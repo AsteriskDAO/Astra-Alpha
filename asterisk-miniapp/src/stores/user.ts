@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import axios from 'axios'
 
 interface Profile {
   nickname: string;
@@ -12,17 +12,11 @@ interface Profile {
 interface DiseaseState {
   condition_name: string;
   is_self_diagnosed: boolean;
-  diagnosis_method: string;
+  diagnosis_method: 'Doctor' | 'Research' | 'Other';
   treatments: string;
   subtype: string;
   first_symptom_date: string;
   wants_future_studies: boolean;
-}
-
-interface Medication {
-  med_name: string;
-  verified: boolean;
-  related_condition: string;
 }
 
 interface UserData {
@@ -32,150 +26,129 @@ interface UserData {
   profile: Profile;
   research_opt_in: boolean;
   disease_states: DiseaseState[];
-  medications: Medication[];
+  medications: Array<{
+    med_name: string;
+    verified: boolean;
+    related_condition: string;
+  }>;
   timestamp: string;
 }
 
-// API calls (to be implemented later)
-const api = {
-  async fetchUserData(telegramId: string) {
-    const response = await fetch(`/api/storage/checkins/${telegramId}`)
-    if (!response.ok) {
-      if (response.status === 404) return null
-      throw new Error('Failed to fetch user data')
-    }
-    return response.json()
-  },
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    userData: null as UserData | null,
+    loading: false,
+    error: null as string | null
+  }),
 
-  async registerUser(telegramId: string, data: Partial<UserData>) {
-    const response = await fetch('/api/storage/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ telegramId, ...data })
-    })
-    if (!response.ok) throw new Error('Failed to register user')
-    return response.json()
-  },
-
-  async updateProfile(data: { profile: Profile; research_opt_in: boolean }) {
-    const response = await fetch('/api/storage/profile', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-    if (!response.ok) throw new Error('Failed to update profile')
-    return response.json()
-  },
-
-  async updateHealthCondition(condition: DiseaseState) {
-    const response = await fetch('/api/storage/health-condition', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(condition)
-    })
-    if (!response.ok) throw new Error('Failed to update health condition')
-    return response.json()
-  }
-}
-
-export const useUserStore = defineStore('user', () => {
-  const userData = ref<UserData | null>(null)
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
-
-  // Mock data
-  const mockUserData: UserData = {
-    isRegistered: true,
-    points: 12,
-    checkIns: 3,
-    profile: {
-      nickname: 'Test User',
-      age_range: '25-30',
-      ethnicity: 'Test Ethnicity',
-      location: 'Test Location',
-      is_pregnant: false
+  actions: {
+    async registerUser(telegramId: string, userData: Partial<UserData>) {
+      try {
+        this.loading = true
+        const response = await axios.post('/api/users/register', {
+          telegramId,
+          ...userData
+        })
+        this.userData = response.data
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to register user'
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
-    research_opt_in: true,
-    disease_states: [{
-      condition_name: 'PCOS',
-      is_self_diagnosed: true,
-      diagnosis_method: 'Research',
-      treatments: 'CBT',
-      subtype: '',
-      first_symptom_date: '16-20 years old',
-      wants_future_studies: true
-    }],
-    medications: [{
-      med_name: 'Test Med',
-      verified: true,
-      related_condition: 'PCOS'
-    }],
-    timestamp: new Date().toISOString()
-  }
 
-  async function fetchUserData(telegramId: string) {
-    isLoading.value = true
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500))
-      userData.value = mockUserData
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
-      console.error('Error fetching user data:', err)
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  async function registerUser(telegramId: string, data: Partial<UserData>) {
-    isLoading.value = true
-    try {
-      userData.value = { 
-        ...mockUserData, 
-        ...data, 
-        isRegistered: true,
-        timestamp: new Date().toISOString()
+    async updateProfile(profile: Profile, research_opt_in: boolean) {
+      try {
+        this.loading = true
+        const response = await axios.put('/api/health/profile', {
+          profile,
+          research_opt_in
+        })
+        if (this.userData) {
+          this.userData.profile = response.data.profile
+          this.userData.research_opt_in = response.data.research_opt_in
+        }
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to update profile'
+        throw error
+      } finally {
+        this.loading = false
       }
-    } finally {
-      isLoading.value = false
-    }
-  }
+    },
 
-  async function updateProfile(data: { profile: Profile; research_opt_in: boolean }) {
-    if (!userData.value) return
-    isLoading.value = true
-    try {
-      userData.value = { 
-        ...userData.value, 
-        profile: data.profile,
-        research_opt_in: data.research_opt_in,
-        timestamp: new Date().toISOString()
+    async addHealthCondition(condition: DiseaseState) {
+      try {
+        this.loading = true
+        const response = await axios.post('/api/health/condition', condition)
+        if (this.userData) {
+          this.userData.disease_states = response.data.disease_states
+        }
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to add health condition'
+        throw error
+      } finally {
+        this.loading = false
       }
-    } finally {
-      isLoading.value = false
-    }
-  }
+    },
 
-  async function updateHealthCondition(condition: DiseaseState) {
-    if (!userData.value) return
-    isLoading.value = true
-    try {
-      userData.value = {
-        ...userData.value,
-        disease_states: [...userData.value.disease_states, condition],
-        timestamp: new Date().toISOString()
+    async updateNickname(nickname: string) {
+      try {
+        this.loading = true
+        const response = await axios.put(`/api/users/nickname`, {
+          nickname
+        })
+        if (this.userData?.profile) {
+          this.userData.profile.nickname = response.data.nickname
+        }
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to update nickname'
+        throw error
+      } finally {
+        this.loading = false
       }
-    } finally {
-      isLoading.value = false
-    }
-  }
+    },
 
-  return {
-    userData,
-    isLoading,
-    error,
-    fetchUserData,
-    registerUser,
-    updateProfile,
-    updateHealthCondition
+    async fetchUserData(telegramId: string) {
+      try {
+        this.loading = true
+        // Get user data by telegram ID
+        const userResponse = await axios.get(`/api/users/telegram/${telegramId}`)
+        
+        // Get health data using the user_hash from the response
+        const healthResponse = await axios.get(`/api/health/conditions/${userResponse.data.user_hash}`)
+        
+        this.userData = {
+          ...userResponse.data,
+          disease_states: healthResponse.data
+        }
+        return this.userData
+      } catch (error) {
+        this.error = 'Failed to fetch user data'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async createCheckIn(checkInData: any) {
+      try {
+        this.loading = true
+        const response = await axios.post('/api/checkins', checkInData)
+        if (this.userData) {
+          this.userData.checkIns = (this.userData.checkIns || 0) + 1
+        }
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to create check-in'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    }
   }
 }) 

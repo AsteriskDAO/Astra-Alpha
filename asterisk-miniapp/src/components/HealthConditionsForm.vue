@@ -2,14 +2,19 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import { healthConditionSchema } from '../validation/schemas'
+import { ValidationError } from 'yup'
+import type { DiseaseState } from '../stores/user'
 
 const router = useRouter()
 const userStore = useUserStore()
+const loading = ref(false)
+const errors = ref<Record<string, string>>({})
 
-const form = ref({
+const form = ref<DiseaseState>({
   condition_name: '',
-  is_self_diagnosed: true,
-  diagnosis_method: '',
+  is_self_diagnosed: false,
+  diagnosis_method: 'Doctor',
   treatments: '',
   subtype: '',
   first_symptom_date: '',
@@ -27,12 +32,35 @@ const symptomDateRanges = [
   '26+ years old'
 ]
 
-async function handleSave() {
+async function validateForm() {
   try {
-    await userStore.updateHealthCondition(form.value)
+    await healthConditionSchema.validate(form.value, { abortEarly: false })
+    errors.value = {}
+    return true
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      errors.value = err.inner.reduce((acc, error) => {
+        if (error.path) {
+          acc[error.path] = error.message
+        }
+        return acc
+      }, {} as Record<string, string>)
+    }
+    return false
+  }
+}
+
+async function handleSave() {
+  if (!(await validateForm())) return
+
+  loading.value = true
+  try {
+    await userStore.addHealthCondition(form.value)
     router.push('/profile')
   } catch (error) {
     console.error('Failed to save health condition:', error)
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -56,6 +84,9 @@ async function handleSave() {
         label="Condition"
         variant="outlined"
         class="mb-4"
+        :error-messages="errors['condition_name']"
+        :disabled="loading"
+        required
       />
 
       <div class="text-subtitle-1 mb-2">Diagnosis Type</div>
@@ -70,6 +101,8 @@ async function handleSave() {
         :items="diagnosisMethods"
         variant="outlined"
         class="mb-4"
+        :error-messages="errors['diagnosis_method']"
+        :disabled="loading"
       />
 
       <v-select
@@ -78,6 +111,8 @@ async function handleSave() {
         :items="treatmentOptions"
         variant="outlined"
         class="mb-4"
+        :error-messages="errors['treatments']"
+        :disabled="loading"
       />
 
       <v-text-field
@@ -85,6 +120,8 @@ async function handleSave() {
         label="Disorder Subtype (if applicable)"
         variant="outlined"
         class="mb-4"
+        :error-messages="errors['subtype']"
+        :disabled="loading"
       />
 
       <v-select
@@ -93,12 +130,16 @@ async function handleSave() {
         :items="symptomDateRanges"
         variant="outlined"
         class="mb-4"
+        :error-messages="errors['first_symptom_date']"
+        :disabled="loading"
       />
 
       <v-switch
         v-model="form.wants_future_studies"
         :label="form.wants_future_studies ? 'Yes' : 'No'"
         class="mb-6"
+        :error-messages="errors['wants_future_studies']"
+        :disabled="loading"
       >
         <template #label>
           <div class="text-subtitle-1">
@@ -113,10 +154,23 @@ async function handleSave() {
         color="primary"
         size="large"
         class="text-capitalize"
+        :loading="loading"
+        :disabled="loading"
       >
         Save
       </v-btn>
     </v-form>
+
+    <v-overlay
+      :model-value="loading"
+      class="align-center justify-center"
+    >
+      <v-progress-circular
+        color="primary"
+        indeterminate
+        size="64"
+      />
+    </v-overlay>
   </div>
 </template>
 

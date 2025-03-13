@@ -2,8 +2,14 @@
 import { useTelegramStore } from '../stores/telegram'
 
 const telegram = useTelegramStore()
+
+defineOptions({
+  name: 'TelegramProvider'
+})
 </script>
 
 <template>
-  <slot />
+  <div class="telegram-provider">
+    <slot />
+  </div>
 </template>

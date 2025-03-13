@@ -1,4 +1,8 @@
 <script setup lang="ts">
+defineOptions({
+  name: 'LoadingScreen'
+})
+
 defineProps<{
   isLoading: boolean
 }>()

@@ -1,32 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-// import { useTelegramStore } from '../stores/telegram'
+import { useTelegramStore } from '../stores/telegram'
 
 const router = useRouter()
 const userStore = useUserStore()
-// const telegram = useTelegramStore()
+const telegramStore = useTelegramStore()
+const userInfo = computed(() => telegramStore.userInfo)
 
 const loading = ref(false)
 
+const form = ref({
+  profile: {
+    nickname: '',
+    age_range: '25-30',
+    ethnicity: '',
+    location: '',
+    is_pregnant: false
+  },
+  research_opt_in: false
+})
+
 async function handleSignup() {
-  // if (!telegram.userInfo?.id) return
-  
   loading.value = true
   try {
-    await userStore.registerUser('test123', {
-      points: 0,
-      checkIns: 0,
-      profile: {
-        nickname: 'Test User',
-        age: 0,
-        ethnicity: '',
-        location: '',
-        healthConditions: [],
-        medications: [],
-        isPregnant: false
-      }
+    await userStore.registerUser(userInfo.value?.id.toString() || '', {
+      profile: form.value.profile,
+      research_opt_in: form.value.research_opt_in
     })
     // Redirect to profile form after registration
     console.log('Redirecting to user dashboard')
