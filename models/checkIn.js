@@ -8,8 +8,13 @@ const checkInSchema = new mongoose.Schema({
   health_comment: String,
   doctor_visit: Boolean,
   medication_update: Boolean,
-  diagnosis_update: Boolean
+  diagnosis_update: Boolean,
+  stress_level: String,
+  stress_details: String
 })
+
+// Index for faster lookups by user and date
+checkInSchema.index({ user_hash: 1, timestamp: -1 })
 
 module.exports = mongoose.model('CheckIn', checkInSchema)
 

@@ -9,6 +9,10 @@ const errorHandler = (err, req, res, next) => {
     return res.status(409).json({ error: 'Duplicate record found' })
   }
 
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({ error: 'Invalid token' })
+  }
+
   res.status(500).json({ error: 'Something went wrong!' })
 }
 

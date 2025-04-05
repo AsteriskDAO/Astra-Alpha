@@ -1,7 +1,13 @@
 const User = require('../models/user')
+const HealthData = require('../models/healthData')
+const akave = require('../services/akave')
+const cache = require('../services/cache')
+
+// TODO: Double check logic for updating points and checkIns
 
 class UserController {
   async registerUser(req, res) {
+    // TODO: update this to use the new user schema
     try {
       const { telegramId, ...userData } = req.body
       const user = await User.createUser({
@@ -10,7 +16,9 @@ class UserController {
       })
       res.json({
         user_hash: user.user_hash,
-        nickname: user.nickname
+        nickname: user.nickname,
+        checkIns: user.checkIns,
+        points: user.points
       })
     } catch (error) {
       console.error('Failed to register user:', error)
@@ -51,30 +59,64 @@ class UserController {
     }
   }
 
-  async updateNickname(req, res) {
+  async getUserByTelegramId(req, res) {
     try {
+      const user = await User.findOne({ telegram_id: req.params.telegramId })
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+      res.json({
+        user_hash: user.user_hash,
+        nickname: user.nickname,
+        points: user.points
+      })
+    } catch (error) {
+      console.error('Failed to get user:', error)
+      res.status(500).json({ error: 'Failed to get user' })
+    }
+  }
+
+  async updateUser(req, res) {
+    try {
+      const { userData } = req.body
+      const healthData = userData.healthData
+
+      // Update user in MongoDB
       const user = await User.findOneAndUpdate(
-        { user_hash: req.params.userHash },
+        { telegram_id: userData.telegramId },
         { 
-          $set: { 
-            nickname: req.body.nickname,
+          $set: {
+            ...userData,
             updated_at: new Date()
           }
         },
         { new: true }
-      )
-      
+      );
+
       if (!user) {
-        return res.status(404).json({ error: 'User not found' })
+        return res.status(404).json({ error: 'User not found' });
       }
 
+      // Store to O3
+      const akaveResult = await akave.storeToO3(user.user_hash, {
+        healthData
+      });
+
+      // Invalidate cache
+      await cache.del(cache.generateKey('user', user.user_hash));
+      await cache.del(cache.generateKey('health', user.user_hash));
+
+      // Return combined data
       res.json({
         nickname: user.nickname,
-        updated_at: user.updated_at
-      })
+        points: user.points,
+        checkIns: user.checkIns,
+        healthData: updatedHealthData.toObject(),
+        akaveKey: akaveResult.key
+      });
     } catch (error) {
-      console.error('Failed to update nickname:', error)
-      res.status(500).json({ error: 'Failed to update nickname' })
+      console.error('Failed to update user:', error);
+      res.status(500).json({ error: 'Failed to update user' });
     }
   }
 }

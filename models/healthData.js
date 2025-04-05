@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 const profileSchema = new mongoose.Schema({
-  nickname: String,
   age_range: {
     type: String,
     enum: ['18-20', '20-25', '25-30', '30-35', '35-40', '40-45', '45-50', '50+']
@@ -11,34 +10,37 @@ const profileSchema = new mongoose.Schema({
   is_pregnant: Boolean
 })
 
-const diseaseStateSchema = new mongoose.Schema({
-  condition_name: { type: String, required: true },
-  is_self_diagnosed: Boolean,
-  diagnosis_method: {
-    type: String,
-    enum: ['Doctor', 'Research', 'Other']
-  },
-  treatments: String,
-  subtype: String,
-  first_symptom_date: String,
-  wants_future_studies: Boolean
-})
+// const diseaseStateSchema = new mongoose.Schema({
+//   condition_name: { type: String, required: true },
+//   is_self_diagnosed: Boolean,
+//   diagnosis_method: {
+//     type: String,
+//     enum: ['Doctor', 'Research', 'Other']
+//   },
+//   subtypes: [String],
+//   meds: [String],
+//   treatments: [String],
+//   first_symptom_date: String,
+//   wants_future_studies: Boolean
+// })
 
 
 
-const medicationSchema = new mongoose.Schema({
-  med_name: { type: String, required: true },
-  verified: { type: Boolean, default: false },
-  related_condition: String
-})
+// const medicationSchema = new mongoose.Schema({
+//   med_name: { type: String, required: true },
+//   verified: { type: Boolean, default: false },
+//   related_condition: String
+// })
 
 const healthDataSchema = new mongoose.Schema({
   user_hash: { type: String, required: true },
   healthDataId: { type: String, required: true, unique: true },
   research_opt_in: { type: Boolean, default: false },
   profile: profileSchema,
-  disease_states: [diseaseStateSchema],
-  medications: [medicationSchema],
+  conditions: { type: [String] },
+  medications: { type: [String] },
+  treatments: { type: [String] },
+  caretaker: { type: [String], enum: ['Kids, Parents', 'Partner', 'Friend', 'Other'] },
   timestamp: { type: Date, default: Date.now }
 })
 

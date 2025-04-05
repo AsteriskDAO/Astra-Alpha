@@ -1,8 +1,8 @@
 const ethers = require('ethers');
-const { serverSideEncrypt } = require('./public/utils/crypto.js');
-const DataLiquidityPoolABI = require("./public/contracts/DataLiquidityPoolLightImplementation.json");
-const TeePoolImplementationABI = require("./public/contracts/TeePoolImplementation.json");
-const DataRegistryImplementationABI = require("./public/contracts/DataRegistryImplementation.json");
+const { serverSideEncrypt } = require('../utils/crypto.js');
+const DataLiquidityPoolABI = require("../contracts/DataLiquidityPoolLightImplementation.json");
+const TeePoolImplementationABI = require("../contracts/TeePoolImplementation.json");
+const DataRegistryImplementationABI = require("../contracts/DataRegistryImplementation.json");
 
 const contractAddress = "0xE317bF090911AF03fEa09c1707Ec370EdFf8C0A8";
 const dataRegistryContractAddress = "0xEA882bb75C54DE9A08bC46b46c396727B4BFe9a5";

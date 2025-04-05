@@ -4,14 +4,37 @@ const userController = require('../controllers/user')
 const { validateTelegramWebApp } = require('../middleware/auth')
 const { validateRequest } = require('../middleware/validation')
 
-// User registration and management
-router.post('/register', validateTelegramWebApp, userController.registerUser)
-router.get('/:userHash', validateTelegramWebApp, userController.getUser)
-router.put('/:userHash/points', validateTelegramWebApp, userController.updatePoints)
-router.put('/:userHash/nickname', 
-  validateTelegramWebApp,
-  validateRequest('updateNickname'),
-  userController.updateNickname
+// Registration
+router.post('/register', 
+  validateTelegramWebApp, 
+  validateRequest('registerUser'), 
+  userController.registerUser
+)
+
+// Get user data
+router.get('/telegram/:telegramId', 
+  validateTelegramWebApp, 
+  userController.getUserByTelegramId
+)
+
+// Update user data (includes both user and health data)
+router.put('/update', 
+  validateTelegramWebApp, 
+  validateRequest('updateUser'), 
+  userController.updateUser
+)
+
+// Get user by hash (for internal use)
+router.get('/:userHash', 
+  validateTelegramWebApp, 
+  userController.getUser
+)
+
+// Update points (for internal use)
+router.put('/:userHash/points', 
+  validateTelegramWebApp, 
+  validateRequest('updatePoints'), 
+  userController.updatePoints
 )
 
 module.exports = router 

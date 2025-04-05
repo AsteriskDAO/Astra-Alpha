@@ -1,46 +1,30 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { RouterView } from 'vue-router'
 import LoadingScreen from './components/LoadingScreen.vue'
 import TelegramProvider from './components/TelegramProvider.vue'
-import { useTelegramStore } from './stores/telegram'
-import { useUserStore } from './stores/user'
-
-const isLoading = ref(true)
-const telegram = useTelegramStore()
-const userStore = useUserStore()
-
-onMounted(async () => {
-  try {
-    // Initialize Telegram WebApp
-    telegram.init()
-    // Initialize with mock data for testing
-    await userStore.fetchUserData('test123')
-  } finally {
-    isLoading.value = false
-  }
-})
 </script>
 
 <template>
-  <v-app>
-    <TelegramProvider>
-      <LoadingScreen :is-loading="isLoading" />
-      <div v-if="!isLoading">
-        <!-- Debug info -->
-        <div class="pa-4">
-          <p>Debug: Router View Below</p>
-          <p>User Data: {{ userStore.userData?.isRegistered }}</p>
-        </div>
-        <router-view />
-      </div>
-    </TelegramProvider>
-  </v-app>
+  <TelegramProvider>
+    <RouterView />
+  </TelegramProvider>
 </template>
 
 <style>
-.v-application {
-  background: white !important;
-  max-width: 100vw;
+@import './styles/shared.css';
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--background);
+  color: var(--text);
+}
+
+#app {
   min-height: 100vh;
 }
 </style>

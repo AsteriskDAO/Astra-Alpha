@@ -1,76 +1,69 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-import { profileSchema } from '../validation/schemas'
-import { ValidationError } from 'yup'
+import { useTelegramStore } from '../stores/telegram'
+import { ethnicities, ageRanges } from '../constants/lists'
+
+import * as yup from 'yup'
 
 const router = useRouter()
 const userStore = useUserStore()
+const telegramStore = useTelegramStore()
 const loading = ref(false)
-const errors = ref<Record<string, string>>({})
+
+// Check if this is initial registration or profile update
+const isRegistering = computed(() => !userStore.userData?.isRegistered)
+
+const caretakerOptions = [
+  { title: 'Kids', value: 'Kids' },
+  { title: 'Parents', value: 'Parents' },
+  { title: 'Partner', value: 'Partner' },
+  { title: 'Friend', value: 'Friend' },
+  { title: 'Other', value: 'Other' }
+]
 
 const form = ref({
   profile: {
-    nickname: userStore.userData?.profile?.nickname || '',
-    age_range: userStore.userData?.profile?.age_range || '25-30',
-    ethnicity: userStore.userData?.profile?.ethnicity || '',
-    location: userStore.userData?.profile?.location || '',
-    is_pregnant: userStore.userData?.profile?.is_pregnant || false
+    nickname: userStore.userData?.healthData.profile.nickname || '',
+    age_range: userStore.userData?.healthData.profile.age_range || '26-35',
+    ethnicity: userStore.userData?.healthData.profile.ethnicity || 'Select your ethnicity',
+    location: userStore.userData?.healthData.profile.location || '',
+    is_pregnant: userStore.userData?.healthData.profile.is_pregnant || '',
+    caretaker_roles: userStore.userData?.healthData.profile.caretaker_roles || []
   },
-  research_opt_in: userStore.userData?.research_opt_in || false,
-  disease_states: [] as Array<{
-    condition_name: string;
-    is_self_diagnosed: boolean;
-    diagnosis_method: string;
-    treatments: string;
-    subtype: string;
-    first_symptom_date: string;
-    wants_future_studies: boolean;
-  }>,
-  medications: [] as Array<{
-    med_name: string;
-    verified: boolean;
-    related_condition: string;
-  }>
+  research_opt_in: userStore.userData?.healthData.research_opt_in || false,
+  disease_states: userStore.userData?.healthData.conditions || []
 })
 
-const ageRanges = [
-  '18-20',
-  '20-25',
-  '25-30',
-  '30-35',
-  '35-40',
-  '40-45',
-  '45-50',
-  '50+'
-]
+const schema = yup.object({
+  profile: yup.object({
+    nickname: yup.string()
+      .required('Nickname is required')
+      .min(2, 'Nickname must be at least 2 characters')
+      .max(30, 'Nickname must be less than 30 characters'),
+    age_range: yup.string().required('Age range is required'),
+    ethnicity: yup.string().required('Ethnicity is required'),
+    location: yup.string().required('Location is required'),
+    is_pregnant: yup.boolean()
+  }),
+  research_opt_in: yup.boolean()
+})
 
-async function validateForm() {
-  try {
-    await profileSchema.validate(form.value, { abortEarly: false })
-    errors.value = {}
-    return true
-  } catch (err) {
-    if (err instanceof ValidationError) {
-      errors.value = err.inner.reduce((acc, error) => {
-        if (error.path) {
-          acc[error.path] = error.message
-        }
-        return acc
-      }, {} as Record<string, string>)
-    }
-    return false
-  }
-}
-
-async function handleSave() {
-  if (!(await validateForm())) return
-
+async function handleSubmit(e: Event) {
+  e.preventDefault()
   loading.value = true
   try {
-    await userStore.updateProfile(form.value.profile, form.value.research_opt_in)
-    router.push('/')
+    await schema.validate(form.value)
+    await userStore.updateUser({
+      nickname: form.value.profile.nickname,
+      healthData: {
+        profile: form.value.profile,
+        research_opt_in: form.value.research_opt_in,
+        conditions: form.value.disease_states
+      }
+    })
+    router.push(isRegistering.value ? '/review-info' : '/dashboard')
   } catch (error) {
     console.error('Failed to save profile:', error)
   } finally {
@@ -80,145 +73,232 @@ async function handleSave() {
 </script>
 
 <template>
-  <div class="profile-form pa-4">
-    <div class="d-flex align-center mb-6">
-      <v-btn 
-        icon="mdi-arrow-left" 
-        variant="text" 
-        @click="router.push('/')"
-        :disabled="loading"
-      />
-      <h1 class="text-h5 font-weight-bold primary-color ml-4">
-        Update your info <span class="primary-color">*</span>
-      </h1>
-    </div>
+  <div class="profile-form screen-container">
+    <div class="back-button" @click="router.back()">← Back</div>
+    
+    <h1 class="title">
+      {{ isRegistering ? "Let's get to know you" : "Update your info" }}
+      <span class="asterisk">*</span>
+    </h1>
 
-    <v-form @submit.prevent="handleSave">
-      <v-text-field
-        v-model="form.profile.nickname"
-        label="Nickname"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['profile.nickname']"
-        :disabled="loading"
-        required
-      />
-
-      <v-select
-        v-model="form.profile.age_range"
-        :items="ageRanges"
-        label="Age Range"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['profile.age_range']"
-        :disabled="loading"
-        required
-      />
-
-      <v-text-field
-        v-model="form.profile.ethnicity"
-        label="Ethnicity"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['profile.ethnicity']"
-        :disabled="loading"
-        required
-      />
-
-      <v-text-field
-        v-model="form.profile.location"
-        label="Location"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['profile.location']"
-        :disabled="loading"
-        required
-      />
-
-      <div class="d-flex align-center justify-space-between mb-2">
-        <div class="text-subtitle-1">Health Conditions</div>
-        <v-btn
-          color="primary"
-          variant="text"
-          to="/health-conditions"
-          class="text-capitalize"
-          :disabled="loading"
-        >
-          edit
-          <v-icon end>mdi-chevron-right</v-icon>
-        </v-btn>
+    <v-form @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <label>Nickname<span class="required">*</span></label>
+        <v-text-field
+          v-model="form.profile.nickname"
+          variant="outlined"
+          placeholder="nickname"
+          class="mb-4"
+          hide-details
+        />
       </div>
-      <v-chip-group column class="mb-4">
-        <v-chip v-for="condition in form.disease_states" :key="condition.condition_name">
-          {{ condition.condition_name }}
-        </v-chip>
-      </v-chip-group>
 
-      <div class="d-flex align-center justify-space-between mb-2">
-        <div class="text-subtitle-1">Medications</div>
-        <v-btn
-          color="primary"
-          variant="text"
-          class="text-capitalize"
-          :disabled="loading"
-        >
-          edit
-          <v-icon end>mdi-chevron-right</v-icon>
-        </v-btn>
+      <div class="form-group">
+        <label>Age Range<span class="required">*</span></label>
+        <v-select
+          v-model="form.profile.age_range"
+          :items="ageRanges"
+          variant="outlined"
+          class="mb-4"
+          hide-details
+        />
       </div>
-      <v-chip-group column class="mb-4">
-        <v-chip v-for="med in form.medications" :key="med.med_name">
-          {{ med.med_name }}
-        </v-chip>
-      </v-chip-group>
 
-      <v-switch
-        v-model="form.profile.is_pregnant"
-        :label="form.profile.is_pregnant ? 'Yes' : 'No'"
-        class="mb-4"
-        :disabled="loading"
-      />
+      <div class="form-group">
+        <label>Ethnicity<span class="required">*</span></label>
+        <v-select
+          v-model="form.profile.ethnicity"
+          :items="ethnicities"
+          variant="outlined"
+          class="mb-4"
+          hide-details
+        />
+      </div>
 
-      <v-switch
-        v-model="form.research_opt_in"
-        label="Opt in to research studies"
-        class="mb-6"
-        :disabled="loading"
-      />
+      <div class="form-group">
+        <label>Location<span class="required">*</span></label>
+        <v-text-field
+          v-model="form.profile.location"
+          variant="outlined"
+          placeholder="Germany"
+          class="mb-4"
+          hide-details
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Health Conditions*</label>
+        <div class="info-display" @click="router.push('/health-conditions')">
+          <span>{{ userStore.userData?.healthData.conditions.length ? 
+            userStore.userData.healthData.conditions.join(', ') : 
+            'None' }}</span>
+          <button type="button" class="edit-btn">
+            edit <span class="arrow">›</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Medications*</label>
+        <div class="info-display" @click="router.push('/medications')">
+          <span>{{ userStore.userData?.healthData.medications.length ? 
+            userStore.userData.healthData.medications.join(', ') : 
+            'None' }}</span>
+          <button type="button" class="edit-btn">
+            edit <span class="arrow">›</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Pregnant (optional)</label>
+        <v-select
+          v-model="form.profile.is_pregnant"
+          :items="[
+            { title: 'Choose an option', value: '', disabled: true },
+            { title: 'Yes', value: true },
+            { title: 'No', value: false }
+          ]"
+          item-title="title"
+          item-value="value"
+          variant="outlined"
+          class="mb-4"
+          hide-details
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Are you a caretaker (optional)</label>
+        <v-select
+          v-model="form.profile.caretaker_roles"
+          :items="caretakerOptions"
+          item-title="title"
+          item-value="value"
+          variant="outlined"
+          multiple
+          chips
+          closable-chips
+          class="mb-4"
+          hide-details
+        />
+      </div>
 
       <v-btn
         type="submit"
+        :loading="loading"
         block
         color="primary"
-        size="large"
-        class="text-capitalize"
-        :loading="loading"
-        :disabled="loading"
+        class="mt-4"
       >
-        Save
+        {{ loading ? 'Saving...' : 'Save' }}
       </v-btn>
     </v-form>
-
-    <v-overlay
-      :model-value="loading"
-      class="align-center justify-center"
-    >
-      <v-progress-circular
-        color="primary"
-        indeterminate
-        size="64"
-      />
-    </v-overlay>
   </div>
 </template>
 
 <style scoped>
 .profile-form {
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 20px;
 }
 
-.primary-color {
-  color: #FF01B4 !important;
+.back-button {
+  margin-bottom: 20px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.title {
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+.asterisk {
+  color: var(--primary);
+}
+
+.info-display {
+  background: var(--gray);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.arrow {
+  font-size: 18px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.required {
+  color: var(--primary);
+  margin-left: 4px;
+}
+
+
+/* Override Vuetify styles */
+:deep(.v-field) {
+  border-radius: 8px !important;
+  background: var(--gray) !important;
+  border: none !important;
+  min-height: 48px !important;
+}
+
+:deep(.v-field__outline) {
+  display: none !important;
+}
+
+:deep(.v-field__input) {
+  padding: 12px 16px !important;
+  min-height: unset !important;
+}
+
+:deep(.v-text-field input) {
+  font-size: 16px !important;
+}
+
+:deep(.v-select__content) {
+  background: var(--gray);
+  border-radius: 8px;
+}
+
+:deep(.v-chip) {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+:deep(.v-chip__close) {
+  color: white !important;
+}
+
+:deep(.v-btn) {
+  font-size: 16px;
+  padding: 16px;
+  border-radius: 8px;
 }
 </style> 

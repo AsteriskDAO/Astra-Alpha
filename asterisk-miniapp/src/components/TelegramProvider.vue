@@ -1,11 +1,13 @@
+<script lang="ts">
+export default {
+  name: 'TelegramProvider'
+}
+</script>
+
 <script setup lang="ts">
 import { useTelegramStore } from '../stores/telegram'
 
 const telegram = useTelegramStore()
-
-defineOptions({
-  name: 'TelegramProvider'
-})
 </script>
 
 <template>

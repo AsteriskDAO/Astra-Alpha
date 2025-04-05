@@ -2,19 +2,24 @@
 // import { useTelegramStore } from '../stores/telegram'
 import { useUserStore } from '../stores/user'
 import { useRouter } from 'vue-router'
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import SignupScreen from './SignupScreen.vue'
 
 // const telegram = useTelegramStore()
 const router = useRouter()
 const userStore = useUserStore()
+const showContent = ref(false)
 
 onMounted(() => {
-  console.log('UserDashboard mounted')
-  console.log('User data:', userStore.userData)
+  setTimeout(() => {
+    showContent.value = true
+  }, 100)
 })
 
-const showSignup = computed(() => !userStore.userData?.isRegistered)
+const nickname = computed(() => userStore.userData?.nickname || 'Test User')
+const points = computed(() => userStore.userData?.points || 0)
+const checkIns = computed(() => userStore.userData?.checkIns || 0)
+const conditions = computed(() => userStore.userData?.healthData.conditions.length || 0)
 
 function goToProfile() {
   console.log('Navigating to profile')
@@ -23,98 +28,121 @@ function goToProfile() {
 </script>
 
 <template>
-  <div class="dashboard-container">
-    <!-- Debug info -->
-  <div class="pa-4">
-    <p>Debug: UserDashboard Component</p>
-    <p>Show Signup: {{ showSignup }}</p>
-    <p>User Data: {{ userStore.userData }}</p>
-  </div>
-    <SignupScreen v-if="showSignup" />
-    
-    <div v-else class="dashboard pa-4">
-      <!-- Header -->
-      <div class="d-flex align-center justify-space-between mb-6">
-        <div class="welcome">
-          <h1 class="text-h4 font-weight-bold primary-color">
-            Welcome,
-          </h1>
-          <h2 class="text-h5">
-            {{ userStore.userData?.profile?.nickname || 'Test User' }}
-            <span class="primary-color">*</span>
-          </h2>
+  <div class="dashboard screen-container" :class="{ 'show': showContent }">
+    <div class="header">
+      <h1 class="title">
+        Welcome back
+        <span class="asterisk">*</span>
+      </h1>
+      <h2 class="subtitle">
+        {{ nickname }}
+      </h2>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-value">{{ points }}</div>
+          <div class="stat-label">points</div>
         </div>
       </div>
 
-      <!-- Stats -->
-      <h3 class="text-subtitle-1 mb-3">Check your stats</h3>
-      <v-row class="mb-6">
-        <v-col cols="4">
-          <v-card class="stat-card" color="secondary" flat>
-            <div class="text-center pa-4 text-white">
-              <div class="text-h4">{{ userStore.userData?.points || 0 }}</div>
-              <div class="text-caption">points</div>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="4">
-          <v-card class="stat-card" color="secondary" flat>
-            <div class="text-center pa-4 text-white">
-              <div class="text-h4">{{ userStore.userData?.checkIns || 0 }}</div>
-              <div class="text-caption">check-ins</div>
-            </div>
-          </v-card>
-        </v-col>
-        <v-col cols="4">
-          <v-card class="stat-card" color="secondary" flat>
-            <div class="text-center pa-4 text-white">
-              <div class="text-h4">{{ userStore.userData?.disease_states?.length || 0 }}</div>
-              <div class="text-caption">conditions</div>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-value">{{ checkIns }}</div>
+          <div class="stat-label">check-ins</div>
+        </div>
+      </div>
 
-      <!-- Coming Soon -->
-      <h3 class="text-subtitle-1 mb-3">Coming soon</h3>
-      <v-card class="coming-soon-card mb-3" flat>
-        <v-card-title>Trends</v-card-title>
-      </v-card>
-      <v-card class="coming-soon-card mb-6" flat>
-        <v-card-title>Open Calls</v-card-title>
-      </v-card>
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-value">{{ conditions }}</div>
+          <div class="stat-label">conditions</div>
+        </div>
+      </div>
+    </div>
 
-      <!-- Update Profile Button -->
-      <v-btn
-        block
-        color="primary"
-        size="large"
-        class="text-capitalize"
-        @click="goToProfile"
-      >
-        Update your profile
-        <v-icon end>mdi-chevron-right</v-icon>
-      </v-btn>
+    <div class="actions">
+      <button class="button primary" @click="router.push('/checkin')">
+        Daily Check-in
+      </button>
+      <button class="button secondary" @click="goToProfile">
+        Update Profile
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
 .dashboard {
-  max-width: 600px;
-  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
 }
 
-.primary-color {
-  color: #FF01B4 !important;
+.dashboard.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.header {
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards 0.3s;
+}
+
+.asterisk {
+  color: var(--primary);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUp 0.5s ease forwards 0.5s;
 }
 
 .stat-card {
+  background: var(--gray);
   border-radius: 12px;
+  padding: 16px;
+  text-align: center;
 }
 
-.coming-soon-card {
-  background-color: #F5F5F5 !important;
-  border-radius: 12px;
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards 0.7s;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }
 </style> 

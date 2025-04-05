@@ -1,18 +1,25 @@
 const validateTelegramWebApp = (req, res, next) => {
-  const initData = req.headers['x-telegram-init-data']
-  if (!initData) {
-    return res.status(401).json({ error: 'No Telegram WebApp data' })
-  }
-
   try {
-    const data = JSON.parse(decodeURIComponent(initData))
-    req.user = {
-      id: data.user.id.toString(),
-      initData: data
+    // Get telegram init data from header
+    const initData = req.headers['x-telegram-init-data']
+    if (!initData) {
+      return res.status(401).json({ error: 'No Telegram init data provided' })
     }
+
+    // Validate init data hash
+    // TODO: Add proper telegram hash validation
+    // For now, just check if data exists
+    if (!initData.includes('user')) {
+      return res.status(401).json({ error: 'Invalid Telegram init data' })
+    }
+
+    // Parse user data and add to request
+    const userData = JSON.parse(decodeURIComponent(initData))
+    req.user = userData.user
     next()
   } catch (error) {
-    res.status(401).json({ error: 'Invalid WebApp data' })
+    console.error('Auth validation failed:', error)
+    res.status(401).json({ error: 'Invalid authentication' })
   }
 }
 

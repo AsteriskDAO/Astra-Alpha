@@ -4,19 +4,19 @@
 
 const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
+const { v4: uuidv4 } = require('uuid')
 
 class AkaveService {
   constructor() {
-    // Will be configured with Akave's S3-compatible endpoint and credentials
-    this.s3Client = new S3Client({
-      region: process.env.AKAVE_REGION,
-      endpoint: process.env.AKAVE_ENDPOINT, // Akave's S3-compatible endpoint
-      credentials: {
-        accessKeyId: process.env.AKAVE_ACCESS_KEY,
-        secretAccessKey: process.env.AKAVE_SECRET_KEY
-      }
-    })
-    this.bucketName = process.env.AKAVE_BUCKET_NAME
+    // TODO: S3 setup will go here later
+    // this.s3Client = new S3Client({
+    //   region: process.env.AWS_REGION,
+    //   credentials: {
+    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    //   }
+    // });
+    // this.bucketName = process.env.AWS_BUCKET_NAME;
   }
 
   // Upload data to Akave storage
@@ -127,6 +127,34 @@ class AkaveService {
     } catch (error) {
       console.error('Error checking user existence:', error);
       throw new Error('Failed to check user registration');
+    }
+  }
+
+  // TODO: Potentially remove everything above this
+
+  /**
+   * Store data to O3 (mock implementation for testing)
+   * @param {string} userId - User's hashed ID
+   * @param {Object} data - Data to store
+   * @returns {Promise<{key: string}>} - Storage key/location
+   */
+  async storeToO3(userId, data) {
+    try {
+      // Generate a mock key
+      const key = `${userId}/${uuidv4()}.json`;
+      
+      // Log the data for testing
+      console.log('Mock O3 Storage:', {
+        key,
+        userId,
+        data,
+        timestamp: new Date().toISOString()
+      });
+      
+      return { key };
+    } catch (error) {
+      console.error('Failed to store data to O3:', error);
+      throw new Error('Failed to store data');
     }
   }
 }

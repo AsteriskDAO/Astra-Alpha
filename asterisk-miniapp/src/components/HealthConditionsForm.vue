@@ -4,6 +4,11 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { healthConditionSchema } from '../validation/schemas'
 import { ValidationError } from 'yup'
+import { 
+  diagnosisMethods, 
+  treatmentOptions, 
+  symptomDateRanges 
+} from '../constants/lists'
 import type { DiseaseState } from '../stores/user'
 
 const router = useRouter()
@@ -20,17 +25,6 @@ const form = ref<DiseaseState>({
   first_symptom_date: '',
   wants_future_studies: false
 })
-
-const diagnosisMethods = ['Doctor', 'Research', 'Other']
-const treatmentOptions = ['CBT', 'Medication', 'Lifestyle Changes', 'Other']
-const symptomDateRanges = [
-  '0-5 years old',
-  '6-10 years old',
-  '11-15 years old',
-  '16-20 years old',
-  '21-25 years old',
-  '26+ years old'
-]
 
 async function validateForm() {
   try {

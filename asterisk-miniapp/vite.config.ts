@@ -1,7 +1,18 @@
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()]
+  plugins: [vue()],
+  server: {
+    host: true, // Needed for the Docker Container port mapping to work
+    strictPort: true,
+    port: 5173,
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.ngrok-free.app', // Allow all ngrok-free.app subdomains
+      '.ngrok.io'
+    ]
+  }
 })

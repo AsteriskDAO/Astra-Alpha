@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const { createUserHash } = require('../utils/hash')
 const { v4: uuidv4 } = require('uuid')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 const userSchema = new mongoose.Schema({
   user_id: { type: String, required: true, unique: true },
@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   proof_of_passport_id: String,
   name: String,
   nickname: String,
+  checkIns: { type: Number, default: 0 },
   points: { type: Number, default: 0 },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
