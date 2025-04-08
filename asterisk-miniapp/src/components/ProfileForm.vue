@@ -208,6 +208,7 @@ async function handleSubmit(e: Event) {
 }
 
 .title {
+  font-family: var(--font-display);
   font-size: 24px;
   margin-bottom: 24px;
 }
@@ -249,6 +250,7 @@ async function handleSubmit(e: Event) {
 }
 
 label {
+  font-family: var(--font-body);
   display: block;
   margin-bottom: 8px;
   color: var(--text);

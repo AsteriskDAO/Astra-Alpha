@@ -4,12 +4,17 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const showContent = ref(false)
+const tgHandle = ref('');
+
 
 onMounted(() => {
+  tgHandle.value = window.Telegram.WebApp.initData.user?.username;
   setTimeout(() => {
     showContent.value = true
   }, 100)
 })
+
+
 
 function handleContinue() {
   router.push('/profile')
@@ -25,7 +30,7 @@ function handleContinue() {
       <div class="asterisk-logo">*</div>
       <div class="nickname">
         <label>Nickname</label>
-        <span>@tghandle</span>
+        <span>{{ tgHandle }}</span>
       </div>
     </div>
 
