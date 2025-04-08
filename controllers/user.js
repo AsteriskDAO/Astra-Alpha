@@ -7,6 +7,8 @@ const cache = require('../services/cache')
 
 class UserController {
   async registerUser(req, res) {
+
+    console.log('registerUser', req.body)
     // TODO: update this to use the new user schema
     try {
       const { telegramId, ...userData } = req.body
@@ -15,10 +17,7 @@ class UserController {
         ...userData
       })
       res.json({
-        user_hash: user.user_hash,
-        nickname: user.nickname,
-        checkIns: user.checkIns,
-        points: user.points
+        user: user
       })
     } catch (error) {
       console.error('Failed to register user:', error)
@@ -33,8 +32,7 @@ class UserController {
         return res.status(404).json({ error: 'User not found' })
       }
       res.json({
-        nickname: user.nickname,
-        points: user.points
+        user: user
       })
     } catch (error) {
       console.error('Failed to get user:', error)
@@ -62,13 +60,19 @@ class UserController {
   async getUserByTelegramId(req, res) {
     try {
       const user = await User.findOne({ telegram_id: req.params.telegramId })
+      
+      // If user doesn't exist, return a specific response
       if (!user) {
-        return res.status(404).json({ error: 'User not found' })
+        return res.json({
+          isRegistered: false,
+          message: 'User not found'
+        })
       }
+
+      // If user exists, return their data
       res.json({
-        user_hash: user.user_hash,
-        nickname: user.nickname,
-        points: user.points
+        isRegistered: true,
+        user: user
       })
     } catch (error) {
       console.error('Failed to get user:', error)

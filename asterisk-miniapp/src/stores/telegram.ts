@@ -2,25 +2,30 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { WebApp } from '@twa-dev/types'
 
-export const useTelegramStore = defineStore('telegram', () => {
-  const tg = window.Telegram.WebApp as WebApp
-  const userInfo = ref<WebApp['initDataUnsafe']['user'] | null>(null)
-  const isReady = ref(false)
-
-  function init() {
-    tg.ready()
-    tg.expand()
+export const useTelegramStore = defineStore('telegram', {
+  state: () => {
+    // Try to get stored data on initialization
+    const storedInfo = sessionStorage.getItem('telegram_user')
     
-    if (tg.initDataUnsafe?.user) {
-      userInfo.value = tg.initDataUnsafe.user
+    return {
+      userInfo: storedInfo ? JSON.parse(storedInfo) : null,
+      isReady: false
     }
-    isReady.value = true
-  }
+  },
 
-  return {
-    tg,
-    userInfo,
-    isReady,
-    init
+  actions: {
+    async init() {
+      if (!this.isReady) {
+        const tg = window.Telegram.WebApp
+        if (tg.initDataUnsafe?.user) {
+          this.userInfo = tg.initDataUnsafe.user
+          // Store in session
+          sessionStorage.setItem('telegram_user', JSON.stringify(this.userInfo))
+          console.log('userInfo', this.userInfo)
+        }
+        this.isReady = true
+      }
+      return this.userInfo
+    }
   }
 })

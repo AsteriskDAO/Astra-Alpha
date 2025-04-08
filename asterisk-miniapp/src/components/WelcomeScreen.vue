@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user'
+import { useTelegramStore } from '../stores/telegram'
+
+const userStore = useUserStore()
+const telegramStore = useTelegramStore()
 
 const router = useRouter()
 const showContent = ref(false)
@@ -8,7 +13,7 @@ const tgHandle = ref('');
 
 
 onMounted(() => {
-  tgHandle.value = window.Telegram.WebApp.initData.user?.username;
+  tgHandle.value = telegramStore.userInfo?.username || ''
   setTimeout(() => {
     showContent.value = true
   }, 100)
@@ -28,11 +33,16 @@ function handleContinue() {
 
     <div class="welcome-content">
       <div class="asterisk-logo">*</div>
-      <div class="nickname">
+      <div v-if="userStore.userData?.nickname" class="nickname">
         <label>Nickname</label>
+        <span>{{ userStore.userData?.nickname }}</span>
+      </div>
+      <div v-if="telegramStore.userInfo?.username" class="nickname">
+        <label>Telegram Handle</label>
         <span>{{ tgHandle }}</span>
       </div>
     </div>
+    
 
     <div class="actions">
       <button class="button primary" @click="handleContinue">

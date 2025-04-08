@@ -1,6 +1,27 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
+const API_URL = 'http://localhost:3000'
+
+// Create axios instance with default headers
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+// Add interceptor to add Telegram auth headers
+api.interceptors.request.use(config => {
+  const tg = window.Telegram.WebApp
+  
+  if (tg.initData) {
+    config.headers['x-telegram-init-data'] = tg.initData
+  }
+  
+  return config
+})
+
 interface Profile {
   age_range: string;
   ethnicity: string;
@@ -10,7 +31,7 @@ interface Profile {
 
 interface HealthData {
   profile: Profile;
-  caretaker: string;
+  caretaker: string[];
   research_opt_in: boolean;
   conditions: string[];
   medications: string[];
@@ -28,63 +49,31 @@ interface UserData {
 }
 
 export const useUserStore = defineStore('user', {
-  state: () => ({
-    userData: null as UserData | null,
-    loading: false,
-    error: null as string | null
-  }),
+  state: () => {
+    // Try to get stored data on initialization
+    const storedData = sessionStorage.getItem('user_data')
+    const storedTelegramId = sessionStorage.getItem('telegram_id')
+    
+    return {
+      userData: storedData ? JSON.parse(storedData) : null,
+      telegramId: storedTelegramId || null,
+      loading: false,
+      error: null as string | null
+    }
+  },
 
   actions: {
-    async registerUser(telegramId: string, userData: Partial<UserData>) {
-      try {
-        this.loading = true
-        const response = await axios.post('/api/users/register', {
-          telegramId,
-          nickname: userData.nickname,
-          healthData: {
-            profile: userData.healthData?.profile,
-            research_opt_in: userData.healthData?.research_opt_in,
-            conditions: [],
-            medications: [],
-            treatments: [],
-            caretaker: ''
-          }
-        })
-        this.userData = response.data
-        return response.data
-      } catch (error) {
-        this.error = 'Failed to register user'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
-    // Single update action for all user data
-    async updateUser(updates: Partial<UserData>) {
-      try {
-        this.loading = true
-        const response = await axios.put('/api/users/update', updates)
-        if (this.userData) {
-          this.userData = {
-            ...this.userData,
-            ...response.data
-          }
-        }
-        return response.data
-      } catch (error) {
-        this.error = 'Failed to update user data'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
     async fetchUserData(telegramId: string) {
       try {
         this.loading = true
-        const response = await axios.get(`/api/users/telegram/${telegramId}`)
+        const response = await api.get(`/api/users/telegram/${telegramId}`)
         this.userData = response.data
+        this.telegramId = telegramId
+        
+        // Store in session
+        sessionStorage.setItem('user_data', JSON.stringify(this.userData))
+        sessionStorage.setItem('telegram_id', telegramId)
+        
         return this.userData
       } catch (error) {
         this.error = 'Failed to fetch user data'
@@ -94,5 +83,56 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    async registerUser(telegramId: string, userData: Partial<UserData>) {
+      try {
+        this.loading = true
+        const response = await api.post('/api/users/register', {
+          telegramId,
+          ...userData
+        })
+        this.userData = response.data
+        
+        // Store in session
+        sessionStorage.setItem('user_data', JSON.stringify(this.userData))
+        sessionStorage.setItem('telegram_id', telegramId)
+        
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to register user'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async updateUser(updates: Partial<UserData>) {
+      try {
+        this.loading = true
+        const response = await api.put('/api/users/update', {
+          telegramId: this.telegramId,
+          ...updates,
+          healthData: {
+            ...updates.healthData,
+            medications: this.userData?.healthData.medications || [],
+            treatments: this.userData?.healthData.treatments || []
+          }
+        })
+        
+        if (this.userData) {
+          this.userData = {
+            ...this.userData,
+            ...response.data
+          }
+          // Update session storage
+          sessionStorage.setItem('user_data', JSON.stringify(this.userData))
+        }
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to update user data'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    }
   }
 }) 

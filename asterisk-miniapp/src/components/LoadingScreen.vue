@@ -27,17 +27,19 @@ onMounted(async () => {
   // Show loading screen first
   showContent.value = true
 
-  
-
+  await telegramStore.init()
+  tgHandle.value = telegramStore.userInfo?.username || ''
+  tgImage.value = telegramStore.userInfo?.photo_url || ''
+  console.log('telegramStore.userInfo', telegramStore.userInfo)
 
   // Wait a moment before checking auth
   await new Promise(resolve => setTimeout(resolve, 2000))
 
   try {
     // Initialize Telegram WebApp
-    await telegramStore.init()
-    tgHandle.value = telegramStore.userInfo?.username
-    tgImage.value = telegramStore.userInfo?.photo_url
+    
+
+    
     
     // Try to fetch user data if we have telegram ID
     if (telegramStore.userInfo?.id) {

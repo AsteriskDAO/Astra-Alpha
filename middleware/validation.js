@@ -27,7 +27,7 @@ const schemas = {
       conditions: Joi.array().items(Joi.string()),
       medications: Joi.array().items(Joi.string()),
       treatments: Joi.array().items(Joi.string()),
-      caretaker: Joi.string()
+      caretaker: Joi.array().items(Joi.string())
     })
   }),
 
@@ -46,7 +46,7 @@ const schemas = {
         conditions: Joi.array().items(Joi.string()),
         medications: Joi.array().items(Joi.string()),
         treatments: Joi.array().items(Joi.string()),
-        caretaker: Joi.string()
+        caretaker: Joi.array().items(Joi.string())
       })
     }).required()
   }),
