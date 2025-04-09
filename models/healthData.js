@@ -34,15 +34,22 @@ const profileSchema = new mongoose.Schema({
 
 const healthDataSchema = new mongoose.Schema({
   user_hash: { type: String, required: true },
-  healthDataId: { type: String, required: true, unique: true },
   research_opt_in: { type: Boolean, default: false },
   profile: profileSchema,
   conditions: { type: [String] },
   medications: { type: [String] },
   treatments: { type: [String] },
-  caretaker: { type: [String], enum: ['Kids, Parents', 'Partner', 'Friend', 'Other'] },
+  caretaker: { type: [String] },
   timestamp: { type: Date, default: Date.now }
 })
+
+// createHealthData function
+healthDataSchema.statics.createHealthData = async function(healthData) {
+  const newHealthData = new this(healthData)
+  return newHealthData.save()
+}
+
+
 
 module.exports = mongoose.model('HealthData', healthDataSchema)
 

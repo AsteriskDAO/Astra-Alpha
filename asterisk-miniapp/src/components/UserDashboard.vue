@@ -3,7 +3,6 @@
 import { useUserStore } from '../stores/user'
 import { useRouter } from 'vue-router'
 import { ref, computed, onMounted } from 'vue'
-import SignupScreen from './SignupScreen.vue'
 
 // const telegram = useTelegramStore()
 const router = useRouter()
@@ -16,10 +15,11 @@ onMounted(() => {
   }, 100)
 })
 
-const nickname = computed(() => userStore.userData?.nickname || 'Test User')
+const nickname = computed(() => userStore.userData?.nickname || 'User')
+const averageLogins = computed(() => 12) // TODO: Implement this
 const points = computed(() => userStore.userData?.points || 0)
 const checkIns = computed(() => userStore.userData?.checkIns || 0)
-const conditions = computed(() => userStore.userData?.healthData.conditions.length || 0)
+const conditions = computed(() => userStore.userData?.healthData?.conditions?.length || 0)
 
 function goToProfile() {
   console.log('Navigating to profile')
@@ -30,51 +30,51 @@ function goToProfile() {
 <template>
   <div class="dashboard screen-container" :class="{ 'show': showContent }">
     <div class="header">
-      <h1 class="title">
-        Welcome back
-        <span class="asterisk">*</span>
+      <h1 class="welcome">
+        Welcome,
+        <div class="nickname">{{ nickname }}<span class="asterisk">*</span></div>
       </h1>
-      <h2 class="subtitle">
-        {{ nickname }}
-      </h2>
     </div>
 
-    <div class="stats">
-      <div class="stat-card">
-        <div class="stat-content">
+    <div class="section">
+      <h2 class="section-title">Check your stats</h2>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value">{{ averageLogins }}</div>
+          <div class="stat-label">average logins</div>
+        </div>
+
+        <div class="stat-card">
           <div class="stat-value">{{ points }}</div>
           <div class="stat-label">points</div>
         </div>
       </div>
+    </div>
 
-      <div class="stat-card">
-        <div class="stat-content">
-          <div class="stat-value">{{ checkIns }}</div>
-          <div class="stat-label">check-ins</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-content">
-          <div class="stat-value">{{ conditions }}</div>
-          <div class="stat-label">conditions</div>
-        </div>
+    <div class="section">
+      <h2 class="section-title">Coming soon</h2>
+      <div class="feature-buttons">
+        <button class="feature-btn trends-btn">
+          Trends
+          <span class="arrow">›</span>
+        </button>
+        <button class="feature-btn calls-btn">
+          Open Calls
+          <span class="arrow">›</span>
+        </button>
       </div>
     </div>
 
-    <div class="actions">
-      <button class="button primary" @click="router.push('/checkin')">
-        Daily Check-in
-      </button>
-      <button class="button secondary" @click="goToProfile">
-        Update Profile
-      </button>
-    </div>
+    <button class="update-profile-btn" @click="goToProfile">
+      Update your profile
+      <span class="arrow">›</span>
+    </button>
   </div>
 </template>
 
 <style scoped>
 .dashboard {
+  padding: 20px;
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.5s ease;
@@ -86,63 +86,120 @@ function goToProfile() {
 }
 
 .header {
-  margin-bottom: 32px;
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards 0.3s;
+  margin-bottom: 40px;
+}
+
+.welcome {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--primary);
+  font-weight: 400;
+}
+
+.nickname {
+  color: var(--text);
+  font-size: 24px;
+  margin-top: 4px;
+  text-align: center;
 }
 
 .asterisk {
   color: var(--primary);
+  margin-left: 4px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 16px;
+  opacity: 0.7;
 }
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-bottom: 32px;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: slideUp 0.5s ease forwards 0.5s;
 }
 
 .stat-card {
-  background: var(--gray);
+  background: var(--light-blue);
   border-radius: 12px;
-  padding: 16px;
+  padding: 20px;
   text-align: center;
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: bold;
-  color: var(--primary);
+  color: white;
   margin-bottom: 4px;
 }
 
 .stat-label {
   font-size: 14px;
-  color: var(--text);
+  color: white;
+  opacity: 0.8;
 }
 
-.actions {
-  margin-top: auto;
+.feature-buttons {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards 0.7s;
 }
 
-@keyframes slideUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.feature-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  /* background: var(--gray); */
+  color: white;
+  font-size: 16px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+.trends-btn {
+  background-image: linear-gradient(90deg, #9F9F9F 40.96%, rgba(159, 159, 159, 0) 100%), url('../assets/trends-btn.png');
+  background-size: cover;
+  background-position: center;
+
+}
+
+.calls-btn {
+  background-image: linear-gradient(90deg, #9F9F9F 40.96%, rgba(159, 159, 159, 0) 100%), url('../assets/calls-btn.png');
+  background-size: cover;
+}
+
+
+
+
+
+
+.arrow {
+  font-size: 24px;
+  opacity: 0.8;
+}
+
+.update-profile-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  cursor: pointer;
 }
 </style> 

@@ -9,16 +9,27 @@ class UserController {
   async registerUser(req, res) {
 
     console.log('registerUser', req.body)
-    // TODO: update this to use the new user schema
     try {
       const { telegramId, ...userData } = req.body
       const user = await User.createUser({
         telegram_id: telegramId,
         ...userData
       })
-      res.json({
-        user: user
+
+      // Store Health Data Locally
+      const healthData = await HealthData.createHealthData({
+        user_hash: user.user_hash,
+        ...userData.healthData
       })
+
+      const response = {
+        ...user._doc,
+        isRegistered: true,
+        healthData: healthData
+      }
+      console.log('user')
+      console.log(response)
+      res.json(response)
     } catch (error) {
       console.error('Failed to register user:', error)
       res.status(500).json({ error: 'Failed to register user' })
@@ -31,9 +42,13 @@ class UserController {
       if (!user) {
         return res.status(404).json({ error: 'User not found' })
       }
-      res.json({
-        user: user
-      })
+      const healthData = await HealthData.findOne({ user_hash: user.user_hash })
+      const response = {
+        ...user._doc,
+        isRegistered: true,
+        healthData: healthData
+      }
+      res.json(response)
     } catch (error) {
       console.error('Failed to get user:', error)
       res.status(500).json({ error: 'Failed to get user' })
@@ -69,11 +84,14 @@ class UserController {
         })
       }
 
-      // If user exists, return their data
-      res.json({
+      const healthData = await HealthData.findOne({ user_hash: user.user_hash })
+      const response = {
+        ...user._doc,
         isRegistered: true,
-        user: user
-      })
+        healthData: healthData
+      }
+      // If user exists, return their data
+      res.json(response)
     } catch (error) {
       console.error('Failed to get user:', error)
       res.status(500).json({ error: 'Failed to get user' })
@@ -82,7 +100,7 @@ class UserController {
 
   async updateUser(req, res) {
     try {
-      const { userData } = req.body
+      const userData = req.body
       const healthData = userData.healthData
 
       // Update user in MongoDB
@@ -97,27 +115,35 @@ class UserController {
         { new: true }
       );
 
+      const updatedHealthData = await HealthData.findOneAndUpdate(
+        { user_hash: user.user_hash }, 
+        { $set: healthData }, 
+        { new: true }
+      )
+
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
 
       // Store to O3
-      const akaveResult = await akave.storeToO3(user.user_hash, {
-        healthData
-      });
+      // const akaveResult = await akave.storeToO3(user.user_hash, {
+      //   healthData
+      // });
 
       // Invalidate cache
-      await cache.del(cache.generateKey('user', user.user_hash));
-      await cache.del(cache.generateKey('health', user.user_hash));
+      // await cache.del(cache.generateKey('user', user.user_hash));
+      // await cache.del(cache.generateKey('health', user.user_hash));
+
+      const response = {
+        ...user._doc,
+        isRegistered: true,
+        healthData: updatedHealthData
+      }
+      console.log('user')
+      console.log(response)
 
       // Return combined data
-      res.json({
-        nickname: user.nickname,
-        points: user.points,
-        checkIns: user.checkIns,
-        healthData: updatedHealthData.toObject(),
-        akaveKey: akaveResult.key
-      });
+      res.json(response);
     } catch (error) {
       console.error('Failed to update user:', error);
       res.status(500).json({ error: 'Failed to update user' });

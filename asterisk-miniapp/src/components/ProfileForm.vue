@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useTelegramStore } from '../stores/telegram'
@@ -30,7 +30,7 @@ const caretakerOptions = [
 const form = ref({
   profile: {
     nickname: userStore.userData?.nickname || '',
-    age_range: userStore.userData?.healthData?.profile?.age_range || '26-35',
+    age_range: userStore.userData?.healthData?.profile?.age_range || '25-30',
     ethnicity: userStore.userData?.healthData?.profile?.ethnicity || 'Select your ethnicity',
     location: userStore.userData?.healthData?.profile?.location || '',
     is_pregnant: userStore.userData?.healthData?.profile?.is_pregnant || false,
@@ -40,6 +40,19 @@ const form = ref({
   disease_states: userStore.userData?.healthData?.conditions || [],
   medications: userStore.userData?.healthData?.medications || []
 })
+
+// Load saved form data if exists
+onMounted(() => {
+  if (userStore.tempFormData) {
+    form.value = userStore.tempFormData
+  }
+})
+
+// Save form data before navigating away
+function handleNavigate(path: string) {
+  userStore.saveTempFormData(form.value)
+  router.push(path)
+}
 
 const schema = yup.object({
   profile: yup.object({
@@ -62,10 +75,7 @@ async function handleSubmit(e: Event) {
   e.preventDefault()
   loading.value = true
   try {
-    // const tgId = telegramStore.userInfo.id
-    // test data
-    const tgId = '1234567890'
-    console.log('form', form.value)
+    const tgId = telegramStore.userInfo.id
     await schema.validate(form.value)
 
     const userData: Partial<UserData> = {
@@ -86,10 +96,13 @@ async function handleSubmit(e: Event) {
 
     if (isRegistering.value) {
       await userStore.registerUser(tgId, userData)
+      userStore.clearTempFormData()
+      router.push('/review-info')
     } else {
       await userStore.updateUser(userData)
+      userStore.clearTempFormData()
+      router.push('/dashboard')
     }
-    router.push(isRegistering.value ? '/review-info' : '/dashboard')
   } catch (error) {
     console.error('Failed to save profile:', error)
   } finally {
@@ -106,14 +119,6 @@ async function handleSubmit(e: Event) {
       {{ isRegistering ? "Let's get to know you" : "Update your info" }}
       <span class="asterisk">*</span>
     </h1>
-
-    <div>
-      Test Data
-      {{ userStore.userData }}
-      {{ telegramStore.userInfo }}
-    </div>
-    <br>
-    <br>
 
     <v-form @submit.prevent="handleSubmit">
       <div class="form-group">
@@ -162,7 +167,7 @@ async function handleSubmit(e: Event) {
 
       <div class="form-group">
         <label>Health Conditions*</label>
-        <div class="info-display" @click="router.push('/health-conditions')">
+        <div class="info-display" @click="handleNavigate('/health-conditions')">
           <span>{{ userStore.userData?.healthData?.conditions?.length ? 
             userStore.userData.healthData.conditions.join(', ') : 
             'None' }}</span>
@@ -174,7 +179,7 @@ async function handleSubmit(e: Event) {
 
       <div class="form-group">
         <label>Medications*</label>
-        <div class="info-display" @click="router.push('/medications')">
+        <div class="info-display" @click="handleNavigate('/medications')">
           <span>{{ userStore.userData?.healthData?.medications?.length ? 
             userStore.userData.healthData.medications.join(', ') : 
             'None' }}</span>

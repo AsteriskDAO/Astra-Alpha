@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import UserDashboard from './components/UserDashboard.vue'
 import ProfileForm from './components/ProfileForm.vue'
 import HealthConditionsForm from './components/HealthConditionsForm.vue'
-import SignupScreen from './components/SignupScreen.vue'
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ReviewInfoScreen from './components/ReviewInfoScreen.vue'
 import { useUserStore } from './stores/user'
@@ -16,10 +15,6 @@ const router = createRouter({
       path: '/',
       component: () => LoadingScreen
     },
-    // {
-    //   path: '/signup',
-    //   component: () => SignupScreen
-    // },
     {
       path: '/welcome',
       component: () => WelcomeScreen

@@ -43,26 +43,36 @@ interface UserData {
   nickname: string;
   points: number;
   checkIns: number;
-  // healthData schema
   healthData: HealthData;
   timestamp: string;
 }
 
 export const useUserStore = defineStore('user', {
   state: () => {
-    // Try to get stored data on initialization
     const storedData = sessionStorage.getItem('user_data')
     const storedTelegramId = sessionStorage.getItem('telegram_id')
+    const storedFormData = sessionStorage.getItem('temp_form_data')
     
     return {
       userData: storedData ? JSON.parse(storedData) : null,
       telegramId: storedTelegramId || null,
+      tempFormData: storedFormData ? JSON.parse(storedFormData) : null,
       loading: false,
       error: null as string | null
     }
   },
 
   actions: {
+    saveTempFormData(formData: any) {
+      this.tempFormData = formData
+      sessionStorage.setItem('temp_form_data', JSON.stringify(formData))
+    },
+
+    clearTempFormData() {
+      this.tempFormData = null
+      sessionStorage.removeItem('temp_form_data')
+    },
+
     async fetchUserData(telegramId: string) {
       try {
         this.loading = true
@@ -91,11 +101,15 @@ export const useUserStore = defineStore('user', {
           ...userData
         })
         this.userData = response.data
+        this.userData.isRegistered = true
+        
         
         // Store in session
         sessionStorage.setItem('user_data', JSON.stringify(this.userData))
         sessionStorage.setItem('telegram_id', telegramId)
         
+        console.log('session updated')
+        console.log(this.userData)
         return response.data
       } catch (error) {
         this.error = 'Failed to register user'
@@ -105,27 +119,19 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async updateUser(updates: Partial<UserData>) {
+    async updateUser(userData: Partial<UserData>) {
       try {
         this.loading = true
         const response = await api.put('/api/users/update', {
           telegramId: this.telegramId,
-          ...updates,
-          healthData: {
-            ...updates.healthData,
-            medications: this.userData?.healthData.medications || [],
-            treatments: this.userData?.healthData.treatments || []
-          }
+          ...userData
         })
         
-        if (this.userData) {
-          this.userData = {
-            ...this.userData,
-            ...response.data
-          }
-          // Update session storage
-          sessionStorage.setItem('user_data', JSON.stringify(this.userData))
-        }
+        this.userData = response.data
+        
+        // Update session storage
+        sessionStorage.setItem('user_data', JSON.stringify(this.userData))
+        
         return response.data
       } catch (error) {
         this.error = 'Failed to update user data'

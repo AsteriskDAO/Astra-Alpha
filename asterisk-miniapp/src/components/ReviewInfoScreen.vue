@@ -5,14 +5,23 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useUserStore } from '../stores/user'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { computed } from 'vue'
+import { useUserStore } from '../stores/user'
 
-const userStore = useUserStore()
 const router = useRouter()
+const userStore = useUserStore()
+const showContent = ref(false)
 
-const nickname = computed(() => userStore.userData?.nickname || '')
+const userData = ref(userStore.userData)
+console.log('userData')
+console.log(userData.value)
+
+onMounted(() => {
+  setTimeout(() => {
+    showContent.value = true
+  }, 100)
+})
 
 function handleContinue() {
   router.push('/dashboard')
@@ -20,98 +29,131 @@ function handleContinue() {
 </script>
 
 <template>
-  <div class="welcome-screen">
-    <h1>Perfect!</h1>
-    <p>Let's quickly review your profile</p>
+  <div class="review-screen screen-container" :class="{ 'show': showContent }">
+    <h1 class="title">Review Your Info</h1>
+    <p class="subtitle">Please review your information before continuing.</p>
 
-    <div class="profile-summary">
-      <div class="profile-item">
-        <label>Nickname</label>
-        <span>{{ nickname }}</span>
+    <div class="info-section">
+      <div class="info-group">
+        <h2>Basic Info</h2>
+        <div class="info-item">
+          <label>Nickname</label>
+          <span>{{ userData?.nickname }}</span>
+        </div>
+        <div class="info-item">
+          <label>Age Range</label>
+          <span>{{ userData?.healthData?.profile?.age_range }}</span>
+        </div>
+        <div class="info-item">
+          <label>Location</label>
+          <span>{{ userData?.healthData?.profile?.location }}</span>
+        </div>
+        <div class="info-item">
+          <label>Ethnicity</label>
+          <span>{{ userData?.healthData?.profile?.ethnicity }}</span>
+        </div>
       </div>
-      
-      <div class="profile-item">
-        <label>Age</label>
-        <span>{{ userStore.userData?.healthData.profile.age_range }}</span>
+
+      <div class="info-group">
+        <h2>Health Info</h2>
+        <div class="info-item">
+          <label>Health Conditions</label>
+          <span>{{ userData?.healthData?.conditions?.join(', ') || 'None' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Medications</label>
+          <span>{{ userData?.healthData?.medications?.join(', ') || 'None' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Caretaker Roles</label>
+          <span>{{ userData?.healthData?.caretaker?.join(', ') || 'None' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Pregnant</label>
+          <span>{{ userData?.healthData?.profile?.is_pregnant ? 'Yes' : 'No' }}</span>
+        </div>
       </div>
-      
-      <div class="profile-item">
-        <label>Ethnicity</label>
-        <span>{{ userStore.userData?.healthData.profile.ethnicity }}</span>
-      </div>
-      
-      <div class="profile-item">
-        <label>Location</label>
-        <span>{{ userStore.userData?.healthData.profile.location }}</span>
-      </div>
+
+      <!-- <div class="info-group">
+        <h2>Preferences</h2>
+        <div class="info-item">
+          <label>Research Opt-in</label>
+          <span>{{ userData?.healthData?.research_opt_in ? 'Yes' : 'No' }}</span>
+        </div>
+      </div> -->
     </div>
 
     <div class="actions">
-      <button class="primary" @click="handleContinue">
-        Everything looks fine
+      <button class="button secondary" @click="router.push('/profile')">
+        Edit Info
       </button>
-      <button class="secondary" @click="router.push('/signup')">
-        Update information
+      <button class="button primary" @click="handleContinue">
+        Continue
       </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.welcome-screen {
-  padding: 20px;
+.review-screen {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+}
+
+.review-screen.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.info-section {
+  margin: 32px 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
-h1 {
-  font-size: 32px;
-  color: #FF1493;
-  margin-bottom: 8px;
-}
-
-.profile-summary {
-  background: #f5f5f5;
+.info-group {
+  background: var(--gray);
   border-radius: 12px;
   padding: 20px;
 }
 
-.profile-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+.info-group h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--primary);
+  margin-bottom: 16px;
 }
 
-.profile-item:last-child {
-  border-bottom: none;
+.info-item {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item label {
+  font-size: 14px;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.info-item span {
+  font-size: 16px;
 }
 
 .actions {
   display: flex;
-  flex-direction: column;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: auto;
 }
 
-button {
-  width: 100%;
-  padding: 16px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-button.primary {
-  background: #FF1493;
-  color: white;
-}
-
-button.secondary {
-  background: transparent;
-  border: 1px solid #FF1493;
-  color: #FF1493;
+.actions button {
+  flex: 1;
 }
 </style> 

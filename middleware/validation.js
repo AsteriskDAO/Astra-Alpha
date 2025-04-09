@@ -32,7 +32,6 @@ const schemas = {
   }),
 
   updateUser: Joi.object({
-    userData: Joi.object({
       telegramId: Joi.string().required(),
       nickname: Joi.string().min(2).max(30),
       healthData: Joi.object({
@@ -48,7 +47,6 @@ const schemas = {
         treatments: Joi.array().items(Joi.string()),
         caretaker: Joi.array().items(Joi.string())
       })
-    }).required()
   }),
 
   updatePoints: Joi.object({

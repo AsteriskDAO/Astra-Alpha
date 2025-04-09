@@ -16,8 +16,9 @@
 
 /* Shared styles */
 :root {
-  --primary: #FF1493;
+  --primary: #FF01B4;
   --primary-light: #ff69b4;
+  --light-blue: #B1DFEE;
   --background: #ffffff;
   --text: #333333;
   --gray: #f5f5f5;
