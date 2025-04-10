@@ -22,14 +22,15 @@ api.interceptors.request.use(config => {
   return config
 })
 
-interface Profile {
+// Add export to interfaces
+export interface Profile {
   age_range: string;
   ethnicity: string;
   location: string;
   is_pregnant: boolean;
 }
 
-interface HealthData {
+export interface HealthData {
   profile: Profile;
   caretaker: string[];
   research_opt_in: boolean;
@@ -38,7 +39,7 @@ interface HealthData {
   treatments: string[];
 }
 
-interface UserData {
+export interface UserData {
   isRegistered: boolean;
   nickname: string;
   points: number;
@@ -63,9 +64,57 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
+    updateMedsAndConditions(formData: any) {
+      if (!this.tempFormData) {
+        this.tempFormData = {
+          profile: {
+            nickname: '',
+            age_range: '',
+            ethnicity: '',
+            location: '',
+            is_pregnant: false,
+          },
+          caretaker: [],
+          conditions: [],
+          medications: [],
+          treatments: [],
+          research_opt_in: false
+        }
+      }
+
+      this.tempFormData = {
+        ...this.tempFormData,
+        conditions: formData.conditions,
+        medications: formData.medications,
+        treatments: formData.treatments,
+        research_opt_in: formData.research_opt_in
+      }
+      sessionStorage.setItem('temp_form_data', JSON.stringify(this.tempFormData))
+    },
+
     saveTempFormData(formData: any) {
-      this.tempFormData = formData
-      sessionStorage.setItem('temp_form_data', JSON.stringify(formData))
+      if (!this.tempFormData) {
+        this.tempFormData = {
+          profile: {
+            nickname: '',
+            age_range: '',
+            ethnicity: '',
+            location: '',
+            is_pregnant: false,
+          },
+          caretaker: [],
+          conditions: [],
+          medications: [],
+          treatments: [],
+          research_opt_in: false
+        }
+      }
+
+      this.tempFormData = {
+        ...this.tempFormData,
+        profile: formData.profile
+      }
+      sessionStorage.setItem('temp_form_data', JSON.stringify(this.tempFormData))
     },
 
     clearTempFormData() {

@@ -5,14 +5,16 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [vue()],
   server: {
-    host: true, // Needed for the Docker Container port mapping to work
+    host: '0.0.0.0',
     strictPort: true,
     port: 5173,
     allowedHosts: [
       'localhost',
       '127.0.0.1',
       '.ngrok-free.app', // Allow all ngrok-free.app subdomains
-      '.ngrok.io'
-    ]
+      '.ngrok.io',
+      '.loca.lt'
+    ],
+    cors: true
   }
 })

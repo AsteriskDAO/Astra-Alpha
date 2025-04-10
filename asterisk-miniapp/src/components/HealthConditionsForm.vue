@@ -1,58 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-import { healthConditionSchema } from '../validation/schemas'
-import { ValidationError } from 'yup'
-import { 
-  diagnosisMethods, 
-  treatmentOptions, 
-  symptomDateRanges 
-} from '../constants/lists'
-import type { DiseaseState } from '../stores/user'
+import { treatmentOptions, medicationOptions, conditionsList } from '../constants/lists'
 
 const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
-const errors = ref<Record<string, string>>({})
 
-const form = ref<DiseaseState>({
-  condition_name: '',
-  is_self_diagnosed: false,
-  diagnosis_method: 'Doctor',
-  treatments: '',
-  subtype: '',
-  first_symptom_date: '',
-  wants_future_studies: false
+const form = ref({
+  conditions: [] as string[],
+  medications: [] as string[],
+  treatments: [] as string[],
+  research_opt_in: false
 })
 
-async function validateForm() {
-  try {
-    await healthConditionSchema.validate(form.value, { abortEarly: false })
-    errors.value = {}
-    return true
-  } catch (err) {
-    if (err instanceof ValidationError) {
-      errors.value = err.inner.reduce((acc, error) => {
-        if (error.path) {
-          acc[error.path] = error.message
-        }
-        return acc
-      }, {} as Record<string, string>)
+// Load saved form data if exists
+onMounted(() => {
+  if (userStore.tempFormData) {
+    form.value = {
+      conditions: userStore.tempFormData.conditions || [],
+      medications: userStore.tempFormData.medications || [],
+      treatments: userStore.tempFormData.treatments || [],
+      research_opt_in: userStore.tempFormData.research_opt_in || false
     }
-    return false
+  } else if (userStore.userData?.healthData) {
+    form.value = {
+      conditions: userStore.userData.healthData.conditions || [],
+      medications: userStore.userData.healthData.medications || [],
+      treatments: userStore.userData.healthData.treatments || [],
+      research_opt_in: userStore.userData.healthData.research_opt_in || false
+    }
   }
-}
+})
 
-async function handleSave() {
-  if (!(await validateForm())) return
-
+async function handleSubmit() {
   loading.value = true
   try {
-    await userStore.addHealthCondition(form.value)
+    await userStore.updateMedsAndConditions(form.value)
     router.push('/profile')
   } catch (error) {
-    console.error('Failed to save health condition:', error)
+    console.error('Failed to save health data:', error)
   } finally {
     loading.value = false
   }
@@ -60,121 +48,151 @@ async function handleSave() {
 </script>
 
 <template>
-  <div class="health-form pa-4">
-    <div class="d-flex align-center mb-6">
-      <v-btn 
-        icon="mdi-arrow-left" 
-        variant="text" 
-        @click="router.push('/profile')"
-      />
-      <h1 class="text-h5 font-weight-bold primary-color ml-4">
-        Health Conditions
-      </h1>
-    </div>
+  <div class="health-form screen-container">
+    <div class="back-button" @click="router.back()">← Back</div>
+    
+    <h1 class="title">
+      Health & Medications
+      <span class="asterisk">*</span>
+    </h1>
 
-    <v-form @submit.prevent="handleSave">
-      <v-text-field
-        v-model="form.condition_name"
-        label="Condition"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['condition_name']"
-        :disabled="loading"
-        required
-      />
+    <form @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <label>Condition(s)</label>
+        <v-autocomplete
+          v-model="form.conditions"
+          :items="conditionsList"
+          item-title="label"
+          item-value="label"
+          variant="outlined"
+          multiple
+          chips
+          closable-chips
+          class="mb-4"
+          hide-details
+        />
+      </div>
 
-      <div class="text-subtitle-1 mb-2">Diagnosis Type</div>
-      <v-radio-group v-model="form.is_self_diagnosed" class="mb-4">
-        <v-radio :label="'Self Diagnosed'" :value="true" />
-        <v-radio :label="'Professionally Diagnosed'" :value="false" />
-      </v-radio-group>
+      <div class="form-group">
+        <label>Medications You're On (by category)</label>
+        <v-select
+          v-model="form.medications"
+          :items="medicationOptions"
+          variant="outlined"
+          multiple
+          chips
+          closable-chips
+          class="mb-4"
+          hide-details
+        />
+      </div>
 
-      <v-select
-        v-model="form.diagnosis_method"
-        label="How did you arrive at this diagnosis?"
-        :items="diagnosisMethods"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['diagnosis_method']"
-        :disabled="loading"
-      />
+      <div class="form-group">
+        <label>Treatments You're Undertaking</label>
+        <v-select
+          v-model="form.treatments"
+          :items="treatmentOptions"
+          variant="outlined"
+          multiple
+          chips
+          closable-chips
+          class="mb-4"
+          hide-details
+        />
+      </div>
 
-      <v-select
-        v-model="form.treatments"
-        label="Treatments related to this condition"
-        :items="treatmentOptions"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['treatments']"
-        :disabled="loading"
-      />
-
-      <v-text-field
-        v-model="form.subtype"
-        label="Disorder Subtype (if applicable)"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['subtype']"
-        :disabled="loading"
-      />
-
-      <v-select
-        v-model="form.first_symptom_date"
-        label="When did you experience your first symptom?"
-        :items="symptomDateRanges"
-        variant="outlined"
-        class="mb-4"
-        :error-messages="errors['first_symptom_date']"
-        :disabled="loading"
-      />
-
-      <v-switch
-        v-model="form.wants_future_studies"
-        :label="form.wants_future_studies ? 'Yes' : 'No'"
-        class="mb-6"
-        :error-messages="errors['wants_future_studies']"
-        :disabled="loading"
-      >
-        <template #label>
-          <div class="text-subtitle-1">
-            Would you like to receive invitations to compensated focus groups in the future?
-          </div>
-        </template>
-      </v-switch>
+      <div class="form-group">
+        <label>Research Opt-in</label>
+        <p class="helper-text">
+          Researchers may invite you to compensated focus groups in the future. 
+          Would you like to receive invitations?
+        </p>
+        <v-switch
+          v-model="form.research_opt_in"
+          color="primary"
+          hide-details
+          class="mt-2"
+        />
+      </div>
 
       <v-btn
         type="submit"
+        :loading="loading"
         block
         color="primary"
-        size="large"
-        class="text-capitalize"
-        :loading="loading"
-        :disabled="loading"
+        class="mt-4"
       >
-        Save
+        {{ loading ? 'Saving...' : 'Save' }}
       </v-btn>
-    </v-form>
-
-    <v-overlay
-      :model-value="loading"
-      class="align-center justify-center"
-    >
-      <v-progress-circular
-        color="primary"
-        indeterminate
-        size="64"
-      />
-    </v-overlay>
+    </form>
   </div>
 </template>
 
 <style scoped>
 .health-form {
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 20px;
 }
 
-.primary-color {
-  color: #FF01B4 !important;
+.back-button {
+  margin-bottom: 20px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+.asterisk {
+  color: var(--primary);
+}
+
+.helper-text {
+  font-size: 14px;
+  color: var(--text);
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+label {
+  font-family: var(--font-body);
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 16px;
+}
+
+/* Override Vuetify styles */
+:deep(.v-field) {
+  border-radius: 8px !important;
+  background: var(--gray) !important;
+  border: none !important;
+}
+
+:deep(.v-field__outline) {
+  display: none !important;
+}
+
+:deep(.v-field__input) {
+  padding: 12px 16px !important;
+}
+
+:deep(.v-chip) {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+:deep(.v-chip__close) {
+  color: white !important;
+}
+
+:deep(.v-switch) {
+  margin-top: 8px;
 }
 </style> 

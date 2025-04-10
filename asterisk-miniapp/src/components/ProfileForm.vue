@@ -29,22 +29,56 @@ const caretakerOptions = [
 // Form matches UserData and HealthData interfaces
 const form = ref({
   profile: {
-    nickname: userStore.userData?.nickname || '',
-    age_range: userStore.userData?.healthData?.profile?.age_range || '25-30',
-    ethnicity: userStore.userData?.healthData?.profile?.ethnicity || 'Select your ethnicity',
-    location: userStore.userData?.healthData?.profile?.location || '',
-    is_pregnant: userStore.userData?.healthData?.profile?.is_pregnant || false,
-    caretaker_roles: userStore.userData?.healthData?.caretaker || []
+    nickname: '',
+    age_range: '',
+    ethnicity: '',
+    location: '',
+    is_pregnant: false,
   },
-  research_opt_in: userStore.userData?.healthData?.research_opt_in || false,
-  disease_states: userStore.userData?.healthData?.conditions || [],
-  medications: userStore.userData?.healthData?.medications || []
+  research_opt_in: false,
+  conditions: [],
+  medications: [],
+  treatments: [],
+  caretaker: []
 })
 
 // Load saved form data if exists
 onMounted(() => {
+  // First check for temp form data
   if (userStore.tempFormData) {
-    form.value = userStore.tempFormData
+    console.log('Loading from temp form data:', userStore.tempFormData)
+    form.value = {
+      profile: {
+        nickname: userStore.tempFormData.profile.nickname || '',
+        age_range: userStore.tempFormData.profile.age_range || '',
+        ethnicity: userStore.tempFormData.profile.ethnicity || '',
+        location: userStore.tempFormData.profile.location || '',
+        is_pregnant: userStore.tempFormData.profile.is_pregnant || false,
+      },
+      research_opt_in: userStore.tempFormData.research_opt_in || false,
+      conditions: userStore.tempFormData.conditions || [],
+      medications: userStore.tempFormData.medications || [],
+      treatments: userStore.tempFormData.treatments || [],
+      caretaker: userStore.tempFormData.caretaker || []
+    }
+  } 
+  // If no temp data, load from user data
+  else if (userStore.userData) {
+    console.log('Loading from user data:', userStore.userData)
+    form.value = {
+      profile: {
+        nickname: userStore.userData.nickname || '',
+        age_range: userStore.userData.healthData?.profile?.age_range || '',
+        ethnicity: userStore.userData.healthData?.profile?.ethnicity || '',
+        location: userStore.userData.healthData?.profile?.location || '',
+        is_pregnant: userStore.userData.healthData?.profile?.is_pregnant || false,
+      },
+      research_opt_in: userStore.userData.healthData?.research_opt_in || false,
+      conditions: userStore.userData.healthData?.conditions || [],
+      medications: userStore.userData.healthData?.medications || [],
+      treatments: userStore.userData.healthData?.treatments || [],
+      caretaker: userStore.userData.healthData?.caretaker || []
+    }
   }
 })
 
@@ -67,7 +101,7 @@ const schema = yup.object({
     caretaker_roles: yup.array().of(yup.string())
   }),
   research_opt_in: yup.boolean(),
-  disease_states: yup.array().of(yup.string()),
+  conditions: yup.array().of(yup.string()),
   medications: yup.array().of(yup.string())
 })
 
@@ -89,8 +123,9 @@ async function handleSubmit(e: Event) {
         },
         caretaker: form.value.profile.caretaker_roles,
         research_opt_in: form.value.research_opt_in,
-        conditions: form.value.disease_states,
-        medications: form.value.medications
+        conditions: form.value.conditions,
+        medications: form.value.medications,
+        treatments: form.value.treatments
       }
     }
 
@@ -168,9 +203,7 @@ async function handleSubmit(e: Event) {
       <div class="form-group">
         <label>Health Conditions*</label>
         <div class="info-display" @click="handleNavigate('/health-conditions')">
-          <span>{{ userStore.userData?.healthData?.conditions?.length ? 
-            userStore.userData.healthData.conditions.join(', ') : 
-            'None' }}</span>
+          <span>{{ form.conditions.length ? form.conditions.join(', ') : 'None' }}</span>
           <button type="button" class="edit-btn">
             edit <span class="arrow">›</span>
           </button>
@@ -179,10 +212,8 @@ async function handleSubmit(e: Event) {
 
       <div class="form-group">
         <label>Medications*</label>
-        <div class="info-display" @click="handleNavigate('/medications')">
-          <span>{{ userStore.userData?.healthData?.medications?.length ? 
-            userStore.userData.healthData.medications.join(', ') : 
-            'None' }}</span>
+        <div class="info-display" @click="handleNavigate('/health-conditions')">
+            <span>{{ form.medications.length ? form.medications.join(', ') : 'None' }}</span>
           <button type="button" class="edit-btn">
             edit <span class="arrow">›</span>
           </button>
@@ -209,7 +240,7 @@ async function handleSubmit(e: Event) {
       <div class="form-group">
         <label>Are you a caretaker (optional)</label>
         <v-select
-          v-model="form.profile.caretaker_roles"
+          v-model="form.caretaker"
           :items="caretakerOptions"
           item-title="title"
           item-value="value"

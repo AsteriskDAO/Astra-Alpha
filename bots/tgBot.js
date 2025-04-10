@@ -25,7 +25,7 @@ const DAILY_SCHEDULE = '* * * * *'; // every minute for testing
 // const DAILY_SCHEDULE = '0 10 * * *'; // 10am daily for production
 
 // Add mini app URL as a constant at the top
-const MINI_APP_URL = "https://013b-188-129-81-104.ngrok-free.app";
+const MINI_APP_URL = "https://empty-emus-wash.loca.lt";
 
 // Initialize minimal session
 bot.use(session({ initial: () => ({}) }));

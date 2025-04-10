@@ -30,6 +30,14 @@ const router = createRouter({
     {
       path: '/profile',
       component: () => ProfileForm
+    },
+    {
+      path: '/health-conditions',
+      component: () => HealthConditionsForm
+    },
+    {
+      path: '/health-medications',
+      component: () => HealthConditionsForm
     }
   ]
 })

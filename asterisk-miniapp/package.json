@@ -11,9 +11,15 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@vueuse/core": "^12.7.0",
+    "@vueuse/core": "^12.8.2",
     "axios": "^1.8.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.487.0",
     "pinia": "^3.0.1",
+    "reka-ui": "^2.2.0",
+    "tailwind-merge": "^3.2.0",
+    "tw-animate-css": "^1.2.5",
     "vue-router": "^4.5.0",
     "vuetify": "^3.7.14",
     "yup": "^1.6.1"
