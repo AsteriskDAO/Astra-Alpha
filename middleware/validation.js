@@ -56,6 +56,7 @@ const schemas = {
 
 const validateRequest = (schemaName) => {
   return (req, res, next) => {
+    console.log('validateRequest', schemaName)
     const schema = schemas[schemaName]
     if (!schema) {
       return res.status(500).json({ error: 'Invalid schema name' })
@@ -72,6 +73,7 @@ const validateRequest = (schemaName) => {
         field: detail.path.join('.'),
         message: detail.message
       }))
+      console.log('errors', errors)
       return res.status(400).json({ errors })
     }
 

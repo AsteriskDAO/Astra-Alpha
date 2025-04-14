@@ -8,7 +8,8 @@ const cache = require('../services/cache')
 class UserController {
   async registerUser(req, res) {
 
-    console.log('registerUser', req.body)
+    // console.log('registerUser', req.body)
+    console.log('registerUser')
     try {
       const { telegramId, ...userData } = req.body
       const user = await User.createUser({
