@@ -599,6 +599,8 @@ async function startBot() {
       console.error('Notification initialization failed:', error);
     });
 
+    console.log('Bot initialized');
+
   } catch (error) {
     console.error('Failed to start bot:', error);
   }
