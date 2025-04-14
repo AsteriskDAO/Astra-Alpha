@@ -13,7 +13,8 @@ export default defineConfig({
       '127.0.0.1',
       '.ngrok-free.app', // Allow all ngrok-free.app subdomains
       '.ngrok.io',
-      '.loca.lt'
+      '.loca.lt',
+      'asterisk-health-profile.onrender.com'
     ],
     cors: true
   }
