@@ -45,7 +45,11 @@ const healthDataSchema = new mongoose.Schema({
 
 // createHealthData function
 healthDataSchema.statics.createHealthData = async function(healthData) {
-  const newHealthData = new this(healthData)
+  const newHealthDataId = uuidv4()  
+  const newHealthData = new this({
+    ...healthData,
+    healthDataId: newHealthDataId
+  })
   return newHealthData.save()
 }
 
