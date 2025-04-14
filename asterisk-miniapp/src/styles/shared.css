@@ -54,6 +54,11 @@ body {
   margin-bottom: 24px;
 }
 
+.handle {
+    font-size: 14px;
+    color: var(--light-blue);
+  }
+
 .button {
   width: 100%;
   padding: 16px;

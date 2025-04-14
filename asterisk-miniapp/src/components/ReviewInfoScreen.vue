@@ -11,9 +11,11 @@ import { useUserStore } from '../stores/user'
 
 const router = useRouter()
 const userStore = useUserStore()
+const telegramStore = useTelegramStore()
 const showContent = ref(false)
 
 const userData = ref(userStore.userData)
+const tgHandle = ref(telegramStore.userInfo.username)
 console.log('userData')
 console.log(userData.value)
 
@@ -30,16 +32,24 @@ function handleContinue() {
 
 <template>
   <div class="review-screen screen-container" :class="{ 'show': showContent }">
-    <h1 class="title">Review Your Info</h1>
-    <p class="subtitle">Please review your information before continuing.</p>
+    <h1 class="title">Perfect!</h1>
+    <p class="subtitle">Let's quickly review your profile details.</p>
 
     <div class="info-section">
       <div class="info-group">
-        <h2>Basic Info</h2>
-        <div class="info-item">
-          <label>Nickname</label>
-          <span>{{ userData?.nickname }}</span>
+        <div class="nickname-info">
+          <div class="nickname-container">
+            <div class="nickname-header">
+              <span class="nickname">{{ userData?.nickname }}</span>
+              <span class="handle">@{{ tgHandle }}</span>
+            </div>
+            <div class="nickname-image">
+              <img src="../assets/asterisk-pink.gif" alt="*" class="asterisk" />
+            </div>
+          </div>
         </div>
+
+        <h2>Profile Info</h2>
         <div class="info-item">
           <label>Age Range</label>
           <span>{{ userData?.healthData?.profile?.age_range }}</span>
@@ -117,6 +127,9 @@ function handleContinue() {
   background: var(--gray);
   border-radius: 12px;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .info-group h2 {
@@ -155,5 +168,53 @@ function handleContinue() {
 
 .actions button {
   flex: 1;
+}
+
+.nickname-info {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+}
+
+.nickname-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.nickname-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nickname {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.handle {
+  font-size: 14px;
+  color: var(--text);
+  opacity: 0.5;
+}
+
+.nickname-image {
+  display: flex;
+  align-items: flex-start;
+}
+
+.asterisk {
+  width: 32px;
+  height: 32px;
+}
+
+/* Remove unused styles */
+.nickname-label {
+  display: none;
 }
 </style> 

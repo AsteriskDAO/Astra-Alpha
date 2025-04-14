@@ -32,14 +32,15 @@ function handleContinue() {
     <p class="subtitle">Please confirm whether your profile information is displayed correctly.</p>
 
     <div class="welcome-content">
-      <div class="asterisk-logo">*</div>
+      <div class="asterisk-logo"><img src="../assets/asterisk-pink.gif" alt="*" /></div>
+      
       <div v-if="userStore.userData?.nickname" class="nickname">
         <label>Nickname</label>
         <span>{{ userStore.userData?.nickname }}</span>
       </div>
       <div v-if="telegramStore.userInfo?.username" class="nickname">
         <label>Telegram Handle</label>
-        <span>{{ tgHandle }}</span>
+        <span class="handle">@{{ tgHandle }}</span>
       </div>
     </div>
     
@@ -76,6 +77,7 @@ function handleContinue() {
 }
 
 .asterisk-logo {
+  width: 75px;
   font-size: 32px;
   color: var(--primary);
 }
