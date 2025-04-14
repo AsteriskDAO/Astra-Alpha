@@ -209,7 +209,7 @@ function handleContinue() {
 }
 
 .asterisk {
-  width: 32px;
+  width: 50px;
 }
 
 /* Remove unused styles */
