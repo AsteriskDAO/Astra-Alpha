@@ -575,39 +575,13 @@ async function setupBotCommands() {
   }
 }
 
-// Add error handling for bot startup
-async function startBot() {
-  try {
-    // Add a small delay before starting to prevent race conditions
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    await bot.start({
-      onStart: () => {
-        console.log('Bot started successfully');
-      },
-      drop_pending_updates: true, // Drop any pending updates to prevent conflicts
-      allowed_updates: ['message', 'callback_query'] // Only listen for specific updates
-    });
-
-    // Setup commands after successful start
-    await setupBotCommands().catch(error => {
-      console.error('Command setup failed:', error);
-    });
-
-    // Initialize notifications after successful start
-    await initializeNotifications().catch(error => {
-      console.error('Notification initialization failed:', error);
-    });
-
-    console.log('Bot initialized');
-
-  } catch (error) {
-    console.error('Failed to start bot:', error);
-  }
-}
-
-// Replace direct bot.start() call with our new function
-startBot();
+// Modify bot startup to handle command setup failure
+bot.start();
+setupBotCommands().catch(error => {
+  console.error('Critical error in bot command setup:', error);
+  // Bot can still function without commands menu
+});
+initializeNotifications();
 
 // Export for use in other files if needed
 module.exports = {
