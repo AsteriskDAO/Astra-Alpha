@@ -197,19 +197,13 @@ function handleContinue() {
   font-weight: 500;
 }
 
-.handle {
-  font-size: 14px;
-  color: var(--text);
-  opacity: 0.5;
-}
-
 .nickname-image {
   display: flex;
   align-items: flex-start;
 }
 
 .asterisk {
-  width: 32px;
+  width: 75px;
 }
 
 /* Remove unused styles */
