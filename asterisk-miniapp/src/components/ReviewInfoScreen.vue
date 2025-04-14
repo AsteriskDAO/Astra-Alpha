@@ -8,7 +8,7 @@ export default {
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-
+import { useTelegramStore } from '../stores/telegram'
 const router = useRouter()
 const userStore = useUserStore()
 const telegramStore = useTelegramStore()
