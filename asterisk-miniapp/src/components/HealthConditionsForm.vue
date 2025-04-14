@@ -75,7 +75,7 @@ async function handleSubmit() {
 
       <div class="form-group">
         <label>Medications You're On (by category)</label>
-        <v-select
+        <v-autocomplete
           v-model="form.medications"
           :items="medicationOptions"
           variant="outlined"
@@ -89,7 +89,7 @@ async function handleSubmit() {
 
       <div class="form-group">
         <label>Treatments You're Undertaking</label>
-        <v-select
+        <v-autocomplete
           v-model="form.treatments"
           :items="treatmentOptions"
           variant="outlined"

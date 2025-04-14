@@ -25,7 +25,7 @@ const DAILY_SCHEDULE = '* * * * *'; // every minute for testing
 // const DAILY_SCHEDULE = '0 10 * * *'; // 10am daily for production
 
 // Add mini app URL as a constant at the top
-const MINI_APP_URL = "https://empty-emus-wash.loca.lt";
+const MINI_APP_URL = "https://dull-beers-battle.loca.lt";
 
 // Initialize minimal session
 bot.use(session({ initial: () => ({}) }));
@@ -76,6 +76,16 @@ setInterval(() => {
   }
 }, CACHE_TTL);
 
+// Add points to user
+async function addPoints(userId, points) {
+  await User.addPoints(userId, points);
+}
+
+// Check in user
+async function checkIn(userId) {
+  await User.checkIn(userId);
+}
+
 // Modify addCancelButton function to add both Start Over and Cancel buttons
 const addCancelButton = (keyboard) => {
   if (!keyboard.reply_markup) {
@@ -92,20 +102,25 @@ const addCancelButton = (keyboard) => {
 // Schedule a single notification
 async function scheduleNotification(userId) {
   try {
+    // First check if user has notifications enabled
+    let notification = await Notification.findOne({ 
+      user_id: userId
+    });
+
+    // If no notification record or notifications are disabled, skip scheduling
+    if (!notification || !notification.is_active) {
+      console.log(`Notifications disabled for user ${userId}`);
+      return false;
+    }
+
     // If user already has a scheduled notification, skip
     if (activeReminders.has(userId)) {
       console.log(`User ${userId} already has an active notification`);
       return true;
     }
 
-    // Check if user has a notification record
-    let notification = await Notification.findOne({ 
-      user_id: userId,
-      is_active: true 
-    });
-
     // Create notification record if doesn't exist
-    if (!notification) {
+    if (!notification?.is_active) {
       notification = new Notification({
         user_id: userId,
         scheduled_time: DAILY_SCHEDULE,
@@ -151,7 +166,7 @@ async function scheduleNotification(userId) {
 // Initialize all notifications
 async function initializeNotifications() {
   try {
-    // Get all active notifications
+    // Get only active notifications
     const notifications = await Notification.find({ is_active: true });
     console.log(`Found ${notifications.length} active notifications`);
     
@@ -185,6 +200,13 @@ async function dailyCheckIn(conversation, ctx) {
           }
         }
       );
+      return;
+    }
+
+    // Check if user has already checked in today
+    const lastCheckIn = lastCheckIns.get(ctx.from.id);
+    if (lastCheckIn && lastCheckIn.toDateString() === new Date().toDateString()) {
+      await ctx.reply("You've already checked in today! Come back tomorrow to check in again.");
       return;
     }
 
@@ -324,6 +346,10 @@ async function dailyCheckIn(conversation, ctx) {
       // If we reach here, conversation completed successfully
       break;
     }
+
+    // Add points to user
+    await addPoints(ctx.from.id, 1);
+    await checkIn(ctx.from.id);
 
     // Final messages after successful completion
     await updateLastCheckIn(ctx.from.id);

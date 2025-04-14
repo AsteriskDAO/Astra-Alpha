@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   nickname: String,
   checkIns: { type: Number, default: 0 },
   points: { type: Number, default: 0 },
+  lastCheckIn: { type: Date, default: null },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 })
@@ -40,6 +41,22 @@ userSchema.statics.createUser = async function(userData) {
   })
 
   return user.save()
+}
+
+userSchema.statics.addPoints = async function(telegramId, points) {
+  const user = await this.findOneAndUpdate(
+    { telegram_id: telegramId },
+    { $inc: { points: points } },
+    { new: true }
+  )
+}
+
+userSchema.statics.checkIn = async function(telegramId) {
+  const user = await this.findOneAndUpdate(
+    { telegram_id: telegramId },
+    { $inc: { checkIns: 1 }, $set: { lastCheckIn: new Date() } },
+    { new: true }
+  )
 }
 
 const User = mongoose.model('User', userSchema)

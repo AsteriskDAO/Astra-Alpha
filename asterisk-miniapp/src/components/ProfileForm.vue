@@ -180,7 +180,7 @@ async function handleSubmit(e: Event) {
 
       <div class="form-group">
         <label>Ethnicity<span class="required">*</span></label>
-        <v-select
+        <v-autocomplete
           v-model="form.profile.ethnicity"
           :items="ethnicities"
           variant="outlined"
@@ -371,6 +371,17 @@ label {
 :deep(.v-btn) {
   font-size: 16px;
   padding: 16px;
+  border-radius: 8px;
+}
+
+/* Add these styles to match the autocomplete styling */
+:deep(.v-autocomplete__selection) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:deep(.v-autocomplete__content) {
+  background: var(--gray);
   border-radius: 8px;
 }
 </style> 
