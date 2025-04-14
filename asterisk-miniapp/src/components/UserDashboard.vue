@@ -32,7 +32,7 @@ function goToProfile() {
     <div class="header">
       <h1 class="welcome">
         Welcome,
-        <div class="nickname">{{ nickname }}<span class="asterisk">*</span></div>
+        <div class="nickname">{{ nickname }} <img src="../assets/asterisk-pink.gif" alt="*" class="asterisk"></div>
       </h1>
     </div>
 
@@ -99,13 +99,15 @@ function goToProfile() {
 .nickname {
   color: var(--text);
   font-size: 24px;
-  margin-top: 4px;
+  margin-top: -5px;
   text-align: center;
+  font-family: var(--font-body);
 }
 
 .asterisk {
-  color: var(--primary);
-  margin-left: 4px;
+  width: 25px;
+  top: -7px;
+  position: relative;
 }
 
 .section {

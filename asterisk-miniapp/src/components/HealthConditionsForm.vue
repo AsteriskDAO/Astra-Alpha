@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { treatmentOptions, medicationOptions, conditionsList } from '../constants/lists'
+import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -51,10 +52,7 @@ async function handleSubmit() {
   <div class="health-form screen-container">
     <div class="back-button" @click="router.back()">← Back</div>
     
-    <h1 class="title">
-      Health & Medications
-      <span class="asterisk">*</span>
-    </h1>
+    <TitleWithAsterisk title="Health & Medications" />
 
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
@@ -137,16 +135,6 @@ async function handleSubmit() {
   margin-bottom: 20px;
   cursor: pointer;
   color: var(--text);
-}
-
-.title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  margin-bottom: 24px;
-}
-
-.asterisk {
-  color: var(--primary);
 }
 
 .helper-text {

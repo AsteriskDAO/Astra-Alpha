@@ -66,8 +66,15 @@ onMounted(async () => {
 
 <template>
   <div class="loading-screen" :class="{ 'show': showContent }">
-    <div class="asterisk-logo">*</div>
-    <h1>Welcome to<br/>Asterisk!</h1>
+    <div class="loading-content">
+      <!-- Replace static asterisk with animated GIF -->
+      <img 
+        src="../assets/asterisk-white.gif" 
+        alt="Loading..." 
+        class="loading-asterisk"
+      />
+    </div>
+    <h1>You are not<br/>an Asterisk.</h1>
     <div class="user-info">
       <img :src="tgImage" alt="User Photo" class="user-photo">
       <p>{{ tgHandle }}</p>
@@ -76,6 +83,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+
 .user-info {
   margin-top: 20px;
   display: flex;
@@ -113,10 +121,9 @@ onMounted(async () => {
   transform: scale(1);
 }
 
-.asterisk-logo {
-  font-size: 64px;
-  margin-bottom: 20px;
-  animation: pulse 2s infinite;
+.loading-asterisk {
+  width: 200px;  /* Adjust size as needed */
+  margin-bottom: 16px;
 }
 
 h1 {
@@ -124,6 +131,7 @@ h1 {
   font-size: 32px;
   line-height: 1.4;
   opacity: 0;
+  font-weight: 400;
   transform: translateY(20px);
   animation: slideUp 0.5s ease forwards 0.3s;
 }
@@ -145,3 +153,11 @@ h1 {
   }
 }
 </style> 
+<!-- 
+<style>
+  html {
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+  }
+</style> -->
+

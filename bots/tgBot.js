@@ -25,7 +25,7 @@ const DAILY_SCHEDULE = '* * * * *'; // every minute for testing
 // const DAILY_SCHEDULE = '0 10 * * *'; // 10am daily for production
 
 // Add mini app URL as a constant at the top
-const MINI_APP_URL = "https://dull-beers-battle.loca.lt";
+const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
 
 // Initialize minimal session
 bot.use(session({ initial: () => ({}) }));

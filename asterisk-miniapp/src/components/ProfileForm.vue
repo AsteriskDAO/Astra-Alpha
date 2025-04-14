@@ -6,6 +6,7 @@ import { useTelegramStore } from '../stores/telegram'
 import { ethnicities, ageRanges } from '../constants/lists'
 import type { UserData, HealthData } from '../stores/user'
 import * as yup from 'yup'
+import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -150,10 +151,9 @@ async function handleSubmit(e: Event) {
   <div class="profile-form screen-container">
     <div class="back-button" @click="router.back()">← Back</div>
     
-    <h1 class="title">
-      {{ isRegistering ? "Let's get to know you" : "Update your info" }}
-      <span class="asterisk">*</span>
-    </h1>
+    <TitleWithAsterisk 
+      :title="isRegistering ? 'Let\'s get to know you' : 'Update your info'"
+    />
 
     <v-form @submit.prevent="handleSubmit">
       <div class="form-group">
@@ -275,16 +275,6 @@ async function handleSubmit(e: Event) {
   margin-bottom: 20px;
   cursor: pointer;
   color: var(--text);
-}
-
-.title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  margin-bottom: 24px;
-}
-
-.asterisk {
-  color: var(--primary);
 }
 
 .info-display {
