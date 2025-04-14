@@ -82,7 +82,7 @@ function handleContinue() {
 }
 
 .asterisk-logo img {
-  width: 75px;
+  width: 100px;
 }
 
 .nickname {
