@@ -83,9 +83,16 @@ onMounted(() => {
   }
 })
 
+function backButton() {
+  // clear temp form data
+  userStore.clearTempFormData()
+  router.back()
+}
+
 // Save form data before navigating away
 function handleNavigate(path: string) {
   userStore.saveTempFormData(form.value)
+  userStore.updateMedsAndConditions(form.value)
   router.push(path)
 }
 
@@ -149,7 +156,7 @@ async function handleSubmit(e: Event) {
 
 <template>
   <div class="profile-form screen-container">
-    <div class="back-button" @click="router.back()">← Back</div>
+    <div class="back-button" @click="backButton()">← Back</div>
     
     <TitleWithAsterisk 
       :title="isRegistering ? 'Let\'s get to know you' : 'Update your info'"
