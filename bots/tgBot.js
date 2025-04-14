@@ -25,7 +25,7 @@ const DAILY_SCHEDULE = '* * * * *'; // every minute for testing
 // const DAILY_SCHEDULE = '0 10 * * *'; // 10am daily for production
 
 // Add mini app URL as a constant at the top
-const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
+const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com:5173";
 
 // Initialize minimal session
 bot.use(session({ initial: () => ({}) }));
@@ -575,9 +575,12 @@ async function setupBotCommands() {
   }
 }
 
-// Modify bot startup
+// Modify bot startup to handle command setup failure
 bot.start();
-setupBotCommands();
+setupBotCommands().catch(error => {
+  console.error('Critical error in bot command setup:', error);
+  // Bot can still function without commands menu
+});
 initializeNotifications();
 
 // Export for use in other files if needed
