@@ -12,6 +12,8 @@ const router = useRouter()
 const userStore = useUserStore()
 const telegramStore = useTelegramStore()
 const loading = ref(false)
+const error = ref('') 
+const isError = ref(false)
 
 console.log('userStore.userData', userStore.userData)
 console.log('telegramStore.userInfo', telegramStore.userInfo)
@@ -106,15 +108,16 @@ const schema = yup.object({
     ethnicity: yup.string().required('Ethnicity is required'),
     location: yup.string().required('Location is required'),
     is_pregnant: yup.boolean(),
-    caretaker_roles: yup.array().of(yup.string())
   }),
   research_opt_in: yup.boolean(),
   conditions: yup.array().of(yup.string()),
-  medications: yup.array().of(yup.string())
+  medications: yup.array().of(yup.string()),
+  caretaker: yup.array().of(yup.string())
 })
 
 async function handleSubmit(e: Event) {
   e.preventDefault()
+  isError.value = false
   loading.value = true
   try {
     const tgId = telegramStore.userInfo.id
@@ -129,7 +132,7 @@ async function handleSubmit(e: Event) {
           location: form.value.profile.location,
           is_pregnant: form.value.profile.is_pregnant
         },
-        caretaker: form.value.profile.caretaker_roles,
+        caretaker: form.value.caretaker,
         research_opt_in: form.value.research_opt_in,
         conditions: form.value.conditions,
         medications: form.value.medications,
@@ -146,8 +149,10 @@ async function handleSubmit(e: Event) {
       userStore.clearTempFormData()
       router.push('/dashboard')
     }
-  } catch (error) {
-    console.error('Failed to save profile:', error)
+  } catch (errorData) {
+    console.error('Failed to save profile:', errorData)
+    isError.value = true
+    error.value = errorData
   } finally {
     loading.value = false
   }
@@ -156,7 +161,7 @@ async function handleSubmit(e: Event) {
 
 <template>
   <div class="profile-form screen-container">
-    <div class="back-button" @click="backButton()">← Back</div>
+    <div v-if="!isRegistering" class="back-button" @click="backButton()">← Back</div>
     
     <TitleWithAsterisk 
       :title="isRegistering ? 'Let\'s get to know you' : 'Update your info'"
@@ -270,6 +275,8 @@ async function handleSubmit(e: Event) {
         {{ loading ? 'Saving...' : 'Save' }}
       </v-btn>
     </v-form>
+    <!-- show error message if there is one -->
+    <div v-if="isError" class="error-message">{{ error }}</div>
   </div>
 </template>
 

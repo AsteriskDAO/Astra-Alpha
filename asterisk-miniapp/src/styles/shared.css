@@ -14,6 +14,12 @@
   transform: translateX(-20px);
 }
 
+.error-message {
+  color: var(--error);
+  font-size: 14px;
+  margin-top: 4px;
+} 
+
 /* Shared styles */
 :root {
   --primary: #FF01B4;
