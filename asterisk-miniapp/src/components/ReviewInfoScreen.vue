@@ -210,7 +210,6 @@ function handleContinue() {
 
 .asterisk {
   width: 32px;
-  height: 32px;
 }
 
 /* Remove unused styles */

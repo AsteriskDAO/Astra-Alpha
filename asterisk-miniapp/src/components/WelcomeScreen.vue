@@ -77,9 +77,12 @@ function handleContinue() {
 }
 
 .asterisk-logo {
-  width: 75px;
   font-size: 32px;
   color: var(--primary);
+}
+
+.asterisk-logo img {
+  width: 75px;
 }
 
 .nickname {
