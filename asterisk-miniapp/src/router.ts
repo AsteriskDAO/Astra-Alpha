@@ -36,7 +36,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/review-info',
     name: 'review-info',
-    component: async () => await import('./components/ReviewInfo.vue')
+    component: async () => await import('./components/ReviewInfoScreen.vue')
   }
 ]
 
