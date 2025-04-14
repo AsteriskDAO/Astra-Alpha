@@ -14,7 +14,7 @@ const schemas = {
   }),
 
   registerUser: Joi.object({
-    telegramId: Joi.string().required(),
+    telegramId: Joi.number().required(),
     nickname: Joi.string().min(2).max(30),
     healthData: Joi.object({
       profile: Joi.object({
@@ -32,7 +32,7 @@ const schemas = {
   }),
 
   updateUser: Joi.object({
-      telegramId: Joi.string().required(),
+      telegramId: Joi.number().required(),
       nickname: Joi.string().min(2).max(30),
       healthData: Joi.object({
         profile: Joi.object({
