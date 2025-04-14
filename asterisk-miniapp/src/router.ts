@@ -1,45 +1,48 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import UserDashboard from './components/UserDashboard.vue'
-import ProfileForm from './components/ProfileForm.vue'
-import HealthConditionsForm from './components/HealthConditionsForm.vue'
-import WelcomeScreen from './components/WelcomeScreen.vue'
-import ReviewInfoScreen from './components/ReviewInfoScreen.vue'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { useUserStore } from './stores/user'
 import { useTelegramStore } from './stores/telegram'
-import LoadingScreen from './components/LoadingScreen.vue'
+
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/',
+    name: 'loading',
+    component: async () => await import('./components/LoadingScreen.vue')
+  },
+  {
+    path: '/welcome',
+    name: 'welcome',
+    component: async () => await import('./components/WelcomeScreen.vue')
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: async () => await import('./components/UserDashboard.vue')
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: async () => await import('./components/ProfileForm.vue')
+  },
+  {
+    path: '/health-conditions',
+    name: 'health-conditions',
+    component: async () => await import('./components/HealthConditionsForm.vue')
+  },
+  {
+    path: '/health-medications',
+    name: 'health-medications',
+    component: async () => await import('./components/HealthConditionsForm.vue')
+  },
+  {
+    path: '/review-info',
+    name: 'review-info',
+    component: async () => await import('./components/ReviewInfo.vue')
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      component: () => LoadingScreen
-    },
-    {
-      path: '/welcome',
-      component: () => WelcomeScreen
-    },
-    {
-      path: '/review-info',
-      component: () => ReviewInfoScreen
-    },
-    {
-      path: '/dashboard',
-      component: () => UserDashboard
-    },
-    {
-      path: '/profile',
-      component: () => ProfileForm
-    },
-    {
-      path: '/health-conditions',
-      component: () => HealthConditionsForm
-    },
-    {
-      path: '/health-medications',
-      component: () => HealthConditionsForm
-    }
-  ]
+  routes
 })
 
 // Simple navigation guard to prevent direct access to protected routes
