@@ -14,7 +14,7 @@ export default defineConfig({
       '.ngrok-free.app', // Allow all ngrok-free.app subdomains
       '.ngrok.io',
       '.loca.lt',
-      'asterisk-health-profile.onrender.com'
+      '.onrender.com'
     ],
     cors: true
   }

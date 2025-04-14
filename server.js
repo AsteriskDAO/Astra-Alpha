@@ -18,7 +18,8 @@ const corsOptions = {
     'http://localhost:5173',
     'https://013b-188-129-81-104.ngrok-free.app', // Add your ngrok URL
     /\.ngrok-free\.app$/, // Allow any ngrok-free.app subdomain
-    /\.loca\.lt$/ // Allow any loca.lt subdomain
+    /\.loca\.lt$/, // Allow any loca.lt subdomain
+    /\.onrender\.com$/ // Allow any onrender.com subdomain
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
