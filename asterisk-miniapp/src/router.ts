@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { useUserStore } from './stores/user'
-import { useTelegramStore } from './stores/telegram'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -46,9 +45,7 @@ const router = createRouter({
 })
 
 // Simple navigation guard to prevent direct access to protected routes
-router.beforeEach(async (to, from, next) => {
-  // const telegramStore = useTelegramStore()
-  // await telegramStore.init()
+router.beforeEach(async (to, _, next) => {
   if (to.path === '/') {
     next()
     return

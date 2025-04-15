@@ -3,7 +3,6 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/database');
-const { startBot } = require('./bots/tgBot');
 
 dotenv.config();
 
@@ -40,11 +39,7 @@ app.use(express.json());
 
 require('./routes')(app);
 
-// Start the bot
-startBot().catch(error => {
-  console.error('Failed to start bot:', error);
-  process.exit(1);
-});
+require('./bots/tgBot');  
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

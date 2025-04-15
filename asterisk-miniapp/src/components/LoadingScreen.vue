@@ -14,11 +14,15 @@ const router = useRouter()
 const userStore = useUserStore()
 const telegramStore = useTelegramStore()
 const showContent = ref(false)
-const debugData = ref({
-    tgHandle: telegramStore.userInfo,
-    error: false,
-    errorMessage: '',
-  })
+const debugData = ref<{
+  tgHandle: any;
+  error: boolean;
+  errorMessage: string;
+}>({
+  tgHandle: telegramStore.userInfo,
+  error: false,
+  errorMessage: '',
+})
 
 const tgHandle = ref('')
 const tgImage = ref('')
@@ -57,8 +61,8 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Failed to initialize:', error)
-    debugData.error = true
-    debugData.errorMessage = error.message
+    debugData.value.error = true
+    debugData.value.errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
     // router.push('/welcome')
   }
 })

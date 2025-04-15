@@ -18,8 +18,6 @@ onMounted(() => {
 const nickname = computed(() => userStore.userData?.nickname || 'User')
 const averageLogins = computed(() => 12) // TODO: Implement this
 const points = computed(() => userStore.userData?.points || 0)
-const checkIns = computed(() => userStore.userData?.checkIns || 0)
-const conditions = computed(() => userStore.userData?.healthData?.conditions?.length || 0)
 
 function goToProfile() {
   console.log('Navigating to profile')
@@ -179,11 +177,6 @@ function goToProfile() {
   background-image: linear-gradient(90deg, #9F9F9F 40.96%, rgba(159, 159, 159, 0) 100%), url('../assets/calls-btn.png');
   background-size: cover;
 }
-
-
-
-
-
 
 .arrow {
   font-size: 24px;

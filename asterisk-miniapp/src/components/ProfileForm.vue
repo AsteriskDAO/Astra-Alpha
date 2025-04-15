@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useTelegramStore } from '../stores/telegram'
 import { ethnicities, ageRanges } from '../constants/lists'
-import type { UserData, HealthData } from '../stores/user'
+import type { UserData } from '../stores/user'
 import * as yup from 'yup'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 
@@ -12,7 +12,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const telegramStore = useTelegramStore()
 const loading = ref(false)
-const error = ref('') 
+const error = ref<string>('')
 const isError = ref(false)
 
 console.log('userStore.userData', userStore.userData)
@@ -152,7 +152,7 @@ async function handleSubmit(e: Event) {
   } catch (errorData) {
     console.error('Failed to save profile:', errorData)
     isError.value = true
-    error.value = errorData
+    error.value = errorData instanceof Error ? errorData.message : 'An unknown error occurred'
   } finally {
     loading.value = false
   }

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import LoadingScreen from './components/LoadingScreen.vue'
 import TelegramProvider from './components/TelegramProvider.vue'
 </script>
 

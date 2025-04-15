@@ -1,6 +1,4 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { WebApp } from '@twa-dev/types'
 
 export const useTelegramStore = defineStore('telegram', {
   state: () => {
