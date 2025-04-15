@@ -108,7 +108,7 @@ async function scheduleNotification(userId) {
     });
 
     // If no notification record or notifications are disabled, skip scheduling
-    if (!notification || !notification.is_active) {
+    if (!notification?.is_active) {
       console.log(`Notifications disabled for user ${userId}`);
       return false;
     }
