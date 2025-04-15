@@ -438,7 +438,13 @@ bot.callbackQuery("checkin", async (ctx) => {
 // Add to registration or first interaction to start scheduling reminders
 bot.command("start", async (ctx) => {
   await scheduleNotification(ctx.from.id);
-  // ... existing start command code
+  await ctx.reply("Welcome to Asterisk! To get started, please register in our mini app:", {
+    reply_markup: {
+      inline_keyboard: [[
+        { text: "Register Now", web_app: { url: MINI_APP_URL } }
+      ]]
+    }
+  });
 });
 
 // Add reminder scheduling to web app open handler
@@ -567,7 +573,7 @@ async function setupBotCommands() {
       { command: "app", description: "Open Asterisk mini app" },
       { command: "notifications", description: "Manage notification settings" },
       { command: "menu", description: "Show all available options" },
-      { command: "debug", description: "Show debug information" }
+      // { command: "debug", description: "Show debug information" }
     ]);
     console.log('Bot commands menu updated successfully');
   } catch (error) {
