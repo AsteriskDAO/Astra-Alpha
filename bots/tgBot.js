@@ -210,6 +210,8 @@ async function dailyCheckIn(conversation, ctx) {
     //   return;
     // }
 
+    let showAppButton = false;
+
     // Start check-in loop
     while (true) {
       // Mood options with emojis and cancel button
@@ -339,6 +341,7 @@ async function dailyCheckIn(conversation, ctx) {
           continue;
         }
         if (updateResponse.callbackQuery.data === "yes") {
+          showAppButton = true;
           await ctx.reply("Okay — we'll finish your check-in and then I'll take you to your profile to update that.");
         }
       }
@@ -368,10 +371,24 @@ async function dailyCheckIn(conversation, ctx) {
       "So try to check in every day!"
     );
 
-    await ctx.reply(
-      "That's it! We're all done. You can edit these options in your profile at any time. " +
-      "Just type /menu for my options. I'll send you a notification tomorrow to remind you to check in. Can't wait!"
-    );
+    if (showAppButton) {
+      await ctx.reply(
+        "That's it! We're all done. You can edit these options in your profile at any time. " +
+        "Just type /menu for my options. I'll send you a notification tomorrow to remind you to check in. Can't wait!" + 
+        "Don't forget to update your profile in the mini app to keep your health data up to date."
+      ,{
+        reply_markup: {
+          inline_keyboard: [[
+            { text: "Open Mini App", web_app: { url: MINI_APP_URL } }
+          ]]
+        }
+      }); 
+    } else {
+      await ctx.reply(
+        "That's it! We're all done. You can edit these options in your profile at any time. " +
+        "Just type /menu for my options. I'll send you a notification tomorrow to remind you to check in. Can't wait!"
+      ); 
+    }
 
   } catch (error) {
     console.error('Check-in conversation error:', error);
