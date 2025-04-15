@@ -629,8 +629,6 @@ function registerCommands(bot) {
 // Export for use in other files
 module.exports = {
   getBotInstance,
-  startBot,
-  checkUserRegistration,
-  invalidateRegistrationCache
+  startBot
 };
 
