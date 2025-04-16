@@ -193,6 +193,13 @@ export const useUserStore = defineStore('user', {
 
     setFirstLogin(value: boolean) {
       this.isFirstLogin = value
+      sessionStorage.setItem('is_first_login', JSON.stringify(this.isFirstLogin))
+      console.log('isFirstLogin set to', this.isFirstLogin)
+    },
+
+    getFirstLogin() {
+      const storedValue = sessionStorage.getItem('is_first_login')
+      return storedValue ? JSON.parse(storedValue) : false
     }
   }
 }) 

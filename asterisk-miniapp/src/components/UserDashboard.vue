@@ -16,7 +16,7 @@ onMounted(() => {
   }, 100)
 
   // Show first login modal if it's the first login
-  if (userStore.isFirstLogin) {
+  if (userStore.getFirstLogin()) {
     showFirstLoginModal.value = true
     // Reset the first login state after showing
     userStore.setFirstLogin(false)

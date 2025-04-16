@@ -614,8 +614,8 @@ async function deleteAccount(conversation, ctx) {
 bot.use(createConversation(deleteAccount));
 
 bot.command("delete", async (ctx) => {
-  const isRegistered = await checkUserRegistration(ctx.from.id);
-  if (!isRegistered) {
+  const user = await User.findOne({ telegram_id: ctx.from.id });
+  if (!user) {
     await ctx.reply("You haven't registered yet. Please register in our mini app to delete your account.");
     return;
   }
