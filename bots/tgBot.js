@@ -121,7 +121,7 @@ async function scheduleNotification(userId) {
     }
 
     // Create notification record if doesn't exist
-    if (!notification?.is_active) {
+    if (!notification) {
       notification = new Notification({
         user_id: userId,
         scheduled_time: DAILY_SCHEDULE,
