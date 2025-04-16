@@ -583,15 +583,6 @@ bot.command("app", async (ctx) => {
   );
 });
 
-bot.command("delete", async (ctx) => {
-  const isRegistered = await checkUserRegistration(ctx.from.id);
-  if (!isRegistered) {
-    await ctx.reply("You haven't registered yet. Please register in our mini app to delete your account.");
-    return;
-  }
-
-  await ctx.conversation.enter("deleteAccount");
-});
 
 // Delete account conversation
 async function deleteAccount(conversation, ctx) {
@@ -621,6 +612,17 @@ async function deleteAccount(conversation, ctx) {
 }
 
 bot.use(createConversation(deleteAccount));
+
+bot.command("delete", async (ctx) => {
+  const isRegistered = await checkUserRegistration(ctx.from.id);
+  if (!isRegistered) {
+    await ctx.reply("You haven't registered yet. Please register in our mini app to delete your account.");
+    return;
+  }
+
+  await ctx.conversation.enter("deleteAccount");
+});
+
 // Update setupBotCommands function
 async function setupBotCommands() {
   try {
