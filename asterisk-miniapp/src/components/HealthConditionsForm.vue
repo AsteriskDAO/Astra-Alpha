@@ -100,10 +100,9 @@ async function handleSubmit() {
       </div>
 
       <div class="form-group">
-        <label>Research Opt-in</label>
+        <label>Do you want to participate in trials?</label>
         <p class="helper-text">
-          Researchers may invite you to compensated focus groups in the future. 
-          Would you like to receive invitations?
+          Researchers may invite you to compensated focus groups or clinical trials in the future. Would you like to receive an invitation?
         </p>
         <v-switch
           v-model="form.research_opt_in"

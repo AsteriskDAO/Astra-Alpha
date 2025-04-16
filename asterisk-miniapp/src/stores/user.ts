@@ -59,7 +59,8 @@ export const useUserStore = defineStore('user', {
       telegramId: storedTelegramId || null,
       tempFormData: storedFormData ? JSON.parse(storedFormData) : null,
       loading: false,
-      error: null as string | null
+      error: null as string | null,
+      isFirstLogin: false
     }
   },
 
@@ -188,6 +189,10 @@ export const useUserStore = defineStore('user', {
       } finally {
         this.loading = false
       }
+    },
+
+    setFirstLogin(value: boolean) {
+      this.isFirstLogin = value
     }
   }
 }) 

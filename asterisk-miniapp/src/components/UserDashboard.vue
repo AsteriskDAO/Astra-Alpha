@@ -8,11 +8,19 @@ import { ref, computed, onMounted } from 'vue'
 const router = useRouter()
 const userStore = useUserStore()
 const showContent = ref(false)
+const showFirstLoginModal = ref(false)
 
 onMounted(() => {
   setTimeout(() => {
     showContent.value = true
   }, 100)
+
+  // Show first login modal if it's the first login
+  if (userStore.isFirstLogin) {
+    showFirstLoginModal.value = true
+    // Reset the first login state after showing
+    userStore.setFirstLogin(false)
+  }
 })
 
 const nickname = computed(() => userStore.userData?.nickname || 'User')
@@ -67,6 +75,32 @@ function goToProfile() {
       Update your profile
       <span class="arrow">›</span>
     </button>
+
+    <!-- First Login Modal -->
+    <v-dialog v-model="showFirstLoginModal" max-width="500px">
+      <v-card class="first-login-modal">
+        <v-card-title class="modal-title">
+          <img src="../assets/asterisk-pink.gif" alt="*" class="modal-asterisk" />
+          <h2>Welcome to Asterisk!</h2>
+        </v-card-title>
+        
+        <v-card-text class="modal-content">
+          <p>Good job completing your profile! Now, return to the bot and type <code>/checkin</code> to complete your first daily checkin.</p>
+          <br>
+          <p>Completing daily checkins will earn you points. Those points will convert to your vote on the future direction of Asterisk in the form of tokens. So try to check in every day!</p>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            block
+            @click="showFirstLoginModal = false"
+          >
+            Got it!
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -196,5 +230,41 @@ function goToProfile() {
   align-items: center;
   margin-top: auto;
   cursor: pointer;
+}
+
+.first-login-modal {
+  padding: 24px;
+  text-align: center;
+}
+
+.modal-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.modal-asterisk {
+  width: 50px;
+}
+
+.modal-title h2 {
+  font-family: var(--font-display);
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.modal-content {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.modal-content code {
+  background: var(--gray);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: monospace;
 }
 </style> 

@@ -11,16 +11,22 @@ export const ageRanges = [
 
 // https://www.reddit.com/r/MyHeritage/comments/1e41mrz/ethnicity_wishlist_this_is_the_list_of/
 
+
+
 export const ethnicities = [
-  'Asian',
-  'Black or African American',
-  'Hispanic or Latino',
-  'Native American',
-  'Pacific Islander',
-  'White',
-  'Mixed',
+  'White / European Ancestry',
+  'Black / African Ancestry',
+  'East Asian',
+  'South Asian',
+  'Southeast Asian',
+  'Middle Eastern / North African (MENA)',
+  'Latinx / Hispanic',
+  'Indigenous / First Nations',
+  'Australian, Māori, Pacific Islander',
+  'Mixed / Multiethnic',
+  'Jewish Ancestry',
   'Other',
-  'Prefer not to say'
+  'Prefer not to say / Unknown'
 ]
 
 export const diagnosisMethods = [
@@ -336,6 +342,7 @@ export const conditionsList = [
   'Post-traumatic stress disorder (PTSD)',
   'Postural orthostatic tachycardia syndrome (PoTS)',
   'Postnatal depression',
+  'Premenstrual Dysphoric Disorder (PMDD)',
   'Pressure ulcers',
   'Progressive supranuclear palsy (PSP)',
   'Prostate cancer',
@@ -434,6 +441,7 @@ export const conditionsList = [
   'Vomiting in adults',
   'Vomiting in children and babies',
   'Vulval cancer',
+  'Vulvodynia',
   'Warts and verrucas',
   'Whiplash',
   'Whooping cough',

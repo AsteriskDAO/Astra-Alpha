@@ -169,7 +169,7 @@ async function handleSubmit(e: Event) {
 
     <v-form @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label>Nickname<span class="required">*</span></label>
+        <label>Nickname (something non-identifying to you)<span class="required">*</span></label>
         <v-text-field
           v-model="form.profile.nickname"
           variant="outlined"
@@ -202,7 +202,7 @@ async function handleSubmit(e: Event) {
       </div>
 
       <div class="form-group">
-        <label>Location<span class="required">*</span></label>
+        <label>Location (Current Country)<span class="required">*</span></label>
         <v-text-field
           v-model="form.profile.location"
           variant="outlined"
@@ -212,7 +212,7 @@ async function handleSubmit(e: Event) {
         />
       </div>
 
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label>Health Conditions*</label>
         <div class="info-display" @click="handleNavigate('/health-conditions')">
           <span>{{ form.conditions.length ? form.conditions.join(', ') : 'None' }}</span>
@@ -220,9 +220,14 @@ async function handleSubmit(e: Event) {
             edit <span class="arrow">›</span>
           </button>
         </div>
+      </div> -->
+
+      <!-- Make a button to edit Health Conditions -->
+      <div class="form-group">
+        <v-btn @click="handleNavigate('/health-conditions')">Edit Health Conditions</v-btn>
       </div>
 
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label>Medications*</label>
         <div class="info-display" @click="handleNavigate('/health-conditions')">
             <span>{{ form.medications.length ? form.medications.join(', ') : 'None' }}</span>
@@ -230,10 +235,10 @@ async function handleSubmit(e: Event) {
             edit <span class="arrow">›</span>
           </button>
         </div>
-      </div>
+      </div> -->
 
       <div class="form-group">
-        <label>Pregnant (optional)</label>
+        <label>Have you ever been pregnant? (optional)</label>
         <v-select
           v-model="form.profile.is_pregnant"
           :items="[
@@ -250,7 +255,7 @@ async function handleSubmit(e: Event) {
       </div>
 
       <div class="form-group">
-        <label>Are you a caretaker (optional)</label>
+        <label>Are you a caretaker? (optional)</label>
         <v-select
           v-model="form.caretaker"
           :items="caretakerOptions"

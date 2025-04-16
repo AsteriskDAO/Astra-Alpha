@@ -8,6 +8,7 @@ const akave = require('../services/akave'); // Import the S3 service
 const schedule = require('node-schedule');
 const Notification = require('../models/notification');
 const User = require('../models/user');
+const HealthData = require('../models/healthData');
 const bot = new Bot(TG_BOT_API_KEY);
 
 // Registration cache
@@ -582,6 +583,44 @@ bot.command("app", async (ctx) => {
   );
 });
 
+bot.command("delete-account", async (ctx) => {
+  const isRegistered = await checkUserRegistration(ctx.from.id);
+  if (!isRegistered) {
+    await ctx.reply("You haven't registered yet. Please register in our mini app to delete your account.");
+    return;
+  }
+
+  await ctx.conversation.enter("deleteAccount");
+});
+
+// Delete account conversation
+async function deleteAccount(conversation, ctx) {
+
+  // grab user hash from db
+  const user = await User.findOne({ telegram_id: ctx.from.id });
+  const userHash = user.user_hash;
+
+  await ctx.reply("Are you sure you want to delete your account? This action cannot be undone.",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "Confirm", callback_data: "confirm" }],
+          [{ text: "Cancel", callback_data: "cancel" }]
+        ]
+      }
+    });
+  const confirmResponse = await conversation.waitFor("callback_query");
+  if (confirmResponse.callbackQuery.data === "confirm") {
+    await User.deleteOne({ telegram_id: ctx.from.id });
+    await Notification.deleteOne({ user_id: ctx.from.id });
+    await HealthData.deleteOne({ user_hash: userHash });
+    await ctx.reply("Your account has been deleted.");
+  } else {
+    await ctx.reply("Account deletion cancelled.");
+  }
+}
+
+bot.use(createConversation(deleteAccount));
 // Update setupBotCommands function
 async function setupBotCommands() {
   try {
@@ -590,6 +629,7 @@ async function setupBotCommands() {
       { command: "app", description: "Open Asterisk mini app" },
       { command: "notifications", description: "Manage notification settings" },
       { command: "menu", description: "Show all available options" },
+      { command: "delete-account", description: "Delete your account" },
       // { command: "debug", description: "Show debug information" }
     ]);
     console.log('Bot commands menu updated successfully');
