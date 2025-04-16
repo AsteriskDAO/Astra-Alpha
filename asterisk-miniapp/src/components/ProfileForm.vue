@@ -224,7 +224,12 @@ async function handleSubmit(e: Event) {
 
       <!-- Make a button to edit Health Conditions -->
       <div class="form-group">
-        <v-btn @click="handleNavigate('/health-conditions')">Edit Health Conditions</v-btn>
+        <v-btn 
+        @click="handleNavigate('/health-conditions')"
+        block
+        color="primary"
+        class="mt-4"
+        >Edit Health Conditions</v-btn>
       </div>
 
       <!-- <div class="form-group">
