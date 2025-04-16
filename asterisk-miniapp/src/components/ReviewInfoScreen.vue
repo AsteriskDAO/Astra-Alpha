@@ -26,10 +26,8 @@ onMounted(() => {
 })
 
 function handleContinue() {
-  // Set first login state if this is the first registration
-  if (!userStore.userData?.isRegistered) {
-    userStore.setFirstLogin(true)
-  }
+  
+  userStore.setFirstLogin(true)
   router.push('/dashboard')
 }
 </script>
