@@ -15,6 +15,8 @@ onMounted(() => {
     showContent.value = true
   }, 100)
 
+  showFirstLoginModal.value = true
+  
   // Show first login modal if it's the first login
   if (userStore.getFirstLogin()) {
     showFirstLoginModal.value = true
