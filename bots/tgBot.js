@@ -583,7 +583,7 @@ bot.command("app", async (ctx) => {
   );
 });
 
-bot.command("delete_account", async (ctx) => {
+bot.command("deleteAccount", async (ctx) => {
   const isRegistered = await checkUserRegistration(ctx.from.id);
   if (!isRegistered) {
     await ctx.reply("You haven't registered yet. Please register in our mini app to delete your account.");
@@ -629,7 +629,7 @@ async function setupBotCommands() {
       { command: "app", description: "Open Asterisk mini app" },
       { command: "notifications", description: "Manage notification settings" },
       { command: "menu", description: "Show all available options" },
-      { command: "delete_account", description: "Delete your account" },
+      { command: "deleteAccount", description: "Delete your account" },
       // { command: "debug", description: "Show debug information" }
     ]);
     console.log('Bot commands menu updated successfully');
