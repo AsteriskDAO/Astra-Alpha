@@ -87,7 +87,7 @@ function goToProfile() {
         </v-card-title>
         
         <v-card-text class="modal-content">
-          <p>Good job completing your profile! Now, return to the bot and type <code>/checkin</code> to complete your first daily checkin.</p>
+          <p>Good job completing your profile! Now, return to the bot and type <code class="code-text">/checkin</code> to complete your first daily checkin.</p>
           <br>
           <p>Completing daily checkins will earn you points. Those points will convert to your vote on the future direction of Asterisk in the form of tokens. So try to check in every day!</p>
         </v-card-text>
@@ -95,6 +95,8 @@ function goToProfile() {
         <v-card-actions>
           <v-btn
             color="primary"
+            variant="outlined"
+            class="mt-4"
             block
             @click="showFirstLoginModal = false"
           >
@@ -268,5 +270,9 @@ function goToProfile() {
   padding: 4px 8px;
   border-radius: 4px;
   font-family: monospace;
+}
+
+.code-text {
+  color: var(--primary);
 }
 </style> 
