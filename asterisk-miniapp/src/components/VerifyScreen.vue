@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user'
+// import { useUserStore } from '../stores/user'
 import SelfQRcodeWrapper, { SelfAppBuilder } from '@selfxyz/qrcode'
 import { v4 as uuidv4 } from 'uuid'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
+// const userStore = useUserStore()
 const verificationStatus = ref('pending')
 const userId = ref('')
 const selfApp = ref<any>(null)
