@@ -48,7 +48,7 @@ async function checkUserRegistration(userId) {
   }
 
   try {
-    // Check user in DB not akave
+    
     const isRegistered = await User.findOne({ telegram_id: userId });
     // Cache the result
     registrationCache.set(userId, {
@@ -212,6 +212,12 @@ async function dailyCheckIn(conversation, ctx) {
     // }
 
     let showAppButton = false;
+    let healthProfileUpdate = false;
+    let stressDetailsText = '';
+    let mood = '';
+    let stress = '';
+    let doctorVisit = false;
+    let healthComment = '';
 
     // Start check-in loop
     while (true) {
@@ -247,7 +253,7 @@ async function dailyCheckIn(conversation, ctx) {
         await ctx.reply("Check-in cancelled. Come back when you're ready!");
         return; // Exit the conversation
       }
-      const mood = moodResponse.callbackQuery.data;
+      mood = moodResponse.callbackQuery.data;
       
       // Personalized response based on mood
       const moodResponses = {
@@ -262,7 +268,8 @@ async function dailyCheckIn(conversation, ctx) {
         `${moodResponses[mood]} What about your health feels ${mood} today?`
       );
 
-      await conversation.waitFor(":text");
+      const healthCommentResponse = await conversation.waitFor(":text");
+      healthComment = healthCommentResponse.message.text;
 
       // Stress options in rows
       await ctx.reply(
@@ -287,7 +294,7 @@ async function dailyCheckIn(conversation, ctx) {
         await ctx.reply("Check-in cancelled. Come back when you're ready!");
         return;
       }
-      const stress = stressResponse.callbackQuery.data;
+      stress = stressResponse.callbackQuery.data;
 
       // Follow-up stress questions based on response
       const stressFollowUps = {
@@ -301,7 +308,7 @@ async function dailyCheckIn(conversation, ctx) {
       );
       
       const stressDetails = await conversation.waitFor(":text");
-      const stressDetailsText = stressDetails.message.text;
+      stressDetailsText = stressDetails.message.text;
 
       // Doctor visit options in rows
       await ctx.reply(
@@ -321,9 +328,10 @@ async function dailyCheckIn(conversation, ctx) {
         await ctx.reply("Let's start over!");
         continue;
       }
-      const doctorVisit = doctorResponse.callbackQuery.data;
-
-      if (doctorVisit === "yes") {
+      const doctorVisitCallback = doctorResponse.callbackQuery.data;
+      
+      if (doctorVisitCallback === "yes") {
+        doctorVisit = true;
         await ctx.reply(
           "Do you need to update your conditions or medications?",
           addCancelButton({
@@ -344,12 +352,36 @@ async function dailyCheckIn(conversation, ctx) {
         if (updateResponse.callbackQuery.data === "yes") {
           showAppButton = true;
           await ctx.reply("Okay — we'll finish your check-in and then I'll take you to your profile to update that.");
+          healthProfileUpdate = true;
         }
       }
 
       // If we reach here, conversation completed successfully
       break;
     }
+
+    const userHash = await User.findOne({ telegram_id: ctx.from.id }).select('user_hash');
+    // upload to akave
+    // user_hash: { type: String, required: true },
+    // is_pregnant: Boolean,
+    // timestamp: { type: Date, default: Date.now },
+    // mood: String,
+    // health_comment: String,
+    // doctor_visit: Boolean,
+    // medication_update: Boolean,
+    // diagnosis_update: Boolean,
+    // stress_level: String,
+    // stress_details: String
+    await akave.uploadCheckinData(userHash.user_hash, {
+      user_hash: userHash.user_hash,
+      timestamp: new Date(),
+      mood: mood,
+      health_comment: healthComment,
+      doctor_visit: doctorVisit,  
+      health_profile_update: healthProfileUpdate,
+      stress_level: stress,
+      stress_details: stressDetailsText
+    })
 
     // Add points to user
     await addPoints(ctx.from.id, 1);

@@ -2,13 +2,11 @@ const mongoose = require('mongoose')
 
 const checkInSchema = new mongoose.Schema({
   user_hash: { type: String, required: true },
-  is_pregnant: Boolean,
   timestamp: { type: Date, default: Date.now },
   mood: String,
   health_comment: String,
   doctor_visit: Boolean,
-  medication_update: Boolean,
-  diagnosis_update: Boolean,
+  health_profile_update: Boolean,
   stress_level: String,
   stress_details: String
 })

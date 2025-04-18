@@ -6,160 +6,183 @@ const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } = r
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { v4: uuidv4 } = require('uuid')
 
-class AkaveService {
-  constructor() {
-    // TODO: S3 setup will go here later
-    // this.s3Client = new S3Client({
-    //   region: process.env.AWS_REGION,
-    //   credentials: {
-    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    //   }
-    // });
-    // this.bucketName = process.env.AWS_BUCKET_NAME;
-  }
+// Debug environment variables
+console.log('Environment Variables:', {
+  endpoint: process.env.AKAVE_ENDPOINT,
+  region: process.env.AKAVE_REGION,
+  accessKeyId: process.env.AKAVE_ACCESS_KEY,
+  secretKey: process.env.AKAVE_SECRET_KEY,
+  healthBucket: process.env.AKAVE_BUCKET_NAME_HEALTH_TEST,
+  checkinBucket: process.env.AKAVE_BUCKET_NAME_CHECKIN_TEST
+})
 
-  // Upload data to Akave storage
-  async uploadData(userId, data, type = 'daily-checkin') {
-    const key = `${type}/${userId}/${Date.now()}.json`
-    
-    try {
-      const command = new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-        Body: JSON.stringify(data),
-        ContentType: 'application/json'
-      })
+// Verify environment variables are loaded
+if (!process.env.AKAVE_ENDPOINT || !process.env.AKAVE_REGION || 
+    !process.env.AKAVE_ACCESS_KEY || !process.env.AKAVE_SECRET_KEY) {
+  throw new Error('Missing required Akave environment variables')
+}
 
-      await this.s3Client.send(command)
-      return { 
-        success: true, 
-        key,
-        ...data 
-      }
-    } catch (error) {
-      console.error('Akave upload error:', error)
-      throw new Error('Failed to upload data')
+// Create S3 client
+const s3Client = new S3Client({
+  endpoint: process.env.AKAVE_ENDPOINT,
+  region: process.env.AKAVE_REGION,
+  credentials: {
+    accessKeyId: process.env.AKAVE_ACCESS_KEY,
+    secretAccessKey: process.env.AKAVE_SECRET_KEY
+  },
+  forcePathStyle: true
+})
+
+async function checkS3Client() {
+  console.log(await s3Client.config.endpoint())
+  console.log(await s3Client.config.region())
+  console.log(await s3Client.config.credentials())
+}
+
+checkS3Client()
+
+// Bucket names
+const BUCKETS = {
+  HEALTH: process.env.AKAVE_BUCKET_NAME_HEALTH_TEST,
+  CHECKIN: process.env.AKAVE_BUCKET_NAME_CHECKIN_TEST
+}
+
+// Verify buckets are configured
+if (!BUCKETS.HEALTH || !BUCKETS.CHECKIN) {
+  throw new Error('Missing required bucket names in environment variables')
+}
+
+/**
+ * Upload health data to O3 storage
+ * @param {string} userId - User's ID
+ * @param {Object} data - Health data to store
+ * @returns {Promise<{key: string, success: boolean}>}
+ */
+async function uploadHealthData(userId, data) {
+  const key = `health/${userId}/${Date.now()}.json`
+  
+  try {
+    const command = new PutObjectCommand({
+      Bucket: BUCKETS.HEALTH,
+      Key: key,
+      Body: JSON.stringify(data),
+      ContentType: 'application/json'
+    })
+
+    await s3Client.send(command)
+    return { 
+      success: true, 
+      key
     }
-  }
-
-  // Get data from Akave storage
-  async getData(key) {
-    try {
-      const command = new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: key
-      })
-
-      const response = await this.s3Client.send(command)
-      const data = await response.Body.transformToString()
-      return {
-        key,
-        ...JSON.parse(data)
-      }
-    } catch (error) {
-      console.error('Akave get error:', error)
-      throw new Error('Failed to get data')
-    }
-  }
-
-  // List user's data
-  async listUserData(userId, type = 'daily-checkin') {
-    try {
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucketName,
-        Prefix: `${type}/${userId}/`
-      })
-
-      const response = await this.s3Client.send(command)
-      const dataPromises = (response.Contents || []).map(obj => 
-        this.getData(obj.Key)
-      )
-      return Promise.all(dataPromises)
-    } catch (error) {
-      console.error('Akave list error:', error)
-      throw new Error('Failed to list data')
-    }
-  }
-
-  // Get user's data for date range
-  async getUserDataRange(userId, startDate, endDate, type = 'daily-checkin') {
-    try {
-      const files = await this.listUserData(userId, type)
-      return files.filter(file => {
-        const timestamp = parseInt(file.key.split('/').pop().split('.')[0])
-        return timestamp >= startDate && timestamp <= endDate
-      })
-    } catch (error) {
-      console.error('Data range error:', error)
-      throw new Error('Failed to get data range')
-    }
-  }
-
-  // Generate presigned URL for direct upload
-  async getUploadUrl(userId, type = 'daily-checkin') {
-    const key = `${type}/${userId}/${Date.now()}.json`
-    
-    try {
-      const command = new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-        ContentType: 'application/json'
-      })
-
-      return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 })
-    } catch (error) {
-      console.error('Presigned URL error:', error)
-      throw new Error('Failed to generate upload URL')
-    }
-  }
-
-  async checkUserExists(userId) {
-    try {
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucketName,
-        Prefix: `users/${userId}/`,
-        MaxKeys: 1
-      });
-
-      const response = await this.s3Client.send(command);
-      return response.Contents && response.Contents.length > 0;
-    } catch (error) {
-      console.error('Error checking user existence:', error);
-      throw new Error('Failed to check user registration');
-    }
-  }
-
-  // TODO: Potentially remove everything above this
-
-  /**
-   * Store data to O3 (mock implementation for testing)
-   * @param {string} userId - User's hashed ID
-   * @param {Object} data - Data to store
-   * @returns {Promise<{key: string}>} - Storage key/location
-   */
-  async storeToO3(userId, data) {
-    try {
-      // Generate a mock key
-      const key = `${userId}/${uuidv4()}.json`;
-      
-      // Log the data for testing
-      console.log('Mock O3 Storage:', {
-        key,
-        userId,
-        data,
-        timestamp: new Date().toISOString()
-      });
-      
-      return { key };
-    } catch (error) {
-      console.error('Failed to store data to O3:', error);
-      throw new Error('Failed to store data');
-    }
+  } catch (error) {
+    console.error('Health data upload error:', error)
+    throw new Error('Failed to upload health data')
   }
 }
 
-module.exports = new AkaveService()
+/**
+ * Upload check-in data to O3 storage
+ * @param {string} userId - User's ID
+ * @param {Object} data - Check-in data to store
+ * @returns {Promise<{key: string, success: boolean}>}
+ */
+async function uploadCheckinData(userId, data) {
+  const key = `checkin/${userId}/${Date.now()}.json`
+  
+  try {
+    const command = new PutObjectCommand({
+      Bucket: BUCKETS.CHECKIN,
+      Key: key,
+      Body: JSON.stringify(data),
+      ContentType: 'application/json'
+    })
+
+    await s3Client.send(command)
+    return { 
+      success: true, 
+      key
+    }
+  } catch (error) {
+    console.error('Check-in data upload error:', error)
+    throw new Error('Failed to upload check-in data')
+  }
+}
+
+/**
+ * Get user's health data
+ * @param {string} userId - User's ID
+ * @returns {Promise<Array>} - Array of health data objects
+ */
+async function getHealthData(userId) {
+  try {
+    const command = new ListObjectsV2Command({
+      Bucket: BUCKETS.HEALTH,
+      Prefix: `health/${userId}/`
+    })
+
+    const response = await s3Client.send(command)
+    const dataPromises = (response.Contents || []).map(obj => 
+      getData(BUCKETS.HEALTH, obj.Key)
+    )
+    return Promise.all(dataPromises)
+  } catch (error) {
+    console.error('Get health data error:', error)
+    throw new Error('Failed to get health data')
+  }
+}
+
+/**
+ * Get user's check-in data
+ * @param {string} userId - User's ID
+ * @returns {Promise<Array>} - Array of check-in data objects
+ */
+async function getCheckinData(userId) {
+  try {
+    const command = new ListObjectsV2Command({
+      Bucket: BUCKETS.CHECKIN,
+      Prefix: `checkin/${userId}/`
+    })
+
+    const response = await s3Client.send(command)
+    const dataPromises = (response.Contents || []).map(obj => 
+      getData(BUCKETS.CHECKIN, obj.Key)
+    )
+    return Promise.all(dataPromises)
+  } catch (error) {
+    console.error('Get check-in data error:', error)
+    throw new Error('Failed to get check-in data')
+  }
+}
+
+/**
+ * Helper method to get data from a specific bucket and key
+ * @private
+ */
+async function getData(bucket, key) {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key
+    })
+
+    const response = await s3Client.send(command)
+    const data = await response.Body.transformToString()
+    return {
+      key,
+      ...JSON.parse(data)
+    }
+  } catch (error) {
+    console.error('Get data error:', error)
+    throw new Error('Failed to get data')
+  }
+}
+
+module.exports = {
+  uploadHealthData,
+  uploadCheckinData,
+  getHealthData,
+  getCheckinData
+}
 
 // upload file 
 

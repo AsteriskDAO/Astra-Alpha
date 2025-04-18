@@ -26,10 +26,7 @@ class CheckInController {
       )
 
       // Store to O3 for data analysis
-      await akave.storeToO3(user_hash, {
-        type: 'check-in',
-        data: checkIn
-      })
+      await akave.uploadCheckinData(user_hash, checkIn)
 
       res.json({
         success: true,
