@@ -22,7 +22,7 @@ onMounted(() => {
 
 
 function handleContinue() {
-  router.push('/profile')
+  router.push('/verify')
 }
 </script>
 

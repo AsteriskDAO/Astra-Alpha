@@ -36,6 +36,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/review-info',
     name: 'review-info',
     component: async () => await import('./components/ReviewInfoScreen.vue')
+  },
+  {
+    path: '/verify',
+    name: 'verify',
+    component: async () => await import('./components/VerifyScreen.vue'),
+    // meta: { requiresAuth: true }
   }
 ]
 
