@@ -72,6 +72,12 @@ export const useUserStore = defineStore('user', {
       this.isGenderVerified = value
       sessionStorage.setItem('is_gender_verified', JSON.stringify(value))
     },
+
+    async checkGenderVerification(telegramId: string) {
+      const response = await api.get(`/api/users/telegram/${telegramId}`)
+      return response.data.isGenderVerified
+    },
+
     updateMedsAndConditions(formData: any) {
       if (!this.tempFormData) {
         this.tempFormData = {
@@ -150,17 +156,14 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async registerUser(telegramId: string, userData: Partial<UserData>) {
+    async createUser(telegramId: string) {
       try {
-        const storedIsGenderVerified = sessionStorage.getItem('is_gender_verified')
         this.loading = true
-        const response = await api.post('/api/users/register', {
+        const response = await api.post('/api/users/create', {
           telegramId,
-          ...userData,
-          isGenderVerified: storedIsGenderVerified ? JSON.parse(storedIsGenderVerified) : false
         })
         this.userData = response.data
-        this.userData.isRegistered = true
+        this.userData.isRegistered = false
         
         
         // Store in session
@@ -190,7 +193,7 @@ export const useUserStore = defineStore('user', {
         
         // Update session storage
         sessionStorage.setItem('user_data', JSON.stringify(this.userData))
-        
+
         return response.data
       } catch (error) {
         this.error = 'Failed to update user data'

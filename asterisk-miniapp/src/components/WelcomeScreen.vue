@@ -10,7 +10,7 @@ const telegramStore = useTelegramStore()
 const router = useRouter()
 const showContent = ref(false)
 const tgHandle = ref('');
-
+const loading = ref(false)
 
 onMounted(() => {
   tgHandle.value = telegramStore.userInfo?.username || ''
@@ -19,10 +19,27 @@ onMounted(() => {
   }, 100)
 })
 
-
-
-function handleContinue() {
-  router.push('/verify')
+const handleContinue = async () => {
+  try {
+    loading.value = true
+    const telegramHandle = telegramStore.userInfo?.username
+    if (!telegramHandle) {
+      throw new Error('No Telegram handle found')
+    }
+    
+    // Create initial user
+    await userStore.createUser(telegramHandle)
+    
+    // Set first login flag
+    userStore.isFirstLogin = true
+    
+    // Navigate to verify
+    router.push('/verify')
+  } catch (error) {
+    console.error('Failed to create initial user:', error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

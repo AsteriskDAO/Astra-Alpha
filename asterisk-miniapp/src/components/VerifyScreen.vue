@@ -1,29 +1,36 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// import { useUserStore } from '../stores/user'
+import { useUserStore } from '../stores/user'
 import {getUniversalLink, SelfAppBuilder } from '@selfxyz/core';
 import QRCode from 'qrcode.vue'
-import { v4 as uuidv4 } from 'uuid'
+// import { v4 as uuidv4 } from 'uuid'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
+import { useTelegramStore } from '../stores/telegram'
 
 const router = useRouter()
-// const userStore = useUserStore()
+const userStore = useUserStore()
 const verificationStatus = ref('pending')
 const userId = ref('')
 const selfApp = ref<any>(null)
 const qrValue = ref('')
+const telegramStore = useTelegramStore()
+
+const telegramId = telegramStore.userInfo.id;
 
 onMounted(() => {
   // Generate a unique user ID for this verification session
-  userId.value = uuidv4()
+  // userId.value = uuidv4()
 
   // Create the SelfApp configuration
   selfApp.value = new SelfAppBuilder({
     appName: "Asterisk Health",
     scope: "gender-verification",
     endpoint: "https://api.asterisk.health/verify-gender",
-    userId: userId.value,
+    userId: telegramId,
+    disclosures: {
+      gender: true
+    },
     // onSuccess: handleVerificationSuccess
   }).build()
 
@@ -32,19 +39,26 @@ onMounted(() => {
   qrValue.value = getUniversalLink(selfApp.value)
 })
 
-// const handleVerificationSuccess = async () => {
-//   try {
-//     verificationStatus.value = 'verified'
-//     userStore.updateIsGenderVerified(true)
-//     // Show success for 2 seconds before redirecting
-//     setTimeout(() => {
-//       router.push('/profile')
-//     }, 2000)
-//   } catch (error) {
-//     console.error('Failed to update verification status:', error)
-//     verificationStatus.value = 'error'
-//   }
-// }
+const handleVerificationSuccess = async () => {
+  try {
+
+    const isVerified = await userStore.checkGenderVerification(telegramId)
+
+    if (isVerified) {
+      verificationStatus.value = 'verified'
+      userStore.updateIsGenderVerified(true)
+      // Show success for 2 seconds before redirecting
+      setTimeout(() => {
+        router.push('/profile')
+      }, 2000)
+    } else {
+      verificationStatus.value = 'error'
+    }
+  } catch (error) {
+    console.error('Failed to update verification status:', error)
+    verificationStatus.value = 'error'
+  }
+}
 
 const handleBack = () => {
   router.push('/welcome')
@@ -69,6 +83,11 @@ const handleBack = () => {
         />
       </div>
 
+      <p>
+        If you don't have the Self app, you can download it from the App Store or Google Play.
+        If you're on mobile, you can visit this link: <a :href="qrValue" target="_blank">Verify</a>
+      </p>
+
       <div class="status-container">
         <div v-if="verificationStatus === 'pending'" class="status pending">
           <v-icon>mdi-clock-outline</v-icon>
@@ -82,6 +101,14 @@ const handleBack = () => {
           <v-icon>mdi-alert-circle</v-icon>
           <span>Verification failed. Please try again.</span>
         </div>
+
+        <v-btn
+          color="primary"
+          block
+          @click="handleVerificationSuccess"
+        >
+          Confirm
+        </v-btn>
       </div>
 
       <div class="actions">

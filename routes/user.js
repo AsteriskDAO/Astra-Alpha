@@ -5,10 +5,10 @@ const { validateTelegramWebApp } = require('../middleware/auth')
 const { validateRequest } = require('../middleware/validation')
 
 // Registration
-router.post('/register', 
+router.post('/create', 
   validateTelegramWebApp, 
-  validateRequest('registerUser'), 
-  userController.registerUser
+  validateRequest('createUser'), 
+  userController.createUser
 )
 
 // Get user data

@@ -6,34 +6,29 @@ const cache = require('../services/cache')
 // TODO: Double check logic for updating points and checkIns
 
 class UserController {
-  async registerUser(req, res) {
+  async createUser(req, res) {
 
     // console.log('registerUser', req.body)
-    console.log('registerUser')
+    console.log('createUser')
     try {
       const { telegramId, ...userData } = req.body
       const user = await User.createUser({
         telegram_id: telegramId,
-        ...userData
-      })
-
-      // Store Health Data Locally
-      const healthData = await HealthData.createHealthData({
-        user_hash: user.user_hash,
-        ...userData.healthData
+        isRegistered: false,
+        isGenderVerified: false
       })
 
       const response = {
         ...user._doc,
-        isRegistered: true,
-        healthData: healthData
+        isRegistered: false,
+        isGenderVerified: false
       }
       console.log('user')
       console.log(response)
       res.json(response)
     } catch (error) {
-      console.error('Failed to register user:', error)
-      res.status(500).json({ error: 'Failed to register user' })
+      console.error('Failed to create user:', error)
+      res.status(500).json({ error: 'Failed to create user' })
     }
   }
 

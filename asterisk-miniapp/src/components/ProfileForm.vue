@@ -19,7 +19,9 @@ console.log('userStore.userData', userStore.userData)
 console.log('telegramStore.userInfo', telegramStore.userInfo)
 
 // Check if this is initial registration or profile update
-const isRegistering = computed(() => !userStore.userData?.isRegistered)
+const isRegistering = ref(!userStore.userData?.isRegistered)
+
+console.log('isRegistering', isRegistering.value)
 
 const caretakerOptions = [
   { title: 'Kids', value: 'Kids' },
@@ -120,7 +122,6 @@ async function handleSubmit(e: Event) {
   isError.value = false
   loading.value = true
   try {
-    const tgId = telegramStore.userInfo.id
     await schema.validate(form.value)
 
     const userData: Partial<UserData> = {
@@ -139,13 +140,14 @@ async function handleSubmit(e: Event) {
         treatments: form.value.treatments
       }
     }
-
     if (isRegistering.value) {
-      await userStore.registerUser(tgId, userData)
+      userData.isRegistered = true
+    }
+    await userStore.updateUser(userData)
+    if (isRegistering.value) {
       userStore.clearTempFormData()
       router.push('/review-info')
     } else {
-      await userStore.updateUser(userData)
       userStore.clearTempFormData()
       router.push('/dashboard')
     }

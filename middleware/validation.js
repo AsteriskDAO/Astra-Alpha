@@ -13,22 +13,8 @@ const schemas = {
     stress_details: Joi.string().required()
   }),
 
-  registerUser: Joi.object({
+  createUser: Joi.object({
     telegramId: Joi.number().required(),
-    nickname: Joi.string().min(2).max(30),
-    healthData: Joi.object({
-      profile: Joi.object({
-        age_range: Joi.string(),
-        ethnicity: Joi.string(),
-        location: Joi.string(),
-        is_pregnant: Joi.boolean()
-      }),
-      research_opt_in: Joi.boolean(),
-      conditions: Joi.array().items(Joi.string()),
-      medications: Joi.array().items(Joi.string()),
-      treatments: Joi.array().items(Joi.string()),
-      caretaker: Joi.array().items(Joi.string())
-    })
   }),
 
   updateUser: Joi.object({
