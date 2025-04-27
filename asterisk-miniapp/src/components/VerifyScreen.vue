@@ -21,13 +21,14 @@ const telegramId = telegramStore.userInfo.id;
 onMounted(() => {
   // Generate a unique user ID for this verification session
   // userId.value = uuidv4()
+  console.log('userStore.userData', userStore.userData)
 
   // Create the SelfApp configuration
   selfApp.value = new SelfAppBuilder({
     appName: "Asterisk Health",
     scope: "gender-verification",
     endpoint: "https://api.asterisk.health/verify-gender",
-    userId: telegramId,
+    userId: userStore.userData.user_id,
     disclosures: {
       gender: true
     },
