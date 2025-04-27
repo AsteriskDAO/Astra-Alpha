@@ -170,6 +170,7 @@ class UserController {
   //     res.status(500).json({ error: 'Failed to verify gender' })
   //   }
   // }
+  }
 }
 
 

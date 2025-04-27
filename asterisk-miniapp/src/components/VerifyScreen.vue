@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 
 const router = useRouter()
-const userStore = useUserStore()
+// const userStore = useUserStore()
 const verificationStatus = ref('pending')
 const userId = ref('')
 const selfApp = ref<any>(null)
