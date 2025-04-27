@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/user'
+// import { useUserStore } from '../stores/user'
 import { SelfAppBuilder } from '@selfxyz/core'
 import QRCode from 'qrcode.vue'
 import { v4 as uuidv4 } from 'uuid'
