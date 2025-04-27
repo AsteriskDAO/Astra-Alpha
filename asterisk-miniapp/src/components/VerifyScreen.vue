@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// import { useUserStore } from '../stores/user'
-import SelfQRcodeWrapper, { SelfAppBuilder } from '@selfxyz/qrcode'
+import { useUserStore } from '../stores/user'
+import { SelfAppBuilder } from '@selfxyz/core'
+import QRCode from 'qrcode.vue'
 import { v4 as uuidv4 } from 'uuid'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 
 const router = useRouter()
-// const userStore = useUserStore()
+const userStore = useUserStore()
 const verificationStatus = ref('pending')
 const userId = ref('')
 const selfApp = ref<any>(null)
+const qrValue = ref('')
 
 onMounted(() => {
   // Generate a unique user ID for this verification session
@@ -23,15 +25,18 @@ onMounted(() => {
     endpoint: "https://api.asterisk.health/verify-gender",
     userId: userId.value,
   }).build()
+
+  // Generate the deeplink for the QR code
+  qrValue.value = selfApp.value.getDeeplink()
 })
 
 const handleVerificationSuccess = async () => {
   try {
     verificationStatus.value = 'verified'
     // Update user's verification status in the store
-    // await userStore.updateUser({
-    //   isGenderVerified: true
-    // })
+    await userStore.updateUser({
+      isGenderVerified: true
+    })
     // Show success for 2 seconds before redirecting
     setTimeout(() => {
       router.push('/profile')
@@ -57,10 +62,11 @@ const handleBack = () => {
       </p>
 
       <div class="qr-container">
-        <SelfQRcodeWrapper
-          :selfApp="selfApp"
-          @success="handleVerificationSuccess"
+        <QRCode
+          :value="qrValue"
           :size="300"
+          level="H"
+          render-as="svg"
         />
       </div>
 
