@@ -11,7 +11,7 @@ import { useTelegramStore } from '../stores/telegram'
 const router = useRouter()
 const userStore = useUserStore()
 const verificationStatus = ref('pending')
-const userId = ref('')
+// const userId = ref('')
 const selfApp = ref<any>(null)
 const qrValue = ref('')
 const telegramStore = useTelegramStore()
