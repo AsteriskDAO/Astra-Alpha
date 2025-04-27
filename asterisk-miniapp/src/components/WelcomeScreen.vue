@@ -22,13 +22,13 @@ onMounted(() => {
 const handleContinue = async () => {
   try {
     loading.value = true
-    const telegramHandle = telegramStore.userInfo?.username
-    if (!telegramHandle) {
-      throw new Error('No Telegram handle found')
+    const telegramId = telegramStore.userInfo?.id
+    if (!telegramId) {
+      throw new Error('No Telegram ID found')
     }
     
     // Create initial user
-    await userStore.createUser(telegramHandle)
+    await userStore.createUser(telegramId)
     
     // Set first login flag
     userStore.isFirstLogin = true
