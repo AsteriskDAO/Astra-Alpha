@@ -46,6 +46,7 @@ export interface UserData {
   checkIns: number;
   healthData: HealthData;
   timestamp: string;
+  isGenderVerified: boolean;
 }
 
 export const useUserStore = defineStore('user', {
@@ -53,6 +54,7 @@ export const useUserStore = defineStore('user', {
     const storedData = sessionStorage.getItem('user_data')
     const storedTelegramId = sessionStorage.getItem('telegram_id')
     const storedFormData = sessionStorage.getItem('temp_form_data')
+    const storedIsGenderVerified = sessionStorage.getItem('is_gender_verified')
     
     return {
       userData: storedData ? JSON.parse(storedData) : null,
@@ -60,11 +62,16 @@ export const useUserStore = defineStore('user', {
       tempFormData: storedFormData ? JSON.parse(storedFormData) : null,
       loading: false,
       error: null as string | null,
-      isFirstLogin: false
+      isFirstLogin: false,
+      isGenderVerified: storedIsGenderVerified ? JSON.parse(storedIsGenderVerified) : false
     }
   },
 
   actions: {
+    updateIsGenderVerified(value: boolean) {
+      this.isGenderVerified = value
+      sessionStorage.setItem('is_gender_verified', JSON.stringify(value))
+    },
     updateMedsAndConditions(formData: any) {
       if (!this.tempFormData) {
         this.tempFormData = {
@@ -145,10 +152,12 @@ export const useUserStore = defineStore('user', {
 
     async registerUser(telegramId: string, userData: Partial<UserData>) {
       try {
+        const storedIsGenderVerified = sessionStorage.getItem('is_gender_verified')
         this.loading = true
         const response = await api.post('/api/users/register', {
           telegramId,
-          ...userData
+          ...userData,
+          isGenderVerified: storedIsGenderVerified ? JSON.parse(storedIsGenderVerified) : false
         })
         this.userData = response.data
         this.userData.isRegistered = true

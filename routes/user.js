@@ -37,4 +37,9 @@ router.put('/:userHash/points',
   userController.updatePoints
 )
 
+// Update gender verification status
+router.put('/verify-gender', 
+  userController.verifyGender
+)
+
 module.exports = router 

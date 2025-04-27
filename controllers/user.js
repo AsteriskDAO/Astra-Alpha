@@ -150,6 +150,28 @@ class UserController {
       res.status(500).json({ error: 'Failed to update user' });
     }
   }
+
+  async verifyGender(req, res) {
+    console.log('verifyGender')
+    console.log(req.body)
+  //   try {
+  //     const { userHash, isGenderVerified } = req.body
+  //     const user = await User.findOneAndUpdate(
+  //       { user_hash: userHash },
+  //       { $set: { isGenderVerified } },
+  //       { new: true }
+  //     )
+  //     if (!user) {
+  //       return res.status(404).json({ error: 'User not found' })
+  //     }
+  //     res.json({ message: 'Gender verified successfully' })
+  //   } catch (error) {
+  //     console.error('Failed to verify gender:', error)
+  //     res.status(500).json({ error: 'Failed to verify gender' })
+  //   }
+  // }
 }
+
+
 
 module.exports = new UserController() 

@@ -24,28 +24,26 @@ onMounted(() => {
     scope: "gender-verification",
     endpoint: "https://api.asterisk.health/verify-gender",
     userId: userId.value,
+    // onSuccess: handleVerificationSuccess
   }).build()
 
   // Generate the deeplink for the QR code
   qrValue.value = selfApp.value.getDeeplink()
 })
 
-const handleVerificationSuccess = async () => {
-  try {
-    verificationStatus.value = 'verified'
-    // Update user's verification status in the store
-    await userStore.updateUser({
-      isGenderVerified: true
-    })
-    // Show success for 2 seconds before redirecting
-    setTimeout(() => {
-      router.push('/profile')
-    }, 2000)
-  } catch (error) {
-    console.error('Failed to update verification status:', error)
-    verificationStatus.value = 'error'
-  }
-}
+// const handleVerificationSuccess = async () => {
+//   try {
+//     verificationStatus.value = 'verified'
+//     userStore.updateIsGenderVerified(true)
+//     // Show success for 2 seconds before redirecting
+//     setTimeout(() => {
+//       router.push('/profile')
+//     }, 2000)
+//   } catch (error) {
+//     console.error('Failed to update verification status:', error)
+//     verificationStatus.value = 'error'
+//   }
+// }
 
 const handleBack = () => {
   router.push('/welcome')
