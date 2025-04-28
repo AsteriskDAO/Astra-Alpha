@@ -112,9 +112,9 @@ const schema = yup.object({
     is_pregnant: yup.boolean(),
   }),
   research_opt_in: yup.boolean(),
-  conditions: yup.array().of(yup.string().required('Condition is required')),
-  medications: yup.array().of(yup.string().required('Medication is required')),
-  treatments: yup.array().of(yup.string().required('Treatment is required')),
+  conditions: yup.array().of(yup.string()).min(1, 'At least one condition is required'),
+  medications: yup.array().of(yup.string()).min(1, 'At least one medication is required'),
+  treatments: yup.array().of(yup.string()).min(1, 'At least one treatment is required'),
   caretaker: yup.array().of(yup.string())
 })
 
@@ -227,9 +227,9 @@ async function handleSubmit(e: Event) {
 
       <!-- Make a button to edit Health Conditions -->
       <div class="form-group">
-        <label>Health Conditions, Medications, and Treatments</label><span class="required">*</span>
+        <label>Health Conditions, Medications, and Treatments<span class="required">*</span></label>
         <div class="info-display" @click="handleNavigate('/health-conditions')">
-             <span>Update Health Conditions, Medications, and Treatments</span>
+             <span>Update Health Info</span>
            <button type="button" class="edit-btn">
              edit <span class="arrow">›</span>
            </button>

@@ -118,6 +118,7 @@ class UserController {
 
       if (!updatedHealthData) {
         // Create new health data
+        healthData.user_hash = user.user_hash
         updatedHealthData = await HealthData.createHealthData(healthData);
       }
 

@@ -56,7 +56,7 @@ async function handleSubmit() {
 
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label>Condition(s)</label><span class="required">*</span>
+        <label>Condition(s)<span class="required">*</span></label>
         <v-autocomplete
           v-model="form.conditions"
           :items="conditionsList"
@@ -73,7 +73,7 @@ async function handleSubmit() {
       </div>
 
       <div class="form-group">
-        <label>Medications You're On (by category)</label><span class="required">*</span>
+        <label>Medications You're On (by category)<span class="required">*</span></label>
         <v-autocomplete
           v-model="form.medications"
           :items="medicationOptions"
@@ -88,7 +88,7 @@ async function handleSubmit() {
       </div>
 
       <div class="form-group">
-        <label>Treatments You're Undertaking</label><span class="required">*</span>
+        <label>Treatments You're Undertaking<span class="required">*</span></label>
         <v-autocomplete
           v-model="form.treatments"
           :items="treatmentOptions"
