@@ -16,7 +16,8 @@ const userSchema = new mongoose.Schema({
   lastCheckIn: { type: Date, default: null },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
-  isGenderVerified: { type: Boolean, default: false }
+  isGenderVerified: { type: Boolean, default: false },
+  isRegistered: { type: Boolean, default: false }
 })
 
 // Pre-save middleware to update timestamps
