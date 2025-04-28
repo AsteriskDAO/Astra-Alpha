@@ -83,7 +83,6 @@ class UserController {
       const healthData = await HealthData.findOne({ user_hash: user.user_hash })
       const response = {
         ...user._doc,
-        isRegistered: true,
         healthData: healthData
       }
       // If user exists, return their data

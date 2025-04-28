@@ -112,6 +112,14 @@ const handleBack = () => {
         </v-btn>
       </div>
 
+      <v-btn
+        color="primary"
+        block
+        @click="router.push('/profile')"
+      >
+        Skip for now
+      </v-btn>
+
       <div class="actions">
         <v-btn
           color="primary"
