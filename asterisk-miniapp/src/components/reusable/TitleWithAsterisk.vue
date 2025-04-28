@@ -18,7 +18,7 @@ defineProps<{
 <style scoped>
 .title {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 30px;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
