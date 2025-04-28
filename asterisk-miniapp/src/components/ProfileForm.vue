@@ -95,6 +95,7 @@ function backButton() {
 
 // Save form data before navigating away
 function handleNavigate(path: string) {
+  console.log('form.value', form.value)
   userStore.saveTempFormData(form.value)
   userStore.updateMedsAndConditions(form.value)
   router.push(path)

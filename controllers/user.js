@@ -110,11 +110,19 @@ class UserController {
         { new: true }
       );
 
-      const updatedHealthData = await HealthData.findOneAndUpdate(
+      let updatedHealthData = await HealthData.findOneAndUpdate(
         { user_hash: user.user_hash }, 
         { $set: healthData }, 
         { new: true }
       )
+
+      if (!updatedHealthData) {
+        // Create new health data
+        updatedHealthData = await HealthData.create({
+          user_hash: user.user_hash,
+          ...healthData
+        })
+      }
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
