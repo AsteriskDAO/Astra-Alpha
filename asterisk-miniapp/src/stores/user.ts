@@ -126,7 +126,8 @@ export const useUserStore = defineStore('user', {
 
       this.tempFormData = {
         ...this.tempFormData,
-        profile: formData.profile
+        profile: formData.profile,
+        caretaker: formData.caretaker
       }
       sessionStorage.setItem('temp_form_data', JSON.stringify(this.tempFormData))
     },

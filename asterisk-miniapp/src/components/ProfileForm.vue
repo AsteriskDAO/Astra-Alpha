@@ -95,11 +95,9 @@ function backButton() {
 
 // Save form data before navigating away
 function handleNavigate(path: string) {
-  console.log('path', path)
-  console.log('form.value', form.value)
   userStore.saveTempFormData(form.value)
   userStore.updateMedsAndConditions(form.value)
-  // router.push(path)
+  router.push(path)
 }
 
 const schema = yup.object({
@@ -114,8 +112,9 @@ const schema = yup.object({
     is_pregnant: yup.boolean(),
   }),
   research_opt_in: yup.boolean(),
-  conditions: yup.array().of(yup.string()),
-  medications: yup.array().of(yup.string()),
+  conditions: yup.array().of(yup.string().required('Condition is required')),
+  medications: yup.array().of(yup.string().required('Medication is required')),
+  treatments: yup.array().of(yup.string().required('Treatment is required')),
   caretaker: yup.array().of(yup.string())
 })
 
@@ -228,13 +227,23 @@ async function handleSubmit(e: Event) {
 
       <!-- Make a button to edit Health Conditions -->
       <div class="form-group">
+        <label>Health Conditions, Medications, and Treatments</label><span class="required">*</span>
+        <div class="info-display" @click="handleNavigate('/health-conditions')">
+             <span>Update Health Conditions, Medications, and Treatments</span>
+           <button type="button" class="edit-btn">
+             edit <span class="arrow">›</span>
+           </button>
+        </div>
+      </div>
+
+      <!-- <div class="form-group">
         <v-btn 
         @click="handleNavigate('/health-conditions')"
         block
         color="primary"
         class="mt-4"
         >Edit Health Conditions</v-btn>
-      </div>
+      </div> -->
 
       <!-- <div class="form-group">
         <label>Medications*</label>

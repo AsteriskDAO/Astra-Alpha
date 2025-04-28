@@ -196,7 +196,7 @@ async function dailyCheckIn(conversation, ctx) {
         {
           reply_markup: {
             inline_keyboard: [[
-              { text: "Open Mini App", web_app: { url: "https://your-domain.com/miniapp/" } }
+              { text: "Set Up Profile", web_app: { url: "https://your-domain.com/miniapp/" } }
             ]]
           }
         }
@@ -349,10 +349,39 @@ async function dailyCheckIn(conversation, ctx) {
           await ctx.reply("Let's start over!");
           continue;
         }
+        if (updateResponse.callbackQuery.data === "cancel") {
+          await ctx.reply("Check-in cancelled. Come back when you're ready!");
+          return;
+        }
         if (updateResponse.callbackQuery.data === "yes") {
           showAppButton = true;
           await ctx.reply("Okay — we'll finish your check-in and then I'll take you to your profile to update that.");
           healthProfileUpdate = true;
+        }
+
+        // Final check to allow them to restart or cancel
+        await ctx.reply(
+          "Are you satisfied with your check-in? You can always restart or cancel if needed.",
+          addCancelButton({
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: "Complete Check-In", callback_data: "complete" }],
+              ]
+            }
+          })
+        );
+
+        const completeResponse = await conversation.waitFor("callback_query");
+        if (completeResponse.callbackQuery.data === "start_over") {
+          await ctx.reply("Let's start over!");
+          continue;
+        }
+        if (completeResponse.callbackQuery.data === "cancel") {
+          await ctx.reply("Check-in cancelled. Come back when you're ready!");
+          return;
+        }
+        if (completeResponse.callbackQuery.data === "complete") {
+          break;
         }
       }
 
@@ -448,7 +477,7 @@ bot.command("menu", async (ctx) => {
       reply_markup: {
         inline_keyboard: [
           [{ text: "Check In", callback_data: "checkin" }],
-          [{ text: "Open Mini App", web_app: { url: MINI_APP_URL } }]
+          [{ text: "Edit Profile", web_app: { url: MINI_APP_URL } }]
         ]
       }
     });
@@ -608,7 +637,7 @@ bot.command("app", async (ctx) => {
     {
       reply_markup: {
         inline_keyboard: [[
-          { text: "Open Mini App", web_app: { url: MINI_APP_URL } }
+          { text: "Edit Profile", web_app: { url: MINI_APP_URL } }
         ]]
       }
     }

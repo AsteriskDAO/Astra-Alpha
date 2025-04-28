@@ -56,7 +56,7 @@ async function handleSubmit() {
 
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label>Condition(s)</label>
+        <label>Condition(s)</label><span class="required">*</span>
         <v-autocomplete
           v-model="form.conditions"
           :items="conditionsList"
@@ -64,6 +64,7 @@ async function handleSubmit() {
           item-value="label"
           variant="outlined"
           multiple
+          :rules="[(v) => v.length > 0 || 'Condition is required']"
           chips
           closable-chips
           class="mb-4"
@@ -72,12 +73,13 @@ async function handleSubmit() {
       </div>
 
       <div class="form-group">
-        <label>Medications You're On (by category)</label>
+        <label>Medications You're On (by category)</label><span class="required">*</span>
         <v-autocomplete
           v-model="form.medications"
           :items="medicationOptions"
           variant="outlined"
           multiple
+          :rules="[(v) => v.length > 0 || 'Medication is required']"
           chips
           closable-chips
           class="mb-4"
@@ -86,12 +88,13 @@ async function handleSubmit() {
       </div>
 
       <div class="form-group">
-        <label>Treatments You're Undertaking</label>
+        <label>Treatments You're Undertaking</label><span class="required">*</span>
         <v-autocomplete
           v-model="form.treatments"
           :items="treatmentOptions"
           variant="outlined"
           multiple
+          :rules="[(v) => v.length > 0 || 'Treatment is required']"
           chips
           closable-chips
           class="mb-4"
@@ -128,6 +131,11 @@ async function handleSubmit() {
 <style scoped>
 .health-form {
   padding: 20px;
+}
+
+.required {
+  color: var(--primary);
+  margin-left: 4px;
 }
 
 .back-button {
