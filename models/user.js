@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const { createUserHash } = require('../utils/hash')
 const { v4: uuidv4 } = require('uuid')
-const bcrypt = require('bcryptjs')
 
 const userSchema = new mongoose.Schema({
   user_id: { type: String, required: true, unique: true },
@@ -35,8 +34,6 @@ userSchema.statics.createUser = async function(userData) {
     user_id: newUserId,
     telegram_id: userData.telegram_id,
     user_hash: userHash,
-    proof_of_passport_id: userData.proof_of_passport_id ? 
-      bcrypt.hashSync(userData.proof_of_passport_id, 10) : undefined,
     name: userData.name,
     nickname: userData.nickname,
     points: userData.points || 0

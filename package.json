@@ -15,7 +15,6 @@
     "@aws-sdk/s3-request-presigner": "^3.0.0",
     "@grammyjs/conversations": "^2.0.1",
     "@selfxyz/core": "^0.0.24",
-    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",

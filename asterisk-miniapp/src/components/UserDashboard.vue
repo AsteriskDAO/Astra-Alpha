@@ -45,7 +45,7 @@ function goToProfile() {
     </div>
 
     <div class="section">
-      <h2 class="section-title">Check your stats</h2>
+      <h2 class="section-title">My Stats</h2>
       <div class="stats">
         <div class="stat-card">
           <div class="stat-value">{{ averageLogins }}</div>
@@ -122,7 +122,7 @@ function goToProfile() {
 }
 
 .header {
-  margin-bottom: 40px;
+  margin-bottom: 15px;
 }
 
 .welcome {

@@ -65,7 +65,7 @@ async function uploadHealthData(userId, data) {
     const command = new PutObjectCommand({
       Bucket: BUCKETS.HEALTH,
       Key: key,
-      Body: JSON.stringify(data),
+      Body: Buffer.from(JSON.stringify(data)),
       ContentType: 'application/json'
     })
 
@@ -87,13 +87,21 @@ async function uploadHealthData(userId, data) {
  * @returns {Promise<{key: string, success: boolean}>}
  */
 async function uploadCheckinData(userId, data) {
-  const key = `checkin/${userId}/${Date.now()}.json`
+  const key = `checkin/${Date.now()}.json`
+  
+  console.log('Uploading check-in data to O3 storage:', {
+    userId,
+    key,
+    bucket: BUCKETS.CHECKIN
+  })
+
+  console.log('Data to upload:', data)
   
   try {
     const command = new PutObjectCommand({
       Bucket: BUCKETS.CHECKIN,
       Key: key,
-      Body: JSON.stringify(data),
+      Body: Buffer.from(JSON.stringify(data)),
       ContentType: 'application/json'
     })
 
