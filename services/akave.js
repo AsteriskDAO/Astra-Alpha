@@ -87,7 +87,7 @@ async function uploadHealthData(userId, data) {
  * @returns {Promise<{key: string, success: boolean}>}
  */
 async function uploadCheckinData(userId, data) {
-  const key = `checkin/${Date.now()}.json`
+  const key = `checkin/${userId}/${Date.now()}.json`
   
   console.log('Uploading check-in data to O3 storage:', {
     userId,
