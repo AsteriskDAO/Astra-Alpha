@@ -196,7 +196,7 @@ async function dailyCheckIn(conversation, ctx) {
         {
           reply_markup: {
             inline_keyboard: [[
-              { text: "Set Up Profile", web_app: { url: "https://your-domain.com/miniapp/" } }
+              { text: "Set Up Profile", web_app: { url: MINI_APP_URL } }
             ]]
           }
         }
@@ -441,7 +441,7 @@ async function dailyCheckIn(conversation, ctx) {
       ,{
         reply_markup: {
           inline_keyboard: [[
-            { text: "Open Mini App", web_app: { url: MINI_APP_URL } }
+            { text: "Open Profile", web_app: { url: MINI_APP_URL } }
           ]]
         }
       }); 

@@ -70,9 +70,16 @@ async function uploadHealthData(userId, data) {
     })
 
     await s3Client.send(command)
+
+    const url = await getDataUrl(BUCKETS.HEALTH, key)
+    console.log('Health data uploaded to O3 storage:', {
+      key,
+      url
+    })
     return { 
       success: true, 
-      key
+      key,
+      url
     }
   } catch (error) {
     console.error('Health data upload error:', error)
@@ -106,9 +113,16 @@ async function uploadCheckinData(userId, data) {
     })
 
     await s3Client.send(command)
+    
+    const url = await getDataUrl(BUCKETS.CHECKIN, key)  
+    console.log('Check-in data uploaded to O3 storage:', {
+      key,
+      url
+    })
     return { 
       success: true, 
-      key
+      key,
+      url
     }
   } catch (error) {
     console.error('Check-in data upload error:', error)
@@ -183,6 +197,16 @@ async function getData(bucket, key) {
     console.error('Get data error:', error)
     throw new Error('Failed to get data')
   }
+}
+
+async function getDataUrl(bucket, key) {
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key
+  })
+
+  const url = await getSignedUrl(s3Client, command)
+  return url
 }
 
 module.exports = {
