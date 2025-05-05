@@ -127,9 +127,10 @@ class UserController {
       }
 
       // Store to O3
-      // const akaveResult = await akave.storeToO3(user.user_hash, {
-      //   healthData
-      // });
+      const o3Response = await akave.uploadHealthData(user.user_hash, healthData)
+
+      // upload o3 url to vana
+      // const vanaResponse = await vana.handleFileUpload(o3Response.url)
 
       // Invalidate cache
       // await cache.del(cache.generateKey('user', user.user_hash));

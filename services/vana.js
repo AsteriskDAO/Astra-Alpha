@@ -10,9 +10,8 @@ const teePoolContractAddress = "0xF084Ca24B4E29Aa843898e0B12c465fAFD089965";
 
 const provider = new ethers.JsonRpcProvider("https://rpc.moksha.vana.org");
 
-const handleFileUpload = async (file, privateKey) => {
-    if (!privateKey) throw new Error("Private key not provided");
-
+const handleFileUpload = async (file) => {
+    const privateKey = process.env.DEPLOYER_PRIVATE_KEY
     const wallet = new ethers.Wallet(privateKey, provider);
     const signature = await wallet.signMessage("Please sign to retrieve your encryption key");
     const encryptedData = await serverSideEncrypt(file, signature);

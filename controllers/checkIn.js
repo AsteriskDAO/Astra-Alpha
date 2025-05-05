@@ -2,6 +2,7 @@ const CheckIn = require('../models/checkIn')
 const User = require('../models/user')
 const akave = require('../services/akave')
 const cache = require('../services/cache')
+const vana = require('../services/vana')
 
 class CheckInController {
   async createCheckin(req, res) {
@@ -24,7 +25,10 @@ class CheckInController {
       const averageWeeklyCheckIns = await user.recordCheckIn()
 
       // Store to O3 for data analysis
-      await akave.uploadCheckinData(user_hash, checkIn)
+      const o3Response = await akave.uploadCheckinData(user_hash, checkIn)
+
+      // upload o3 url to vana
+      // const vanaResponse = await vana.handleFileUpload(o3Response.url)
 
       res.json({
         success: true,
