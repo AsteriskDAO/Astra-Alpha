@@ -16,7 +16,12 @@ const userSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
   isGenderVerified: { type: Boolean, default: false },
-  isRegistered: { type: Boolean, default: false }
+  isRegistered: { type: Boolean, default: false },
+  weeklyCheckIns: [{
+    week: Date, // Start of week
+    count: { type: Number, default: 0 }
+  }],
+  averageWeeklyCheckIns: { type: Number, default: 0 },
 })
 
 // Pre-save middleware to update timestamps
@@ -24,6 +29,49 @@ userSchema.pre('save', function(next) {
   this.updated_at = new Date()
   next()
 })
+
+// Helper to get start of week
+function getStartOfWeek(date) {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() - d.getDay()) // Set to Sunday
+  return d
+}
+
+// Method to record a check-in and update averages
+userSchema.methods.recordCheckIn = async function() {
+  const now = new Date()
+  const startOfWeek = getStartOfWeek(now)
+  
+  // Find or create current week's record
+  let weekRecord = this.weeklyCheckIns.find(w => 
+    w.week.getTime() === startOfWeek.getTime()
+  )
+  
+  if (!weekRecord) {
+    weekRecord = { week: startOfWeek, count: 0 }
+    this.weeklyCheckIns.push(weekRecord)
+  }
+  
+  // Increment counts
+  weekRecord.count++
+  this.checkIns++
+  this.lastCheckIn = now
+  this.points += 1
+  
+  // Keep only last 4 weeks of data
+  this.weeklyCheckIns = this.weeklyCheckIns
+    .filter(w => w.week >= getStartOfWeek(new Date(now - 28 * 24 * 60 * 60 * 1000)))
+    .sort((a, b) => b.week - a.week)
+  
+  // Calculate average (rounded down)
+  const totalCheckins = this.weeklyCheckIns.reduce((sum, week) => sum + week.count, 0)
+  const weeks = this.weeklyCheckIns.length || 1
+  this.averageWeeklyCheckIns = Math.floor(totalCheckins / weeks)
+  
+  await this.save()
+  return this.averageWeeklyCheckIns
+}
 
 // Static method to create a new user with proper hashing
 userSchema.statics.createUser = async function(userData) {
@@ -36,7 +84,9 @@ userSchema.statics.createUser = async function(userData) {
     user_hash: userHash,
     name: userData.name,
     nickname: userData.nickname,
-    points: userData.points || 0
+    points: userData.points || 0,
+    weeklyCheckIns: [],
+    averageWeeklyCheckIns: 0
   })
 
   return user.save()

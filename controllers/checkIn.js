@@ -14,23 +14,25 @@ class CheckInController {
         ...req.body
       })
 
-      // Update user's check-in count and points
-      await User.findOneAndUpdate(
-        { user_hash },
-        { 
-          $inc: { 
-            checkIns: 1,
-            points: 1 // Add one point per check-in
-          }
-        }
-      )
+      // Find user and record check-in
+      const user = await User.findOne({ user_hash })
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      // Record check-in and get updated average
+      const averageWeeklyCheckIns = await user.recordCheckIn()
 
       // Store to O3 for data analysis
       await akave.uploadCheckinData(user_hash, checkIn)
 
       res.json({
         success: true,
-        checkIn: checkIn.toObject()
+        checkIn: checkIn.toObject(),
+        stats: {
+          totalCheckIns: user.checkIns,
+          averageWeeklyCheckIns
+        }
       })
     } catch (error) {
       console.error('Failed to create check-in:', error)

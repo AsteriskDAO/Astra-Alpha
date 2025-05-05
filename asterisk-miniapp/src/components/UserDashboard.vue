@@ -26,7 +26,7 @@ onMounted(() => {
 })
 
 const nickname = computed(() => userStore.userData?.nickname || 'User')
-const averageLogins = computed(() => 12) // TODO: Implement this
+const averageCheckins = computed(() => userStore.userData?.averageWeeklyCheckIns || 0)
 const points = computed(() => userStore.userData?.points || 0)
 
 function goToProfile() {
@@ -48,7 +48,7 @@ function goToProfile() {
       <h2 class="section-title">My Stats</h2>
       <div class="stats">
         <div class="stat-card">
-          <div class="stat-value">{{ averageLogins }}</div>
+          <div class="stat-value">{{ averageCheckins }}</div>
           <div class="stat-label">average logins</div>
         </div>
 
