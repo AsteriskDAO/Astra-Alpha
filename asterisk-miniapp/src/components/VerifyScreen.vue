@@ -27,7 +27,7 @@ onMounted(() => {
   selfApp.value = new SelfAppBuilder({
     appName: "Asterisk Health",
     scope: "gender-verification",
-    endpoint: "https://api.asterisk.health/verify-gender",
+    endpoint: "https://asterisk-health-profile.onrender.com/api/users/verify-gender",
     userId: userStore.userData.user_id,
     disclosures: {
       gender: true
