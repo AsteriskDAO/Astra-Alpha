@@ -66,7 +66,7 @@ userSchema.methods.recordCheckIn = async function() {
   
   // Calculate average (rounded down)
   const totalCheckins = this.weeklyCheckIns.reduce((sum, week) => sum + week.count, 0)
-  const weeks = this.weeklyCheckIns.length || 1
+  const weeks = Math.min(4, Math.max(1, this.weeklyCheckIns.length)) // Use min of 1 week, max of 4 weeks
   this.averageWeeklyCheckIns = Math.floor(totalCheckins / weeks)
   
   await this.save()
