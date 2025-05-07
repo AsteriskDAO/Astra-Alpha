@@ -11,8 +11,20 @@ class UserController {
     // console.log('registerUser', req.body)
     console.log('createUser')
     try {
+
+      // check if user already exists
+      let user = await User.findOne({ telegram_id: req.body.telegramId })
+      if (user) {
+        return res.status(200).json({
+          user: user,
+          isRegistered: user.isRegistered,
+          isGenderVerified: user.isGenderVerified,
+          message: 'User already exists'
+        })
+      }
+
       const { telegramId, ...userData } = req.body
-      const user = await User.createUser({
+      user = await User.createUser({
         telegram_id: telegramId,
         isRegistered: false,
         isGenderVerified: false
