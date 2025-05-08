@@ -213,11 +213,15 @@ async function dailyCheckIn(conversation, ctx) {
 
     let showAppButton = false;
     let healthProfileUpdate = false;
-    let stressDetailsText = '';
     let mood = '';
-    let stress = '';
     let doctorVisit = false;
     let healthComment = '';
+    let painLevel = 0;
+    let painDetails = '';
+    let fatigueLevel = 0;
+    let fatigueDetails = '';
+    let anxietyLevel = 0;
+    let anxietyDetails = '';
 
     // Start check-in loop
     while (true) {
@@ -236,7 +240,7 @@ async function dailyCheckIn(conversation, ctx) {
       ]));
 
       await ctx.reply(
-        `Hey there, how are you today?`,
+        `Hey there, ${ctx.from.first_name} how are you feeling health-wise in general, today?`,
         addCancelButton({
           reply_markup: {
             inline_keyboard: moodRows
@@ -271,15 +275,59 @@ async function dailyCheckIn(conversation, ctx) {
       const healthCommentResponse = await conversation.waitFor(":text");
       healthComment = healthCommentResponse.message.text;
 
-      // Stress options in rows
+      // Pain options in rows
       await ctx.reply(
-        "Thank you for sharing that. How much stress do you think you're carrying today?",
+        "Good to know. Are you experiencing any pain today?",
         addCancelButton({
           reply_markup: {
             inline_keyboard: [
-              [{ text: "a lot 🏋️‍♀️", callback_data: "high_stress" }],
-              [{ text: "some, but I'm coping 💪", callback_data: "medium_stress" }],
-              [{ text: "today is easy breazy 🪶", callback_data: "low_stress" }]
+              [{ text: "none at all 😀", callback_data: "1" }],
+              [{ text: "a bit, but it’s easily forgotten 🥲", callback_data: "2" }],
+              [{ text: "the pain is always there and but I’m getting by 😓", callback_data: "3" }],
+              [{ text: "the pain makes it hard to concentrate 😩", callback_data: "4" }],
+              [{ text: "I can’t function the pain is so bad 😖", callback_data: "5" }]
+            ]
+          }
+        })
+      );
+
+      const painOptions = {
+        1: "That’s wonderful. Anything you’d like to add?",
+        2: "Noted. Is the pain from an existing condition or something new?",
+        3: "I understand. What makes today’s pain different?",
+        4: "I’m really sorry to hear that. Can you tell me more about what’s happening?",
+        5: "That’s awful. If you can, please describe a little of what’s going on, just so I have some insight for you over time. Then take care of yourself."
+      };
+
+      const painResponse = await conversation.waitFor("callback_query");
+      if (painResponse.callbackQuery.data === "start_over") {
+        await ctx.reply("Let's start over!");
+        continue;
+      }
+      if (painResponse.callbackQuery.data === "cancel") {
+        await ctx.reply("Check-in cancelled. Come back when you're ready!");
+        return;
+      }
+      painLevel = parseInt(painResponse.callbackQuery.data);
+
+      await ctx.reply(
+        painOptions[painLevel]
+      );
+
+      const painDetails = await conversation.waitFor(":text");
+      painDetailsText = painDetails.message.text;
+
+      // Stress options in rows
+      await ctx.reply(
+        "Thank you for sharing that. How much stress or anxiety do you think you’re carrying today?",
+        addCancelButton({
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "today is easy breezy 🪶", callback_data: "1" }],
+              [{ text: "I barely notice it�", callback_data: "2" }],
+              [{ text: "some, but I’m coping 💪", callback_data: "3" }],
+              [{ text: "it sucks but I can carry it if I’m careful 🏋️‍♀️", callback_data: "4" }],
+              [{ text: "I’m overwhelmed 😭", callback_data: "5" }]
             ]
           }
         })
@@ -294,25 +342,76 @@ async function dailyCheckIn(conversation, ctx) {
         await ctx.reply("Check-in cancelled. Come back when you're ready!");
         return;
       }
-      stress = stressResponse.callbackQuery.data;
+      anxietyLevel = parseInt(stressResponse.callbackQuery.data);
 
       // Follow-up stress questions based on response
+      // 
       const stressFollowUps = {
-        high_stress: "Can you tell me more about what is creating stress today?",
-        medium_stress: "I'm proud of you for feeling on top of things. What is generating the stress you're noticing?",
-        low_stress: "Glad to hear things are chill! Is there anything you'd like to add?"
+        1: "Glad to hear things are chill! Is there anything you’d like to share?",
+        2: "Sounds like you’re feeling zen enough to let the stress flow by. Would you care to elaborate what those stressors are?",
+        3: "I’m proud of you for feeling on top of things. What is generating the stress you’re noticing?",
+        4: "Take a moment to breathe. If you can, would you mind sharing the source of stress/anxiety?",
+        5: "That’s a lot to carry. I’m here to help you through it. What’s been going on?"
       };
 
       await ctx.reply(
-        stressFollowUps[stress]
+        stressFollowUps[anxietyLevel]
       );
       
       const stressDetails = await conversation.waitFor(":text");
-      stressDetailsText = stressDetails.message.text;
+      anxietyDetails = stressDetails.message.text;
+
+    //   - Got it. Thanks. Finally, how fatigued are you today? [I’m full of energy 💃] [feeling fairly spry 💅] [could be better but I’m moving🚶‍♀️‍➡️] [I’m having to push myself 🧎‍♀️] [I feel like I’m carrying the world 🌍 ]
+    // - Oh great — I want to join the party. Since I can’t, can you tell me what makes today’s energy great?
+    // - Sounds good. What’s notable about your energy level today?
+    // - Got it. What about this feeling is different than other days?
+    // - Okay. What makes today hard?
+    // - That sounds like an awful lot. Why does it feel that way?
+
+      await ctx.reply(
+        "Got it. Thanks. Finally, how fatigued are you today?",
+        addCancelButton({
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "I’m full of energy 💃", callback_data: "1" }],  
+              [{ text: "feeling fairly spry 💅", callback_data: "2" }],
+              [{ text: "could be better but I’m moving🚶‍♀️‍➡️", callback_data: "3" }],
+              [{ text: "I’m having to push myself 🧎‍♀️", callback_data: "4" }],
+              [{ text: "I feel like I’m carrying the world 🌍 ", callback_data: "5" }]
+            ]
+          }
+        })  
+      );
+
+      const fatigueResponse = await conversation.waitFor("callback_query");
+      if (fatigueResponse.callbackQuery.data === "start_over") {
+        await ctx.reply("Let's start over!");
+        continue;
+      } 
+      if (fatigueResponse.callbackQuery.data === "cancel") {
+        await ctx.reply("Check-in cancelled. Come back when you're ready!");
+        return;
+      }
+      fatigueLevel = parseInt(fatigueResponse.callbackQuery.data);
+
+      const fatigueOptions = {
+        1: "Oh great — I want to join the party. Since I can’t, can you tell me what makes today’s energy great?",
+        2: "Sounds good. What’s notable about your energy level today?",
+        3: "Got it. What about this feeling is different than other days?",
+        4: "Okay. What makes today hard?",
+        5: "That sounds like an awful lot. Why does it feel that way?"
+      };
+      
+      await ctx.reply(
+        fatigueOptions[fatigueLevel]
+      );
+
+      const fatigueDetails = await conversation.waitFor(":text");
+      fatigueDetailsText = fatigueDetails.message.text;
 
       // Doctor visit options in rows
       await ctx.reply(
-        "Thank you so much for explaining that to me. Did you see a doctor today?",
+        "Thank you so much for sharing your experience with me. Did you see a doctor today?",
         addCancelButton({
           reply_markup: {
             inline_keyboard: [
@@ -408,8 +507,12 @@ async function dailyCheckIn(conversation, ctx) {
       health_comment: healthComment,
       doctor_visit: doctorVisit,  
       health_profile_update: healthProfileUpdate,
-      stress_level: stress,
-      stress_details: stressDetailsText
+      anxiety_level: anxietyLevel,
+      anxiety_details: anxietyDetails,
+      pain_level: painLevel,
+      pain_details: painDetailsText,
+      fatigue_level: fatigueLevel,
+      fatigue_details: fatigueDetailsText
     })
 
     // Add points to user

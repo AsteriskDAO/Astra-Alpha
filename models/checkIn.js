@@ -10,7 +10,9 @@ const checkInSchema = new mongoose.Schema({
   anxiety_level: String,
   anxiety_details: String,
   pain_level: Number,
-  fatigue_level: Number
+  pain_details: String,
+  fatigue_level: Number,
+  fatigue_details: String
 })
 
 // Index for faster lookups by user and date
