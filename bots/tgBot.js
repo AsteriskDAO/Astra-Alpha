@@ -192,7 +192,7 @@ async function dailyCheckIn(conversation, ctx) {
     const isRegistered = await checkUserRegistration(ctx.from.id);
     if (!isRegistered) {
       await ctx.reply(
-        "Looks like you haven't registered yet! Please open the mini app first to complete registration.",
+        "Looks like you haven't registered yet! Please open the Health Profile app first to complete registration.",
         {
           reply_markup: {
             inline_keyboard: [[
@@ -217,11 +217,11 @@ async function dailyCheckIn(conversation, ctx) {
     let doctorVisit = false;
     let healthComment = '';
     let painLevel = 0;
-    let painDetails = '';
+    let painDetailsText = '';
     let fatigueLevel = 0;
-    let fatigueDetails = '';
+    let fatigueDetailsText = '';
     let anxietyLevel = 0;
-    let anxietyDetails = '';
+    let anxietyDetailsText = '';
 
     // Start check-in loop
     while (true) {
@@ -359,7 +359,7 @@ async function dailyCheckIn(conversation, ctx) {
       );
       
       const stressDetails = await conversation.waitFor(":text");
-      anxietyDetails = stressDetails.message.text;
+      anxietyDetailsText = stressDetails.message.text;
 
     //   - Got it. Thanks. Finally, how fatigued are you today? [I’m full of energy 💃] [feeling fairly spry 💅] [could be better but I’m moving🚶‍♀️‍➡️] [I’m having to push myself 🧎‍♀️] [I feel like I’m carrying the world 🌍 ]
     // - Oh great — I want to join the party. Since I can’t, can you tell me what makes today’s energy great?
@@ -490,16 +490,7 @@ async function dailyCheckIn(conversation, ctx) {
 
     const userHash = await User.findOne({ telegram_id: ctx.from.id }).select('user_hash');
     // upload to akave
-    // user_hash: { type: String, required: true },
-    // is_pregnant: Boolean,
-    // timestamp: { type: Date, default: Date.now },
-    // mood: String,
-    // health_comment: String,
-    // doctor_visit: Boolean,
-    // medication_update: Boolean,
-    // diagnosis_update: Boolean,
-    // stress_level: String,
-    // stress_details: String
+
     await akave.uploadCheckinData(userHash.user_hash, {
       user_hash: userHash.user_hash,
       timestamp: new Date(),
@@ -508,7 +499,7 @@ async function dailyCheckIn(conversation, ctx) {
       doctor_visit: doctorVisit,  
       health_profile_update: healthProfileUpdate,
       anxiety_level: anxietyLevel,
-      anxiety_details: anxietyDetails,
+      anxiety_details: anxietyDetailsText,
       pain_level: painLevel,
       pain_details: painDetailsText,
       fatigue_level: fatigueLevel,

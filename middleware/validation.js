@@ -10,7 +10,13 @@ const schemas = {
     diagnosis_update: Joi.boolean().required(),
     is_pregnant: Joi.boolean().required(),
     stress_level: Joi.string().required(),
-    stress_details: Joi.string().required()
+    stress_details: Joi.string().required(),
+    anxiety_level: Joi.string().required(),
+    anxiety_details: Joi.string().required(),
+    pain_level: Joi.number().required(),
+    pain_details: Joi.string().required(),
+    fatigue_level: Joi.number().required(),
+    fatigue_details: Joi.string().required()
   }),
 
   createUser: Joi.object({
