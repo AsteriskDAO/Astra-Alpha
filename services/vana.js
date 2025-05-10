@@ -11,10 +11,13 @@ const teePoolContractAddress = "0xE8EC6BD73b23Ad40E6B9a6f4bD343FAc411bD99A";
 const provider = new ethers.JsonRpcProvider("https://rpc.moksha.vana.org");
 
 const handleFileUpload = async (file) => {
+    console.log("handleFileUpload", file);
     const privateKey = process.env.DEPLOYER_PRIVATE_KEY
     const wallet = new ethers.Wallet(privateKey, provider);
     const signature = await wallet.signMessage("Please sign to retrieve your encryption key");
+    console.log("signature", signature);
     const encryptedData = await serverSideEncrypt(file, signature);
+    console.log("encryptedData", encryptedData);
 
     const signer = wallet.connect(provider);
 
@@ -24,23 +27,29 @@ const handleFileUpload = async (file) => {
 
     const publicKey = await dlpContract.masterKey();
     const encryptedKey = await encryptWithWalletPublicKey(signature, publicKey);
-
+    console.log("encryptedKey", encryptedKey);
     const tx = await dataRegistryContract.addFileWithPermissions(encryptedData, wallet.address, [
         // DLP contract.
         { account: contractAddress, key: encryptedKey }
     ]);
+    console.log("tx", tx);
     const receipt = await tx.wait();
+    console.log("receipt", receipt);
 
     const uploadedFileId = receipt.logs?.[0]?.args?.[0]?.toNumber() || null;
     if (!uploadedFileId) throw new Error("Failed to retrieve file ID");
-
+    console.log("uploadedFileId", uploadedFileId);
     // TeePool sets up the verification jobs on the files.
     const teeFee = await teePoolContract.teeFee();
+    console.log("teeFee", teeFee);
     const contributionProofTx = await teePoolContract.requestContributionProof(uploadedFileId, { value: teeFee });
+    console.log("contributionProofTx", contributionProofTx);
     await contributionProofTx.wait();
-
+    console.log("contributionProofTx wait");
     const claimTx = await dlpContract.requestReward(uploadedFileId, 1);
+    console.log("claimTx", claimTx);
     await claimTx.wait();
+    console.log("claimTx wait");
 
     return { uploadedFileId, message: "File uploaded & reward requested successfully" };
 };

@@ -41,12 +41,16 @@ uploadQueue.process(async (job) => {
     }
     results.akave = o3Response
 
+    console.log("o3Response", o3Response);
+
     // Then upload to Vana
     const vanaResponse = await vana.handleFileUpload(o3Response.url)
     if (!vanaResponse?.uploadedFileId) {
       throw new Error('Failed to upload to Vana')
     }
     results.vana = vanaResponse
+
+    console.log("vanaResponse", vanaResponse);
 
     // Send success message
     const successMsg = type === QUEUE_TYPES.CHECKIN 
