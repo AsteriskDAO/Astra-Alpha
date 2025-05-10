@@ -3,7 +3,7 @@ const Queue = require('bull')
 const User = require('../models/user')
 const akave = require('./akave')
 const vana = require('./vana')
-const { sendTelegramMessage } = require('../bots/tgBot')
+const { sendTelegramMessage } = require('./telegram')
 
 // Create upload queue
 const uploadQueue = new Queue('dataUpload', 

@@ -1,4 +1,5 @@
-const { Bot, session } = require("grammy");
+const { bot } = require('../services/telegram')
+const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 const {
   conversations,
   createConversation,
@@ -9,8 +10,8 @@ const schedule = require('node-schedule');
 const Notification = require('../models/notification');
 const User = require('../models/user');
 const HealthData = require('../models/healthData');
-const { addToQueue, QUEUE_TYPES } = require('../services/queue')
-const bot = new Bot(TG_BOT_API_KEY);
+const { sendTelegramMessage } = require('../services/telegram');
+// const bot = new Bot(TG_BOT_API_KEY);
 
 // Registration cache
 const registrationCache = new Map();
@@ -32,15 +33,6 @@ const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
 // Initialize minimal session
 bot.use(session({ initial: () => ({}) }));
 bot.use(conversations());
-
-// Create message sender function
-async function sendTelegramMessage(telegramId, message) {
-  try {
-    await bot.api.sendMessage(telegramId, message)
-  } catch (error) {
-    console.error('Failed to send Telegram message:', error)
-  }
-}
 
 // Helper function to check user registration with caching
 async function checkUserRegistration(userId) {
@@ -502,10 +494,9 @@ async function dailyCheckIn(conversation, ctx) {
     // upload to akave
 
     console.log("userHash", userHash);
-    console.log("Queue type", QUEUE_TYPES);
-    const queueType = QUEUE_TYPES?.CHECKIN || 'checkin'; 
+
     await addToQueue(
-      queueType,
+      QUEUE_TYPES.CHECKIN,
       {
         user_hash: userHash.user_hash,
         timestamp: new Date(),
@@ -823,9 +814,7 @@ initializeNotifications();
 
 // Export for use in other files if needed
 module.exports = {
-  bot,
   checkUserRegistration,
-  invalidateRegistrationCache,
-  sendTelegramMessage
+  invalidateRegistrationCache
 };
 
