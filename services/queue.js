@@ -1,5 +1,4 @@
 const Queue = require('bull')
-const config = require('../config')
 const bot = require('../bots/tgBot')
 const User = require('../models/user')
 
