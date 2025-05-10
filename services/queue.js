@@ -1,6 +1,8 @@
 const Queue = require('bull')
-const bot = require('../bots/tgBot')
+const { bot } = require('../bots/tgBot')
 const User = require('../models/user')
+const akave = require('./akave')
+const vana = require('./vana')
 
 // Create upload queue
 const uploadQueue = new Queue('dataUpload', 
@@ -32,10 +34,17 @@ async function sendTelegramMessage(telegramId, message) {
 uploadQueue.process(async (job) => {
   const { type, data, telegramId, user_hash } = job.data
   const results = {}
+  console.log("job.data", job.data);
 
   try {
+    let o3Response;
     // First upload to Akave
-    const o3Response = await akave.uploadData(user_hash, data)
+    if (type === QUEUE_TYPES.CHECKIN) {
+      o3Response = await akave.uploadData(user_hash, data)
+    } else {
+      o3Response = await akave.uploadHealthData(user_hash, data)
+    }
+
     if (!o3Response?.url) {
       throw new Error('Failed to get O3 upload URL')
     }

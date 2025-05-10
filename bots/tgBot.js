@@ -9,6 +9,7 @@ const schedule = require('node-schedule');
 const Notification = require('../models/notification');
 const User = require('../models/user');
 const HealthData = require('../models/healthData');
+const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 const bot = new Bot(TG_BOT_API_KEY);
 
 // Registration cache
@@ -491,20 +492,25 @@ async function dailyCheckIn(conversation, ctx) {
     const userHash = await User.findOne({ telegram_id: ctx.from.id }).select('user_hash');
     // upload to akave
 
-    await akave.uploadCheckinData(userHash.user_hash, {
-      user_hash: userHash.user_hash,
-      timestamp: new Date(),
-      mood: mood,
-      health_comment: healthComment,
-      doctor_visit: doctorVisit,  
-      health_profile_update: healthProfileUpdate,
-      anxiety_level: anxietyLevel,
-      anxiety_details: anxietyDetailsText,
-      pain_level: painLevel,
-      pain_details: painDetailsText,
-      fatigue_level: fatigueLevel,
-      fatigue_details: fatigueDetailsText
-    })
+    await addToQueue(
+      QUEUE_TYPES.CHECKIN,
+      {
+        user_hash: userHash.user_hash,
+        timestamp: new Date(),
+        mood: mood,
+        health_comment: healthComment,
+        doctor_visit: doctorVisit,  
+        health_profile_update: healthProfileUpdate,
+        anxiety_level: anxietyLevel,
+        anxiety_details: anxietyDetailsText,
+        pain_level: painLevel,
+        pain_details: painDetailsText,
+        fatigue_level: fatigueLevel,
+        fatigue_details: fatigueDetailsText
+      },
+      ctx.from.id,
+      userHash.user_hash
+    )
 
     // Add points to user
     await addPoints(ctx.from.id, 1);
