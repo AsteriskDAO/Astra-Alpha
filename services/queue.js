@@ -4,13 +4,14 @@ const bot = require('../bots/tgBot')
 const User = require('../models/user')
 
 // Create upload queue
-const uploadQueue = new Queue('dataUpload', {
-  redis: config.redis.url,
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 2000
+const uploadQueue = new Queue('dataUpload', 
+    process.env.REDIS_URL, 
+    {
+        defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+        type: 'exponential',
+        delay: 2000
     }
   }
 })
