@@ -501,8 +501,11 @@ async function dailyCheckIn(conversation, ctx) {
     const userHash = await User.findOne({ telegram_id: ctx.from.id }).select('user_hash');
     // upload to akave
 
+    console.log("userHash", userHash);
+    console.log("Queue type", QUEUE_TYPES);
+    const queueType = QUEUE_TYPES?.CHECKIN || 'checkin'; 
     await addToQueue(
-      QUEUE_TYPES.CHECKIN,
+      queueType,
       {
         user_hash: userHash.user_hash,
         timestamp: new Date(),
