@@ -4,9 +4,9 @@ const DataLiquidityPoolABI = require("../contracts/DataLiquidityPoolLightImpleme
 const TeePoolImplementationABI = require("../contracts/TeePoolImplementation.json");
 const DataRegistryImplementationABI = require("../contracts/DataRegistryImplementation.json");
 
-const contractAddress = "0xE317bF090911AF03fEa09c1707Ec370EdFf8C0A8";
-const dataRegistryContractAddress = "0xEA882bb75C54DE9A08bC46b46c396727B4BFe9a5";
-const teePoolContractAddress = "0xF084Ca24B4E29Aa843898e0B12c465fAFD089965";
+const contractAddress = "0x02C6C80EDe873285b5e1a06ae425e5fE277BB310";
+const dataRegistryContractAddress = "0x8C8788f98385F6ba1adD4234e551ABba0f82Cb7C";
+const teePoolContractAddress = "0xE8EC6BD73b23Ad40E6B9a6f4bD343FAc411bD99A";
 
 const provider = new ethers.JsonRpcProvider("https://rpc.moksha.vana.org");
 
@@ -39,8 +39,8 @@ const handleFileUpload = async (file) => {
     const contributionProofTx = await teePoolContract.requestContributionProof(uploadedFileId, { value: teeFee });
     await contributionProofTx.wait();
 
-    // const claimTx = await dlpContract.requestReward(uploadedFileId, 1);
-    // await claimTx.wait();
+    const claimTx = await dlpContract.requestReward(uploadedFileId, 1);
+    await claimTx.wait();
 
     return { uploadedFileId, message: "File uploaded & reward requested successfully" };
 };

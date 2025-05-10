@@ -28,7 +28,11 @@ class CheckInController {
       const o3Response = await akave.uploadCheckinData(user_hash, checkIn)
 
       // upload o3 url to vana
-      // const vanaResponse = await vana.handleFileUpload(o3Response.url)
+      const vanaResponse = await vana.handleFileUpload(o3Response.url)
+
+      if (vanaResponse) {
+        console.log('vanaResponse', vanaResponse)
+      }
 
       res.json({
         success: true,
