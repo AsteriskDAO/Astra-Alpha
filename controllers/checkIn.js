@@ -3,6 +3,7 @@ const User = require('../models/user')
 const akave = require('../services/akave')
 const cache = require('../services/cache')
 const vana = require('../services/vana')
+const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 
 class CheckInController {
   async createCheckin(req, res) {
@@ -21,18 +22,16 @@ class CheckInController {
         throw new Error('User not found')
       }
 
-      // Record check-in and get updated average
+      // Record check-in
       const averageWeeklyCheckIns = await user.recordCheckIn()
 
-      // Store to O3 for data analysis
-      const o3Response = await akave.uploadCheckinData(user_hash, checkIn)
-
-      // upload o3 url to vana
-      const vanaResponse = await vana.handleFileUpload(o3Response.url)
-
-      if (vanaResponse) {
-        console.log('vanaResponse', vanaResponse)
-      }
+      // Queue the uploads
+      await addToQueue(
+        QUEUE_TYPES.CHECKIN,
+        checkIn.toObject(),
+        user.telegram_id,
+        user_hash
+      )
 
       res.json({
         success: true,
@@ -42,6 +41,7 @@ class CheckInController {
           averageWeeklyCheckIns
         }
       })
+
     } catch (error) {
       console.error('Failed to create check-in:', error)
       res.status(500).json({ error: 'Failed to create check-in' })

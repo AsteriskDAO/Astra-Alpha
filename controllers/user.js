@@ -2,6 +2,7 @@ const User = require('../models/user')
 const HealthData = require('../models/healthData')
 const akave = require('../services/akave')
 const cache = require('../services/cache')
+const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 
 // TODO: Double check logic for updating points and checkIns
 
@@ -120,47 +121,41 @@ class UserController {
           }
         },
         { new: true }
-      );
-
-      let updatedHealthData = await HealthData.findOneAndUpdate(
-        { user_hash: user.user_hash }, 
-        { $set: healthData }, 
-        { new: true }
       )
-
-      if (!updatedHealthData) {
-        // Create new health data
-        healthData.user_hash = user.user_hash
-        updatedHealthData = await HealthData.createHealthData(healthData);
-      }
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      // Store to O3
-      const o3Response = await akave.uploadHealthData(user.user_hash, healthData)
+      let updatedHealthData = await HealthData.findOneAndUpdate(
+        { user_hash: user.user_hash }, 
+        { $set: healthData }, 
+        { new: true }
+      )      
 
-      // upload o3 url to vana
-      const vanaResponse = await vana.handleFileUpload(o3Response.url)
+      if (!updatedHealthData) {
+        healthData.user_hash = user.user_hash
+        updatedHealthData = await HealthData.createHealthData(healthData)
+      }
 
-      // Invalidate cache
-      // await cache.del(cache.generateKey('user', user.user_hash));
-      // await cache.del(cache.generateKey('health', user.user_hash));
+      // Queue the uploads
+      await addToQueue(
+        QUEUE_TYPES.HEALTH,
+        healthData,
+        user.telegram_id,
+        user.user_hash
+      )
 
       const response = {
         ...user._doc,
         isRegistered: true,
         healthData: updatedHealthData
       }
-      console.log('user')
-      console.log(response)
 
-      // Return combined data
-      res.json(response);
+      res.json(response)
     } catch (error) {
-      console.error('Failed to update user:', error);
-      res.status(500).json({ error: 'Failed to update user' });
+      console.error('Failed to update user:', error)
+      res.status(500).json({ error: 'Failed to update user' })
     }
   }
 

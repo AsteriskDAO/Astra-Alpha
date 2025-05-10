@@ -108,6 +108,34 @@ userSchema.statics.checkIn = async function(telegramId) {
   )
 }
 
+userSchema.methods.rollbackCheckIn = async function() {
+  // Decrement points and check-ins
+  this.points = Math.max(0, this.points - 1)
+  this.checkIns = Math.max(0, this.checkIns - 1)
+  
+  // Update weekly check-ins
+  const now = new Date()
+  const startOfWeek = getStartOfWeek(now)
+  
+  let weekRecord = this.weeklyCheckIns.find(w => 
+    w.week.getTime() === startOfWeek.getTime()
+  )
+  
+  if (weekRecord && weekRecord.count > 0) {
+    weekRecord.count--
+    
+    // Recalculate average
+    const totalCheckins = this.weeklyCheckIns.reduce((sum, week) => sum + week.count, 0)
+    const weeks = Math.min(4, Math.max(1, this.weeklyCheckIns.length))
+    this.averageWeeklyCheckIns = Math.floor(totalCheckins / weeks)
+  }
+  
+  // Reset last check-in
+  this.lastCheckIn = null
+  
+  await this.save()
+}
+
 const User = mongoose.model('User', userSchema)
 
 module.exports = User
