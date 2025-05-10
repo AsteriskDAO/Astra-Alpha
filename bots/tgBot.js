@@ -33,6 +33,15 @@ const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
 bot.use(session({ initial: () => ({}) }));
 bot.use(conversations());
 
+// Create message sender function
+async function sendTelegramMessage(telegramId, message) {
+  try {
+    await bot.api.sendMessage(telegramId, message)
+  } catch (error) {
+    console.error('Failed to send Telegram message:', error)
+  }
+}
+
 // Helper function to check user registration with caching
 async function checkUserRegistration(userId) {
   // return true;
@@ -813,6 +822,7 @@ initializeNotifications();
 module.exports = {
   bot,
   checkUserRegistration,
-  invalidateRegistrationCache
+  invalidateRegistrationCache,
+  sendTelegramMessage
 };
 

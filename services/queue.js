@@ -1,8 +1,9 @@
 const Queue = require('bull')
-const { bot } = require('../bots/tgBot')
+// const { bot } = require('../bots/tgBot')
 const User = require('../models/user')
 const akave = require('./akave')
 const vana = require('./vana')
+const { sendTelegramMessage } = require('../bots/tgBot')
 
 // Create upload queue
 const uploadQueue = new Queue('dataUpload', 
@@ -20,14 +21,6 @@ const uploadQueue = new Queue('dataUpload',
 const QUEUE_TYPES = {
   CHECKIN: 'checkin',
   HEALTH: 'health'
-}
-
-async function sendTelegramMessage(telegramId, message) {
-  try {
-    await bot.api.sendMessage(telegramId, message)
-  } catch (error) {
-    console.error('Failed to send Telegram message:', error)
-  }
 }
 
 // Process queue items
