@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const eccrypto = require('eccrypto');
 
 /**
  * Encrypts file data using a signature as the encryption key
@@ -6,47 +7,65 @@ const crypto = require('crypto');
  * @param {string} signature - The signature to use as encryption key
  * @returns {Promise<string>} - Returns encrypted data as base64 string
  */
-async function serverSideEncrypt(file, signature) {
+async function serverSideEncrypt(data, signature) {
     try {
-        // Convert signature to key material
-        const encoder = new TextEncoder();
+        // Convert data to ArrayBuffer
+        const buffer = new TextEncoder().encode(JSON.stringify(data));
+
+        // Generate key from signature using SHA-256 (same as template)
         const keyMaterial = await crypto.subtle.digest(
             'SHA-256',
-            encoder.encode(signature)
+            new TextEncoder().encode(signature)
         );
 
-        // Generate encryption key
+        // They use AES-GCM instead of CBC
         const key = await crypto.subtle.importKey(
             'raw',
             keyMaterial,
-            { name: 'AES-CBC' },
+            { name: 'AES-GCM' },  // Changed from AES-CBC
             false,
             ['encrypt']
         );
 
-        // Generate random IV
-        const iv = crypto.getRandomValues(new Uint8Array(16));
+        // GCM uses 12 bytes IV instead of 16
+        const iv = crypto.getRandomValues(new Uint8Array(12));  // Changed from 16
 
-        // Read and encrypt file data
-        const fileData = await file.arrayBuffer();
         const encryptedData = await crypto.subtle.encrypt(
-            {
-                name: 'AES-CBC',
-                iv: iv
-            },
+            { name: 'AES-GCM', iv },  // Changed from AES-CBC
             key,
-            fileData
+            buffer
         );
 
         // Combine IV and encrypted data
         const result = new Uint8Array([...iv, ...new Uint8Array(encryptedData)]);
-        
-        // Convert to base64
-        return btoa(String.fromCharCode(...result));
+        return Buffer.from(result).toString('base64');
     } catch (error) {
         console.error('Encryption error:', error);
         throw new Error(`Encryption failed: ${error.message}`);
     }
+}
+
+/**
+ * Format a hex string public key for ECIES encryption
+ * @param {string} publicKey - Hex string public key from DLP contract
+ * @returns {Buffer} - Formatted public key buffer
+ */
+function formatPublicKey(publicKey) {
+    // Remove '0x' prefix if present
+    const cleanKey = publicKey.startsWith('0x') ? publicKey.slice(2) : publicKey;
+    
+    // Convert hex string to buffer
+    const publicKeyBytes = Buffer.from(cleanKey, 'hex');
+    
+    // Add '04' prefix if key is compressed (64 bytes)
+    const uncompressedKey = publicKeyBytes.length === 64 
+        ? Buffer.concat([Buffer.from([4]), publicKeyBytes]) 
+        : publicKeyBytes;
+    
+    console.log("Original key length:", publicKeyBytes.length);
+    console.log("Uncompressed key length:", uncompressedKey.length);
+    
+    return uncompressedKey;
 }
 
 /**
@@ -55,11 +74,52 @@ async function serverSideEncrypt(file, signature) {
  * @param {string} publicKey - Public key to encrypt with
  * @returns {Promise<string>} - Returns encrypted message
  */
-async function encryptWithWalletPublicKey(message, publicKey) {
-    // This function is used in vana.js but implementation depends on the specific encryption 
-    // requirements of your blockchain network
-    // You might want to use something like ecies-js or ethereum-encryption libraries
-    throw new Error('Not implemented');
+async function encryptWithWalletPublicKey(message, publicKey, iv, ephemeralKey) {
+    try {
+        console.log("Starting encryption...");
+        
+        // Convert message to Buffer if it's a string
+        const messageBuffer = Buffer.from(message);
+        console.log("Message buffer created, length:", messageBuffer.length);
+        
+        // Format the public key correctly
+        const formattedKey = formatPublicKey(publicKey);
+        console.log("Formatted key length:", formattedKey.length);
+        console.log("Formatted key:", formattedKey.toString('hex'));
+        
+        console.log("About to call eccrypto.encrypt...");
+        // Let eccrypto handle IV and ephemeral key generation
+        const encryptedBuffer = await eccrypto.encrypt(
+            formattedKey,
+            messageBuffer,
+            iv,
+            ephemeralKey
+        );
+        console.log("Encryption completed");
+
+        // Combine all parts as in the template
+        console.log("Combining encrypted parts...");
+        const result = Buffer.concat([
+            encryptedBuffer.iv,
+            encryptedBuffer.ephemPublicKey,
+            encryptedBuffer.ciphertext,
+            encryptedBuffer.mac
+        ]);
+        console.log("Parts combined");
+        
+        const hexResult = result.toString('hex');
+        console.log("Hex string created, length:", hexResult.length);
+        
+        return hexResult;
+    } catch (error) {
+        console.error('Error encrypting with public key:', error);
+        console.error('Input details:', {
+            messageLength: message.length,
+            publicKeyLength: publicKey.length,
+            publicKey: publicKey
+        });
+        throw new Error(`Public key encryption failed: ${error.message}`);
+    }
 }
 
 module.exports = {

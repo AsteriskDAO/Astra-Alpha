@@ -5,6 +5,8 @@
 const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { v4: uuidv4 } = require('uuid')
+const { serverSideEncrypt } = require('../utils/crypto')
+const { ethers } = require('ethers')
 
 // Debug environment variables
 console.log('Environment Variables:', {
@@ -52,20 +54,27 @@ if (!BUCKETS.HEALTH || !BUCKETS.CHECKIN) {
   throw new Error('Missing required bucket names in environment variables')
 }
 
+const encryptData = async (data, signature) => {
+  const encryptedData = await serverSideEncrypt(data, signature)
+  return encryptedData
+}
+
 /**
  * Upload health data to O3 storage
  * @param {string} userId - User's ID
  * @param {Object} data - Health data to store
+ * @param {string} signature - Signature for encryption
  * @returns {Promise<{key: string, success: boolean}>}
  */
-async function uploadHealthData(userId, data) {
+async function uploadHealthData(userId, data, signature) {
   const key = `health/${userId}/${Date.now()}.json`
-  
+  const encryptedData = await encryptData(data, signature)
+
   try {
     const command = new PutObjectCommand({
       Bucket: BUCKETS.HEALTH,
       Key: key,
-      Body: Buffer.from(JSON.stringify(data)),
+      Body: Buffer.from(encryptedData),
       ContentType: 'application/json'
     })
 
@@ -91,10 +100,12 @@ async function uploadHealthData(userId, data) {
  * Upload check-in data to O3 storage
  * @param {string} userId - User's ID
  * @param {Object} data - Check-in data to store
+ * @param {string} signature - Signature for encryption
  * @returns {Promise<{key: string, success: boolean}>}
  */
-async function uploadCheckinData(userId, data) {
+async function uploadCheckinData(userId, data, signature) {
   const key = `checkin/${userId}/${Date.now()}.json`
+  const encryptedData = await encryptData(data, signature)
   
   console.log('Uploading check-in data to O3 storage:', {
     userId,
@@ -103,12 +114,13 @@ async function uploadCheckinData(userId, data) {
   })
 
   console.log('Data to upload:', data)
+  console.log('Encrypted data:', encryptedData)
   
   try {
     const command = new PutObjectCommand({
       Bucket: BUCKETS.CHECKIN,
       Key: key,
-      Body: Buffer.from(JSON.stringify(data)),
+      Body: Buffer.from(encryptedData),
       ContentType: 'application/json'
     })
 

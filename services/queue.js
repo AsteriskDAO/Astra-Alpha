@@ -4,6 +4,7 @@ const User = require('../models/user')
 const akave = require('./akave')
 const vana = require('./vana')
 const { sendTelegramMessage } = require('./telegram')
+const { ethers } = require('ethers')
 
 // Create upload queue
 const uploadQueue = new Queue('dataUpload', 
@@ -27,30 +28,58 @@ const QUEUE_TYPES = {
 uploadQueue.process(async (job) => {
   const { type, data, telegramId, user_hash } = job.data
   const results = {}
+
+  console.log("************************\n")
   console.log("job.data", job.data);
+  console.log("************************\n")
 
   try {
-    let o3Response;
-    // First upload to Akave
-    if (type === QUEUE_TYPES.CHECKIN) {
-      o3Response = await akave.uploadData(user_hash, data)
-    } else {
-      o3Response = await akave.uploadHealthData(user_hash, data)
+    // Check if we already have an Akave upload from a previous attempt
+    let o3Response = job.data.o3Response;
+    
+    if (!o3Response) {
+      // Only do Akave upload if we don't have a previous successful upload
+      const privateKey = process.env.DEPLOYER_PRIVATE_KEY
+      const provider = new ethers.JsonRpcProvider("https://rpc.moksha.vana.org")
+      const wallet = new ethers.Wallet(privateKey, provider)
+      const signature = await wallet.signMessage("Please sign to retrieve your encryption key")
+
+      // First upload to Akave with signature
+      if (type === QUEUE_TYPES.CHECKIN) {
+        o3Response = await akave.uploadCheckinData(user_hash, data, signature)
+      } else {
+        o3Response = await akave.uploadHealthData(user_hash, data, signature)
+      }
+
+      if (!o3Response?.url) {
+        throw new Error('Failed to get O3 upload URL')
+      }
+      
+      // Store successful Akave upload in job data for potential retries
+      job.data.o3Response = o3Response;
+      job.data.signature = signature;
+      await job.update(job.data);
+      
+      results.akave = o3Response
+      console.log("o3Response", o3Response);
     }
 
-    if (!o3Response?.url) {
-      throw new Error('Failed to get O3 upload URL')
-    }
-    results.akave = o3Response
-
-    console.log("o3Response", o3Response);
-
-    // Then upload to Vana
-    const vanaResponse = await vana.handleFileUpload(o3Response.url)
+    // Check if we have a previous Vana upload state
+    let vanaState = job.data.vanaState;
+    
+    // Then upload to Vana with same signature
+    const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, vanaState);
     if (!vanaResponse?.uploadedFileId) {
-      throw new Error('Failed to upload to Vana')
+        job.data.vanaState = vanaResponse.state;
+        await job.update(job.data);
+        throw new Error('Failed to upload to Vana');
     }
-    results.vana = vanaResponse
+    
+    // Store successful state
+    job.data.vanaState = vanaResponse.state;
+    await job.update(job.data);
+    
+    results.vana = vanaResponse;
 
     console.log("vanaResponse", vanaResponse);
 
@@ -87,7 +116,13 @@ uploadQueue.process(async (job) => {
         )
       }
     }
-    throw error // Let Bull handle retry logic
+
+    // If we have state information, store it for retry
+    if (error.state) {
+        job.data.vanaState = error.state;
+        await job.update(job.data);
+    }
+    throw error.error || error;
   }
 })
 

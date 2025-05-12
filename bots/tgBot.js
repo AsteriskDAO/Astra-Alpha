@@ -1,4 +1,4 @@
-const { bot } = require('../services/telegram')
+const { bot, session } = require('../services/telegram')
 const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 const {
   conversations,

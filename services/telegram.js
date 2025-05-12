@@ -1,4 +1,4 @@
-const { Bot } = require("grammy")
+const { Bot, session } = require("grammy")
 const TG_BOT_API_KEY = process.env.TG_BOT_API_KEY
 
 // Create a singleton bot instance
@@ -14,5 +14,6 @@ async function sendTelegramMessage(telegramId, message) {
 
 module.exports = {
   bot,
+  session,
   sendTelegramMessage
 } 
