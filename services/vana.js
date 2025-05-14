@@ -110,12 +110,19 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                 fixed_iv,
                 fixed_ephemeral_key
             );
+
+            console.log("Contract address:", contractAddress.toLowerCase());
+            console.log("Public key:", publicKey);
+            console.log("Fixed IV:", fixed_iv.toString('hex'));
+            console.log("Fixed ephemeral key:", fixed_ephemeral_key.toString('hex'));
             console.log("Encrypted key for file registration:", encryptedKey);
+
+            console.log("Wallet address:", wallet.address.toLowerCase());
             
             const tx = await dataRegistryContract.addFileWithPermissions(
                 encryptedFileUrl, 
-                wallet.address, 
-                [{ account: contractAddress, key: encryptedKey }]
+                wallet.address,
+                [{ account: contractAddress, key: encryptedKey }] 
             );
             const receipt = await tx.wait();
 
@@ -170,7 +177,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                 job_id: state.jobDetails.jobId,
                 file_id: fileId,
                 nonce: nonce,
-                proof_url: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v2/my-proof-2.tar.gz",
+                proof_url: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v10/my-proof-10.tar.gz",
                 encryption_seed: FIXED_MESSAGE,
                 validate_permissions: [{
                     address: contractAddress,
@@ -200,6 +207,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
             }
             
 
+            console.log("Request body:", requestBody);
             // Submit proof to TEE
             const response = await fetch(`${state.jobDetails.teeUrl}/RunProof`, {
                 method: 'POST',
@@ -210,10 +218,12 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("TEE proof submission failed:", errorData);
+                console.error(errorData.detail.error.details);
                 throw { error: errorData, state };
             }
 
             state.tee_proof_submitted = true;
+            console.log(response)
             console.log("TEE proof submitted successfully");
         }
 

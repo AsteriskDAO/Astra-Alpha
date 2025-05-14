@@ -1,44 +1,56 @@
-const crypto = require('crypto');
+// const crypto = require('crypto');
 const eccrypto = require('eccrypto');
+const openpgp = require('openpgp');
 
 /**
- * Encrypts file data using a signature as the encryption key
- * @param {File} file - The file to encrypt
- * @param {string} signature - The signature to use as encryption key
- * @returns {Promise<string>} - Returns encrypted data as base64 string
+ * Converts JSON data to a File object
+ * @param {object} data - JSON data to convert
+ * @returns {File} - File object containing JSON data
  */
-async function serverSideEncrypt(data, signature) {
+function jsonToFile(data) {
+    const jsonString = JSON.stringify(data);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    return new File([blob], '', { type: 'application/octet-stream' });
+}
+
+/**
+ * Encrypts file data using OpenPGP (exact match with template)
+ * @param {File} file - The file to encrypt
+ * @param {string} signature - The signature to use as encryption password
+ * @returns {Promise<File>} - Returns encrypted file
+ */
+async function serverSideEncrypt(file, signature) {
     try {
-        // Convert data to ArrayBuffer
-        const buffer = new TextEncoder().encode(JSON.stringify(data));
+        // Match template exactly
+        const fileBuffer = await file.arrayBuffer();
+        const message = await openpgp.createMessage({
+            binary: new Uint8Array(fileBuffer)
+        });
 
-        // Generate key from signature using SHA-256 (same as template)
-        const keyMaterial = await crypto.subtle.digest(
-            'SHA-256',
-            new TextEncoder().encode(signature)
+        const encrypted = await openpgp.encrypt({
+            message,
+            passwords: [signature],
+            format: 'binary'
+        });
+
+        // Convert WebStream to File exactly like template
+        const response = new Response(encrypted);
+        const arrayBuffer = await response.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+
+        const encryptedBlob = new Blob([uint8Array], {
+            type: "application/octet-stream"
+        });
+        
+        const encryptedFile = new File(
+            [encryptedBlob],
+            "",
+            {
+                type: "application/octet-stream"
+            }
         );
 
-        // They use AES-GCM instead of CBC
-        const key = await crypto.subtle.importKey(
-            'raw',
-            keyMaterial,
-            { name: 'AES-GCM' },  // Changed from AES-CBC
-            false,
-            ['encrypt']
-        );
-
-        // GCM uses 12 bytes IV instead of 16
-        const iv = crypto.getRandomValues(new Uint8Array(12));  // Changed from 16
-
-        const encryptedData = await crypto.subtle.encrypt(
-            { name: 'AES-GCM', iv },  // Changed from AES-CBC
-            key,
-            buffer
-        );
-
-        // Combine IV and encrypted data
-        const result = new Uint8Array([...iv, ...new Uint8Array(encryptedData)]);
-        return Buffer.from(result).toString('base64');
+        return new Blob([encryptedFile], { type: "application/octet-stream" });
     } catch (error) {
         console.error('Encryption error:', error);
         throw new Error(`Encryption failed: ${error.message}`);
@@ -124,5 +136,6 @@ async function encryptWithWalletPublicKey(message, publicKey, iv, ephemeralKey) 
 
 module.exports = {
     serverSideEncrypt,
-    encryptWithWalletPublicKey
+    encryptWithWalletPublicKey,
+    jsonToFile
 }; 

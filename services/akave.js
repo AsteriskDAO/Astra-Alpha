@@ -3,9 +3,10 @@
 // then replace api url with akave s3 url
 
 const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3')
+const { Upload } = require('@aws-sdk/lib-storage')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { v4: uuidv4 } = require('uuid')
-const { serverSideEncrypt } = require('../utils/crypto')
+const { serverSideEncrypt, jsonToFile } = require('../utils/crypto')
 const { ethers } = require('ethers')
 
 // Debug environment variables
@@ -68,17 +69,31 @@ const encryptData = async (data, signature) => {
  */
 async function uploadHealthData(userId, data, signature) {
   const key = `health/${userId}/${Date.now()}.json`
-  const encryptedData = await encryptData(data, signature)
-
   try {
-    const command = new PutObjectCommand({
-      Bucket: BUCKETS.HEALTH,
-      Key: key,
-      Body: Buffer.from(encryptedData),
-      ContentType: 'application/json'
+    // Convert JSON to File before encryption
+    const jsonFile = jsonToFile(data);
+    const encryptedFile = await serverSideEncrypt(jsonFile, signature);
+    
+    console.log('Uploading health data to O3 storage:', {
+      userId,
+      key,
+      bucket: BUCKETS.HEALTH
     })
 
-    await s3Client.send(command)
+    console.log('Data to upload:', data)
+    console.log('Encrypted data:', encryptedFile)
+    
+    const command = new Upload({
+      client: s3Client,
+      params: {
+        Bucket: BUCKETS.HEALTH,
+        Key: key,
+        Body: encryptedFile,
+        ContentType: 'application/octet-stream' // Match the File type
+      }
+    })
+
+    await command.done()
 
     const url = await getDataUrl(BUCKETS.HEALTH, key)
     console.log('Health data uploaded to O3 storage:', {
@@ -91,8 +106,8 @@ async function uploadHealthData(userId, data, signature) {
       url
     }
   } catch (error) {
-    console.error('Health data upload error:', error)
-    throw new Error('Failed to upload health data')
+    console.error('Failed to upload health data:', error)
+    throw error;
   }
 }
 
@@ -105,26 +120,34 @@ async function uploadHealthData(userId, data, signature) {
  */
 async function uploadCheckinData(userId, data, signature) {
   const key = `checkin/${userId}/${Date.now()}.json`
-  const encryptedData = await encryptData(data, signature)
-  
-  console.log('Uploading check-in data to O3 storage:', {
-    userId,
-    key,
-    bucket: BUCKETS.CHECKIN
-  })
-
-  console.log('Data to upload:', data)
-  console.log('Encrypted data:', encryptedData)
-  
   try {
-    const command = new PutObjectCommand({
-      Bucket: BUCKETS.CHECKIN,
-      Key: key,
-      Body: Buffer.from(encryptedData),
-      ContentType: 'application/json'
+    // Convert JSON to File before encryption
+    const jsonFile = jsonToFile(data);
+    const encryptedFile = await serverSideEncrypt(jsonFile, signature);
+    
+    console.log('Uploading check-in data to O3 storage:', {
+      userId,
+      key,
+      bucket: BUCKETS.CHECKIN
     })
 
-    await s3Client.send(command)
+    console.log('Data to upload:', data)
+    console.log('Encrypted data:', encryptedFile)
+
+    // const arrayBuffer = await encryptedFile.arrayBuffer();
+    // const uint8Array = new Uint8Array(arrayBuffer);
+    
+    const command = new Upload({
+      client: s3Client,
+      params: {
+        Bucket: BUCKETS.CHECKIN,
+        Key: key,
+        Body: encryptedFile,
+        ContentType: 'application/octet-stream',
+      }
+    })
+
+    await command.done()
     
     const url = await getDataUrl(BUCKETS.CHECKIN, key)  
     console.log('Check-in data uploaded to O3 storage:', {
@@ -137,8 +160,8 @@ async function uploadCheckinData(userId, data, signature) {
       url
     }
   } catch (error) {
-    console.error('Check-in data upload error:', error)
-    throw new Error('Failed to upload check-in data')
+    console.error('Failed to upload check-in data:', error)
+    throw error;
   }
 }
 

@@ -30,6 +30,10 @@ const DAILY_SCHEDULE = '* * * * *'; // every minute for testing
 // Add mini app URL as a constant at the top
 const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
 
+// Use a single cron job instead of per-user jobs
+const NOTIFICATION_TIME = '0 10 * * *'; // 10am daily
+const BATCH_SIZE = 100; // Process users in batches
+
 // Initialize minimal session
 bot.use(session({ initial: () => ({}) }));
 bot.use(conversations());
@@ -102,89 +106,92 @@ const addCancelButton = (keyboard) => {
   return keyboard
 }
 
-// Schedule a single notification
+// Schedule notification job
 async function scheduleNotification(userId) {
-  try {
-    // First check if user has notifications enabled
-    let notification = await Notification.findOne({ 
-      user_id: userId
-    });
-
-    // If no notification record or notifications are disabled, skip scheduling
-    if (!notification?.is_active) {
-      console.log(`Notifications disabled for user ${userId}`);
-      return false;
-    }
-
-    // If user already has a scheduled notification, skip
-    if (activeReminders.has(userId)) {
-      console.log(`User ${userId} already has an active notification`);
-      return true;
-    }
-
-    // Create notification record if doesn't exist
-    if (!notification) {
-      notification = new Notification({
-        user_id: userId,
-        scheduled_time: DAILY_SCHEDULE,
-        is_active: true
-      });
-      await notification.save();
-      console.log(`Created new notification record for user ${userId}`);
-    }
-
-    // Schedule the job
-    const job = schedule.scheduleJob(notification.scheduled_time, async () => {
-      try {
-        console.log(`Running notification for user ${userId}`);
-        
-        await bot.api.sendMessage(userId, 
-          "👋 Hi! Don't forget to check in today to earn your point! " +
-          "Your voice matters in shaping women's healthcare. Type /checkin to start."
-        );
-        
-        // Update last sent time
-        notification.last_sent = new Date();
-        await notification.save();
-        
-        console.log(`Successfully sent reminder to user ${userId}`);
-      } catch (error) {
-        console.error(`Error in notification job for user ${userId}:`, error);
-      }
-    });
-
-    if (job) {
-      activeReminders.set(userId, job);
-      console.log(`Scheduled notification for user ${userId}`);
-      return true;
-    }
-    
-    return false;
-  } catch (error) {
-    console.error(`Failed to schedule notification for user ${userId}:`, error);
-    return false;
+  // create a notification in the db
+  if (await Notification.findOne({ user_id: userId })) {
+    return;
   }
+
+  const notification = new Notification({
+    user_id: userId,
+    is_active: true,
+    last_sent: null
+  });
+  await notification.save();
 }
 
-// Initialize all notifications
-async function initializeNotifications() {
-  try {
-    // Get only active notifications
-    const notifications = await Notification.find({ is_active: true });
-    console.log(`Found ${notifications.length} active notifications`);
-    
-    // Schedule each notification
-    let scheduled = 0;
-    for (const notification of notifications) {
-      if (await scheduleNotification(notification.user_id)) {
-        scheduled++;
-      }
+// Single notification job that handles all users
+const notificationJob = schedule.scheduleJob(NOTIFICATION_TIME, async () => {
+    try {
+        console.log('Starting daily notification batch job');
+        let processed = 0;
+        let lastId = null;
+
+        // Process users in batches to avoid memory issues
+        while (true) {
+            // Get batch of active notifications
+            const notifications = await Notification.find({
+                is_active: true,
+                ...(lastId && { _id: { $gt: lastId } })
+            })
+            .limit(BATCH_SIZE)
+            .sort('_id');
+
+            if (notifications.length === 0) break;
+
+            // Process notifications in parallel with rate limiting
+            await Promise.all(notifications.map(async (notification) => {
+                try {
+                    const user = await User.findOne({ telegram_id: notification.user_id });
+                    
+                    // Skip if user already checked in today
+                    if (user?.last_checkin) {
+                        const lastCheckIn = new Date(user.last_checkin);
+                        if (lastCheckIn.toDateString() === new Date().toDateString()) {
+                            console.log(`User ${notification.user_id} already checked in today`);
+                            return;
+                        }
+                    }
+
+                    // Send notification with exponential backoff retry
+                    await retryWithBackoff(async () => {
+                        await bot.api.sendMessage(
+                            notification.user_id,
+                            "👋 Time for your daily check-in! Share how you're feeling today and earn points. Type /checkin to start."
+                        );
+                    });
+
+                    // Update last sent time
+                    notification.last_sent = new Date();
+                    await notification.save();
+                    processed++;
+
+                } catch (error) {
+                    console.error(`Error processing notification for user ${notification.user_id}:`, error);
+                }
+            }));
+
+            lastId = notifications[notifications.length - 1]._id;
+        }
+
+        console.log(`Completed daily notifications. Processed ${processed} users`);
+    } catch (error) {
+        console.error('Error in notification batch job:', error);
     }
-    
-    console.log(`Successfully scheduled ${scheduled}/${notifications.length} notifications`);
-  } catch (error) {
-    console.error('Failed to initialize notifications:', error);
-  }
+});
+
+// Retry helper with exponential backoff
+async function retryWithBackoff(fn, maxRetries = 3) {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            await fn();
+            return;
+        } catch (error) {
+            if (i === maxRetries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        }
+    }
 }
 
 // Daily check-in conversation
@@ -689,48 +696,37 @@ bot.command("notifications", async (ctx) => {
   );
 });
 
-// Simplify notification handler
+// Simplified notification toggle handler
 bot.callbackQuery(/^notif_/, async (ctx) => {
-  const turnOn = ctx.callbackQuery.data === "notif_on";
-  
-  try {
-    let notification = await Notification.findOne({ 
-      user_id: ctx.from.id
-    });
+    const turnOn = ctx.callbackQuery.data === "notif_on";
+    const userId = ctx.from.id;
+    
+    try {
+        let notification = await Notification.findOne({ user_id: userId });
 
-    // Create new notification if turning on and doesn't exist
-    if (turnOn && !notification) {
-      notification = new Notification({
-        user_id: ctx.from.id,
-        scheduled_time: DAILY_SCHEDULE
-      });
+        if (turnOn) {
+            if (!notification) {
+                notification = new Notification({
+                    user_id: userId,
+                    is_active: true
+                });
+            } else {
+                notification.is_active = true;
+            }
+            await notification.save();
+        } else if (notification) {
+            notification.is_active = false;
+            await notification.save();
+        }
+
+        await ctx.reply(
+            `Notifications ${turnOn ? 'enabled' : 'disabled'} successfully! ` +
+            (turnOn ? "You'll receive daily check-in reminders at 10am." : "")
+        );
+    } catch (error) {
+        console.error('Failed to update notification settings:', error);
+        await ctx.reply('Sorry, failed to update notification settings. Please try again.');
     }
-
-    if (notification) {
-      // Cancel existing reminder if any
-      if (activeReminders.has(ctx.from.id)) {
-        const existingJob = activeReminders.get(ctx.from.id);
-        existingJob.cancel();
-        activeReminders.delete(ctx.from.id);
-      }
-
-      notification.is_active = turnOn;
-      await notification.save();
-
-      // Schedule new reminder if turning on
-      if (turnOn) {
-        await scheduleNotification(ctx.from.id);
-      }
-    }
-
-    await ctx.reply(
-      `Notifications ${turnOn ? 'enabled' : 'disabled'} successfully! ` +
-      (turnOn ? "You'll receive daily check-in reminders at 10am." : "")
-    );
-  } catch (error) {
-    console.error('Failed to update notification settings:', error);
-    await ctx.reply('Sorry, failed to update notification settings. Please try again.');
-  }
 });
 
 // Add command to open mini app
@@ -810,7 +806,7 @@ setupBotCommands().catch(error => {
   console.error('Critical error in bot command setup:', error);
   // Bot can still function without commands menu
 });
-initializeNotifications();
+
 
 // Export for use in other files if needed
 module.exports = {

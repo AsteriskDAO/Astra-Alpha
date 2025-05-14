@@ -11,7 +11,7 @@ const uploadQueue = new Queue('dataUpload',
     process.env.REDIS_URL, 
     {
         defaultJobOptions: {
-        attempts: 3,
+        attempts: 1,
         backoff: {
         type: 'exponential',
         delay: 2000
@@ -75,9 +75,9 @@ uploadQueue.process(async (job) => {
         throw new Error('Failed to upload to Vana');
     }
     
-    // Store successful state
-    job.data.vanaState = vanaResponse.state;
-    await job.update(job.data);
+    // // Store successful state
+    // job.data.vanaState = vanaResponse.state;
+    // await job.update(job.data);
     
     results.vana = vanaResponse;
 
