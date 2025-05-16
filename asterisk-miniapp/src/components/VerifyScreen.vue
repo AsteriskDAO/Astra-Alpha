@@ -35,7 +35,7 @@ onMounted(async () => {
     userId: userStore.userData.user_id,
     disclosures: {
       gender: true
-    },
+    }
     // onSuccess: handleVerificationSuccess
   }).build()
 
