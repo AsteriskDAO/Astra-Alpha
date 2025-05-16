@@ -807,6 +807,8 @@ setupBotCommands().catch(error => {
   // Bot can still function without commands menu
 });
 
+// Schedule notification job
+notificationJob;
 
 // Export for use in other files if needed
 module.exports = {

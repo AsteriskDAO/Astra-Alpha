@@ -18,10 +18,14 @@ const telegramStore = useTelegramStore()
 
 const telegramId = telegramStore.userInfo.id;
 
-onMounted(() => {
+onMounted(async () => {
   // Generate a unique user ID for this verification session
   // userId.value = uuidv4()
   console.log('userStore.userData', userStore.userData)
+  if (!userStore.userData.user_id) {
+
+    await userStore.fetchUserData(telegramId)
+  }
 
   // Create the SelfApp configuration
   selfApp.value = new SelfAppBuilder({
