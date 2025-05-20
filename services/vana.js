@@ -28,6 +28,15 @@ const VANA_UPLOAD_STEPS = {
     REWARD_CLAIMED: 'reward_claimed'
 };
 
+function getChecksum(data) {
+    if (Buffer.isBuffer(data)) {
+        return crypto.createHash('sha256').update(data).digest('hex');
+    } else if (typeof data === 'string') {
+        return crypto.createHash('sha256').update(data).digest('hex');
+    }
+    return 'unknown-type';
+}
+
 /**
  * Get TEE details for a job
  * @param {Contract} teePoolContract - The TEE pool contract instance
@@ -86,12 +95,23 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
         let fixed_ephemeral_key = state.fixed_ephemeral_key;
 
         if (!state.fixed_iv) {
-            fixed_iv = Buffer.from(crypto.getRandomValues(new Uint8Array(16)));
-            state.fixed_iv = fixed_iv;
+            fixed_iv = new Uint8Array([
+                0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
+                0x0d, 0x0e, 0x0f, 0x10,
+            ]);
+            // Store both buffer and hex
+            state.fixed_iv_buffer = Buffer.from(fixed_iv);
+            state.fixed_iv = state.fixed_iv_buffer.toString('hex');
         }
         if (!state.fixed_ephemeral_key) {
-            fixed_ephemeral_key = Buffer.from(crypto.getRandomValues(new Uint8Array(32)));
-            state.fixed_ephemeral_key = fixed_ephemeral_key;
+            fixed_ephemeral_key = new Uint8Array([
+                0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc,
+                0xdd, 0xee, 0xff, 0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
+                0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0, 0x00,
+            ]);
+            // Store both buffer and hex
+            state.fixed_ephemeral_key_buffer = Buffer.from(fixed_ephemeral_key);
+            state.fixed_ephemeral_key = state.fixed_ephemeral_key_buffer.toString('hex');
         }
 
         const dlpContract = new ethers.Contract(contractAddress, DataLiquidityPoolABI.abi, signer);
@@ -99,22 +119,29 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
         const teePoolContract = new ethers.Contract(teePoolContractAddress, TeePoolImplementationABI.abi, signer);
 
         const publicKey = await dlpContract.publicKey();
+        
+        const ivChecksum = getChecksum(state.fixed_iv);
+        const ephemeralKeyChecksum = getChecksum(state.fixed_ephemeral_key);
+        const publicKeyChecksum = getChecksum(publicKey);
+        const dlpAddressChecksum = getChecksum(contractAddress);
         // Only do initial file registration if not already done
         if (!state.file_registered) {
             console.log("Registering file...");
+
+            
 
             // Register file
             const encryptedKey = await encryptWithWalletPublicKey(
                 signature, 
                 publicKey,
-                fixed_iv,
-                fixed_ephemeral_key
+                state.fixed_iv_buffer,  // Use buffer for encryption
+                state.fixed_ephemeral_key_buffer  // Use buffer for encryption
             );
 
             console.log("Contract address:", contractAddress.toLowerCase());
             console.log("Public key:", publicKey);
-            console.log("Fixed IV:", fixed_iv.toString('hex'));
-            console.log("Fixed ephemeral key:", fixed_ephemeral_key.toString('hex'));
+            console.log("Fixed IV:", state.fixed_iv.toString('hex'));
+            console.log("Fixed ephemeral key:", state.fixed_ephemeral_key.toString('hex'));
             console.log("Encrypted key for file registration:", encryptedKey);
 
             console.log("Wallet address:", wallet.address.toLowerCase());
@@ -122,7 +149,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
             const tx = await dataRegistryContract.addFileWithPermissions(
                 encryptedFileUrl, 
                 wallet.address,
-                [{ account: contractAddress, key: encryptedKey }] 
+                [{ account: contractAddress.toLowerCase(), key: encryptedKey }] 
             );
             const receipt = await tx.wait();
 
@@ -173,6 +200,24 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
 
             const nonce = await provider.getTransactionCount(wallet.address);
             
+
+            const ivChecksum2 = getChecksum(state.fixed_iv);
+            const ephemeralKeyChecksum2 = getChecksum(state.fixed_ephemeral_key);
+            const publicKeyChecksum2 = getChecksum(publicKey);
+            const dlpAddressChecksum2 = getChecksum(contractAddress);
+
+            // check if the checksums are the same
+            if (ivChecksum2 !== ivChecksum || ephemeralKeyChecksum2 !== ephemeralKeyChecksum || publicKeyChecksum2 !== publicKeyChecksum || dlpAddressChecksum2 !== dlpAddressChecksum) {
+                console.log("--------------------------------------------------------------")
+                console.log("Checksums do not match");
+                console.log("--------------------------------------------------------------")
+                throw new Error("Checksums do not match");
+            } else {
+                console.log("--------------------------------------------------------------")
+                console.log("Checksums match");
+                console.log("--------------------------------------------------------------")
+            }
+            
             const requestBody = {
                 job_id: state.jobDetails.jobId,
                 file_id: fileId,
@@ -180,10 +225,10 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                 proof_url: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v10/my-proof-10.tar.gz",
                 encryption_seed: FIXED_MESSAGE,
                 validate_permissions: [{
-                    address: contractAddress,
+                    address: contractAddress.toLowerCase(),
                     public_key: publicKey,
-                    iv: fixed_iv.toString('hex'),
-                    ephemeral_key: fixed_ephemeral_key.toString('hex'),
+                    iv: state.fixed_iv,
+                    ephemeral_key: state.fixed_ephemeral_key,
                 }]
             };
 
@@ -193,8 +238,8 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                     const encryptedKey = await encryptWithWalletPublicKey(
                         signature,
                         state.jobDetails.teePublicKey,
-                        fixed_iv,
-                        fixed_ephemeral_key
+                        state.fixed_iv_buffer,
+                        state.fixed_ephemeral_key_buffer
                     );
                     console.log("Encrypted key for TEE:", encryptedKey);
                     requestBody.encrypted_encryption_key = encryptedKey;
