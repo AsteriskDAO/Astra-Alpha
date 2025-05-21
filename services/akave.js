@@ -1,37 +1,35 @@
-// Need SDK
-// Use amazon s3 sdk
-// then replace api url with akave s3 url
 
-const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3')
+
+const { S3Client, GetObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3')
 const { Upload } = require('@aws-sdk/lib-storage')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
-const { v4: uuidv4 } = require('uuid')
 const { serverSideEncrypt, jsonToFile } = require('../utils/crypto')
-const { ethers } = require('ethers')
+const config = require('../config/config')
 
 // Debug environment variables
 console.log('Environment Variables:', {
-  endpoint: process.env.AKAVE_ENDPOINT,
-  region: process.env.AKAVE_REGION,
-  accessKeyId: process.env.AKAVE_ACCESS_KEY,
-  secretKey: process.env.AKAVE_SECRET_KEY,
-  healthBucket: process.env.AKAVE_BUCKET_NAME_HEALTH_TEST,
-  checkinBucket: process.env.AKAVE_BUCKET_NAME_CHECKIN_TEST
+  endpoint: config.akave.endpoint,
+  region: config.akave.region,
+  accessKeyId: config.akave.accessKey,
+  secretKey: config.akave.secretKey,
+  healthBucket: config.akave.buckets.health,
+  checkinBucket: config.akave.buckets.checkin
 })
 
 // Verify environment variables are loaded
-if (!process.env.AKAVE_ENDPOINT || !process.env.AKAVE_REGION || 
-    !process.env.AKAVE_ACCESS_KEY || !process.env.AKAVE_SECRET_KEY) {
+// For Debugging
+if (!config.akave.endpoint || !config.akave.region || 
+    !config.akave.accessKey || !config.akave.secretKey) {
   throw new Error('Missing required Akave environment variables')
 }
 
 // Create S3 client
 const s3Client = new S3Client({
-  endpoint: process.env.AKAVE_ENDPOINT,
-  region: process.env.AKAVE_REGION,
+  endpoint: config.akave.endpoint,
+  region: config.akave.region,
   credentials: {
-    accessKeyId: process.env.AKAVE_ACCESS_KEY,
-    secretAccessKey: process.env.AKAVE_SECRET_KEY
+    accessKeyId: config.akave.accessKey,
+    secretAccessKey: config.akave.secretKey
   },
   forcePathStyle: true
 })
@@ -46,8 +44,8 @@ checkS3Client()
 
 // Bucket names
 const BUCKETS = {
-  HEALTH: process.env.AKAVE_BUCKET_NAME_HEALTH_TEST,
-  CHECKIN: process.env.AKAVE_BUCKET_NAME_CHECKIN_TEST
+  HEALTH: config.akave.buckets.health,
+  CHECKIN: config.akave.buckets.checkin
 }
 
 // Verify buckets are configured
@@ -250,7 +248,3 @@ module.exports = {
   getHealthData,
   getCheckinData
 }
-
-// upload file 
-
-// read file

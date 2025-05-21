@@ -1,6 +1,12 @@
 const ethers = require('ethers');
 const { encryptWithWalletPublicKey } = require('../utils/crypto.js');
 const crypto = require('crypto');
+const config = require('../config/config');
+/**
+ * @title Vana Service
+ * @notice Manages data contribution to Vana data liquidity pool
+ * @dev Handles file registration, TEE proofs, and reward claiming
+ */
 
 // Import ABIs correctly
 const DataLiquidityPoolABI = {
@@ -13,21 +19,15 @@ const DataRegistryImplementationABI = {
     abi: require("../contracts/DataRegistryImplementation.json")
 };
 
-const contractAddress = "0x02C6C80EDe873285b5e1a06ae425e5fE277BB310";
-const dataRegistryContractAddress = "0x8C8788f98385F6ba1adD4234e551ABba0f82Cb7C";
-const teePoolContractAddress = "0xE8EC6BD73b23Ad40E6B9a6f4bD343FAc411bD99A";
+const contractAddress = config.vana.contracts.dlp;
+const dataRegistryContractAddress = config.vana.contracts.registry;
+const teePoolContractAddress = config.vana.contracts.teePool;
 const FIXED_MESSAGE = "Please sign to retrieve your encryption key";
 
-const provider = new ethers.JsonRpcProvider("https://rpc.moksha.vana.org");
+const provider = new ethers.JsonRpcProvider(config.vana.rpcUrl);
 
-// Define the state interface
-const VANA_UPLOAD_STEPS = {
-    FILE_REGISTERED: 'file_registered',
-    CONTRIBUTION_PROOF_REQUESTED: 'contribution_proof_requested',
-    TEE_PROOF_SUBMITTED: 'tee_proof_submitted',
-    REWARD_CLAIMED: 'reward_claimed'
-};
 
+// For testing the values, since we are currently debugging a permissions issue from Vana's side 
 function getChecksum(data) {
     if (Buffer.isBuffer(data)) {
         return crypto.createHash('sha256').update(data).digest('hex');
@@ -67,11 +67,26 @@ const getTeeDetails = async (teePoolContract, jobId) => {
     }
 };
 
+/**
+ * Get job IDs for a file
+ * @param {Contract} teePoolContract - The TEE pool contract instance
+ * @param {number} fileId - The ID of the file to get job IDs for
+ * @returns {Promise<Array>} - Array of job IDs
+ */
 const fileJobIds = async (teePoolContract, fileId) => {
     const jobIds = await teePoolContract.fileJobIds(fileId);
     console.log("Job IDs:", jobIds);
     return jobIds.map(Number);
 };
+
+/**
+ * Handle complete file upload process to Vana
+ * @param {string} encryptedFileUrl - URL of encrypted file on O3
+ * @param {string} signature - User signature for encryption
+ * @param {Object} previousState - Previous upload state for retries
+ * @returns {Promise<{uploadedFileId: number, message: string, state: Object}>}
+ * @dev Manages the full flow: registration, proof request, TEE submission, reward claim
+ */
 
 const handleFileUpload = async (encryptedFileUrl, signature, previousState = {}) => {
     // Initialize state with previous values and default flags if they don't exist
@@ -95,20 +110,13 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
         let fixed_ephemeral_key = state.fixed_ephemeral_key;
 
         if (!state.fixed_iv) {
-            fixed_iv = new Uint8Array([
-                0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
-                0x0d, 0x0e, 0x0f, 0x10,
-            ]);
+            fixed_iv = crypto.getRandomValues(new Uint8Array(16));
             // Store both buffer and hex
             state.fixed_iv_buffer = Buffer.from(fixed_iv);
             state.fixed_iv = state.fixed_iv_buffer.toString('hex');
         }
         if (!state.fixed_ephemeral_key) {
-            fixed_ephemeral_key = new Uint8Array([
-                0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc,
-                0xdd, 0xee, 0xff, 0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
-                0x90, 0xa0, 0xb0, 0xc0, 0xd0, 0xe0, 0xf0, 0x00,
-            ]);
+            fixed_ephemeral_key = crypto.getRandomValues(new Uint8Array(32))
             // Store both buffer and hex
             state.fixed_ephemeral_key_buffer = Buffer.from(fixed_ephemeral_key);
             state.fixed_ephemeral_key = state.fixed_ephemeral_key_buffer.toString('hex');
@@ -124,13 +132,14 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
         const ephemeralKeyChecksum = getChecksum(state.fixed_ephemeral_key);
         const publicKeyChecksum = getChecksum(publicKey);
         const dlpAddressChecksum = getChecksum(contractAddress);
-        // Only do initial file registration if not already done
+        
+        // Check if the file is already registered for retry purposes
         if (!state.file_registered) {
             console.log("Registering file...");
 
             
 
-            // Register file
+            // Register file with Vana
             const encryptedKey = await encryptWithWalletPublicKey(
                 signature, 
                 publicKey,
@@ -217,6 +226,8 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                 console.log("Checksums match");
                 console.log("--------------------------------------------------------------")
             }
+
+            // Build the request body
             
             const requestBody = {
                 job_id: state.jobDetails.jobId,

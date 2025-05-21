@@ -1,10 +1,11 @@
 const CheckIn = require('../models/checkIn')
 const User = require('../models/user')
-const akave = require('../services/akave')
-const cache = require('../services/cache')
-const vana = require('../services/vana')
+// const akave = require('../services/akave')
+// const cache = require('../services/cache')
+// const vana = require('../services/vana')
 const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 
+// Checkin controller is not currently in use, but it is here for future reference for v2 of the app
 class CheckInController {
   async createCheckin(req, res) {
     try {

@@ -30,6 +30,7 @@
     "node-cache": "^5.1.2",
     "node-schedule": "^2.1.1",
     "openpgp": "^6.1.0",
-    "qrcode.vue": "^3.6.0"
+    "qrcode.vue": "^3.6.0",
+    "winston": "^3.17.0"
   }
 }

@@ -1,23 +1,23 @@
-// express server
 const express = require('express');
 const dotenv = require('dotenv');
+dotenv.config();
 const cors = require('cors');
 const connectDB = require('./config/database');
+const config = require('./config/config');
+const logger = require('./utils/logger');
 
-dotenv.config();
+
 
 // Connect to MongoDB
 connectDB();
 
 const app = express();
-const port = 3000;
 
-// CORS configuration
+// CORS configuration based on environment
 const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    /\.onrender\.com$/ // Allow any onrender.com subdomain
-  ],
+  origin: config.server.env === 'production' 
+    ? [/\.onrender\.com$/] // Production domains
+    : ['http://localhost:5173'], // Development domains
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type', 
@@ -29,16 +29,12 @@ const corsOptions = {
   optionsSuccessStatus: 200
 }
 
-// Apply CORS middleware
 app.use(cors(corsOptions));
-
 app.use(express.json());
 
 require('./routes')(app);
-
 require('./bots/tgBot');  
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
+app.listen(config.server.port, () => {
+    logger.info(`Server started in ${config.server.env} mode on port ${config.server.port}`);
 });
-

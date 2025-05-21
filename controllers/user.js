@@ -4,9 +4,15 @@ const akave = require('../services/akave')
 const cache = require('../services/cache')
 const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 
-// TODO: Double check logic for updating points and checkIns
 
 class UserController {
+  /**
+   * Create new user or return existing
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} JSON response with user data
+   * @dev Checks for existing user by telegram ID
+   */
   async createUser(req, res) {
 
     // console.log('registerUser', req.body)
@@ -64,6 +70,14 @@ class UserController {
     }
   }
 
+  /**
+   * Update user points with a specific amount
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} JSON response with updated points
+   * @dev Not currently implemented
+   */
+
   async updatePoints(req, res) {
     try {
       const user = await User.findOneAndUpdate(
@@ -81,6 +95,13 @@ class UserController {
     }
   }
 
+  /**
+   * Get user by telegram ID
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} JSON response with user data
+   * @dev Returns user data including health data
+   */
   async getUserByTelegramId(req, res) {
     try {
       const user = await User.findOne({ telegram_id: req.params.telegramId })
@@ -106,6 +127,13 @@ class UserController {
     }
   }
 
+  /**
+   * Update user data
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} JSON response with updated user data
+   * @dev Updates user data including health data
+   */
   async updateUser(req, res) {
     try {
       const userData = req.body
@@ -159,6 +187,15 @@ class UserController {
     }
   }
 
+  /**
+   * Verify user gender
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} JSON response with verification status
+   * @dev Not currently implemented
+   */
+
+  // TODO: Implement gender verification with Self.xyz
   async verifyGender(req, res) {
     console.log('verifyGender')
     console.log(req.body)
