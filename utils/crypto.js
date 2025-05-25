@@ -52,7 +52,6 @@ async function serverSideEncrypt(file, signature) {
 
         return new Blob([encryptedFile], { type: "application/octet-stream" });
     } catch (error) {
-        console.error('Encryption error:', error);
         throw new Error(`Encryption failed: ${error.message}`);
     }
 }
@@ -74,8 +73,6 @@ function formatPublicKey(publicKey) {
         ? Buffer.concat([Buffer.from([4]), publicKeyBytes]) 
         : publicKeyBytes;
     
-    console.log("Original key length:", publicKeyBytes.length);
-    console.log("Uncompressed key length:", uncompressedKey.length);
     
     return uncompressedKey;
 }
@@ -88,48 +85,34 @@ function formatPublicKey(publicKey) {
  */
 async function encryptWithWalletPublicKey(message, publicKey, iv, ephemeralKey) {
     try {
-        console.log("Starting encryption...");
-        
         // Convert message to Buffer if it's a string
         const messageBuffer = Buffer.from(message);
-        console.log("Message buffer created, length:", messageBuffer.length);
         
         // Format the public key correctly
         const formattedKey = formatPublicKey(publicKey);
-        console.log("Formatted key length:", formattedKey.length);
-        console.log("Formatted key:", formattedKey.toString('hex'));
         
-        console.log("About to call eccrypto.encrypt...");
         // Let eccrypto handle IV and ephemeral key generation
         const encryptedBuffer = await eccrypto.encrypt(
             formattedKey,
             messageBuffer,
-            iv,
-            ephemeralKey
+            {
+                iv,
+                ephemPrivateKey: ephemeralKey
+            }
         );
-        console.log("Encryption completed");
 
         // Combine all parts as in the template
-        console.log("Combining encrypted parts...");
         const result = Buffer.concat([
             encryptedBuffer.iv,
             encryptedBuffer.ephemPublicKey,
             encryptedBuffer.ciphertext,
             encryptedBuffer.mac
         ]);
-        console.log("Parts combined");
         
         const hexResult = result.toString('hex');
-        console.log("Hex string created, length:", hexResult.length);
         
         return hexResult;
     } catch (error) {
-        console.error('Error encrypting with public key:', error);
-        console.error('Input details:', {
-            messageLength: message.length,
-            publicKeyLength: publicKey.length,
-            publicKey: publicKey
-        });
         throw new Error(`Public key encryption failed: ${error.message}`);
     }
 }

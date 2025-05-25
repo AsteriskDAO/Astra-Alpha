@@ -26,17 +26,6 @@ const FIXED_MESSAGE = "Please sign to retrieve your encryption key";
 
 const provider = new ethers.JsonRpcProvider(config.vana.rpcUrl);
 
-
-// For testing the values, since we are currently debugging a permissions issue from Vana's side 
-function getChecksum(data) {
-    if (Buffer.isBuffer(data)) {
-        return crypto.createHash('sha256').update(data).digest('hex');
-    } else if (typeof data === 'string') {
-        return crypto.createHash('sha256').update(data).digest('hex');
-    }
-    return 'unknown-type';
-}
-
 /**
  * Get TEE details for a job
  * @param {Contract} teePoolContract - The TEE pool contract instance
@@ -47,11 +36,11 @@ const getTeeDetails = async (teePoolContract, jobId) => {
     try {
         // Get job details directly from contract
         const jobDetails = await teePoolContract.jobs(jobId);
-        console.log("Raw job details:", jobDetails);
+        // console.log("Raw job details:", jobDetails);
 
         // Get TEE info
         const teeInfo = await teePoolContract.tees(jobDetails.teeAddress);
-        console.log("TEE info:", teeInfo);
+        // console.log("TEE info:", teeInfo);
 
         // Return combined info
         return {
@@ -75,7 +64,7 @@ const getTeeDetails = async (teePoolContract, jobId) => {
  */
 const fileJobIds = async (teePoolContract, fileId) => {
     const jobIds = await teePoolContract.fileJobIds(fileId);
-    console.log("Job IDs:", jobIds);
+    // console.log("Job IDs:", jobIds);
     return jobIds.map(Number);
 };
 
@@ -88,7 +77,7 @@ const fileJobIds = async (teePoolContract, fileId) => {
  * @dev Manages the full flow: registration, proof request, TEE submission, reward claim
  */
 
-const handleFileUpload = async (encryptedFileUrl, signature, previousState = {}) => {
+const handleFileUpload = async (encryptedFileUrl, signature, data_type, previousState = {}) => {
     // Initialize state with previous values and default flags if they don't exist
     let state = { 
         ...previousState,
@@ -99,7 +88,6 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
     };
 
     try {
-        console.log("Starting upload with state:", state);
         let fileId = state.fileId;
         const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
         const wallet = new ethers.Wallet(privateKey, provider);
@@ -128,16 +116,9 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
 
         const publicKey = await dlpContract.publicKey();
         
-        const ivChecksum = getChecksum(state.fixed_iv);
-        const ephemeralKeyChecksum = getChecksum(state.fixed_ephemeral_key);
-        const publicKeyChecksum = getChecksum(publicKey);
-        const dlpAddressChecksum = getChecksum(contractAddress);
-        
         // Check if the file is already registered for retry purposes
         if (!state.file_registered) {
             console.log("Registering file...");
-
-            
 
             // Register file with Vana
             const encryptedKey = await encryptWithWalletPublicKey(
@@ -147,13 +128,6 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                 state.fixed_ephemeral_key_buffer  // Use buffer for encryption
             );
 
-            console.log("Contract address:", contractAddress.toLowerCase());
-            console.log("Public key:", publicKey);
-            console.log("Fixed IV:", state.fixed_iv.toString('hex'));
-            console.log("Fixed ephemeral key:", state.fixed_ephemeral_key.toString('hex'));
-            console.log("Encrypted key for file registration:", encryptedKey);
-
-            console.log("Wallet address:", wallet.address.toLowerCase());
             
             const tx = await dataRegistryContract.addFileWithPermissions(
                 encryptedFileUrl, 
@@ -173,7 +147,6 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                     fileId = Number(parsedLog?.args[0]);
                     state.fileId = fileId;
                     state.file_registered = true;
-                    console.log("File registered with ID:", fileId);
                 } catch (e) {
                     throw new Error("Failed to parse file ID from logs");
                 }
@@ -188,16 +161,12 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
             // Request proof and get job ID directly
             const tx = await teePoolContract.requestContributionProof(fileId, { value: teeFee });
             const receipt = await tx.wait();
-            console.log("Receipt:", receipt);
             
             const jobIds = await fileJobIds(teePoolContract, fileId);
-            console.log("Job IDs:", jobIds);
             const latestJobId = jobIds[jobIds.length - 1];
-            console.log("Contribution proof requested, job ID:", latestJobId);
             
             // Get the job details from the contract
             const jobDetails = await getTeeDetails(teePoolContract, latestJobId);
-            console.log("Job details:", jobDetails);
             
             state.jobDetails = jobDetails;
             state.contribution_proof_requested = true;
@@ -208,24 +177,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
             console.log("Submitting proof to TEE...");
 
             const nonce = await provider.getTransactionCount(wallet.address);
-            
-
-            const ivChecksum2 = getChecksum(state.fixed_iv);
-            const ephemeralKeyChecksum2 = getChecksum(state.fixed_ephemeral_key);
-            const publicKeyChecksum2 = getChecksum(publicKey);
-            const dlpAddressChecksum2 = getChecksum(contractAddress);
-
-            // check if the checksums are the same
-            if (ivChecksum2 !== ivChecksum || ephemeralKeyChecksum2 !== ephemeralKeyChecksum || publicKeyChecksum2 !== publicKeyChecksum || dlpAddressChecksum2 !== dlpAddressChecksum) {
-                console.log("--------------------------------------------------------------")
-                console.log("Checksums do not match");
-                console.log("--------------------------------------------------------------")
-                throw new Error("Checksums do not match");
-            } else {
-                console.log("--------------------------------------------------------------")
-                console.log("Checksums match");
-                console.log("--------------------------------------------------------------")
-            }
+        
 
             // Build the request body
             
@@ -233,7 +185,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
                 job_id: state.jobDetails.jobId,
                 file_id: fileId,
                 nonce: nonce,
-                proof_url: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v10/my-proof-10.tar.gz",
+                proof_url: config.vana.proofUrl,
                 encryption_seed: FIXED_MESSAGE,
                 validate_permissions: [{
                     address: contractAddress.toLowerCase(),
@@ -245,14 +197,13 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
 
             if (state.jobDetails.teePublicKey) {
                 try {
-                    console.log("Encrypting key with TEE public key...");
                     const encryptedKey = await encryptWithWalletPublicKey(
                         signature,
                         state.jobDetails.teePublicKey,
                         state.fixed_iv_buffer,
                         state.fixed_ephemeral_key_buffer
                     );
-                    console.log("Encrypted key for TEE:", encryptedKey);
+                    // console.log("Encrypted key for TEE:", encryptedKey);
                     requestBody.encrypted_encryption_key = encryptedKey;
                 } catch (error) {
                     console.error("Failed to encrypt key with TEE public key:", error);
@@ -263,7 +214,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
             }
             
 
-            console.log("Request body:", requestBody);
+            // console.log("Request body:", requestBody);
             // Submit proof to TEE
             const response = await fetch(`${state.jobDetails.teeUrl}/RunProof`, {
                 method: 'POST',
@@ -279,18 +230,59 @@ const handleFileUpload = async (encryptedFileUrl, signature, previousState = {})
             }
 
             state.tee_proof_submitted = true;
-            console.log(response)
-            console.log("TEE proof submitted successfully");
+            // console.log(response)
         }
 
+        // Refine data
+        if(!state.data_refined) {
+            console.log("Refining data...");
+            // if checkin, use checkin refiner, if health, use health refiner
+            const refinerId = config.vana.refinerIds[data_type];
+            // const refinementEncryptionKey = config.vana.refinementEncryptionKey;
+            // const refinementUrl = config.vana.refinementUrl[data_type];
+            console.log(config.pinata.apiKey)
+            try {
+                const response = await fetch(config.vana.refinementServiceUrl, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        file_id: fileId,
+                        encryption_key: signature,
+                        refiner_id: refinerId,
+                        env_vars: {
+                            PINATA_API_KEY: config.pinata.apiKey,
+                            PINATA_API_SECRET: config.pinata.apiSecret
+                        }
+                    })
+                });
+
+                console.log("Refinement response:", response);
+                const result = await response.json();
+                console.log("Refinement successful:", result.detail);
+                state.data_refined = true;
+            } catch (error) {
+                // Log detailed error info
+                console.error("Error refining data:", {
+                    message: error.message,
+                    cause: error.cause,
+                    stack: error.stack
+                });
+
+                throw error; // Rethrow to trigger retry
+            }
+        }
+        
         // Claim reward if not already done
         if (!state.reward_claimed) {
             console.log("Claiming reward...");
             const claimTx = await dlpContract.requestReward(fileId, 1);
             await claimTx.wait();
             state.reward_claimed = true;
-            console.log("Reward claimed");
         }
+
+        console.log("File uploaded & reward requested successfully");
 
         return { 
             uploadedFileId: fileId, 

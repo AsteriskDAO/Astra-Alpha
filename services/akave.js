@@ -72,15 +72,12 @@ async function uploadHealthData(userId, data, signature) {
     const jsonFile = jsonToFile(data);
     const encryptedFile = await serverSideEncrypt(jsonFile, signature);
     
-    console.log('Uploading health data to O3 storage:', {
-      userId,
-      key,
-      bucket: BUCKETS.HEALTH
-    })
+    // console.log('Uploading health data to O3 storage:', {
+    //   userId,
+    //   key,
+    //   bucket: BUCKETS.HEALTH
+    // })
 
-    console.log('Data to upload:', data)
-    console.log('Encrypted data:', encryptedFile)
-    
     const command = new Upload({
       client: s3Client,
       params: {
@@ -94,10 +91,10 @@ async function uploadHealthData(userId, data, signature) {
     await command.done()
 
     const url = await getDataUrl(BUCKETS.HEALTH, key)
-    console.log('Health data uploaded to O3 storage:', {
-      key,
-      url
-    })
+    // console.log('Health data uploaded to O3 storage:', {
+    //   key,
+    //   url
+    // })
     return { 
       success: true, 
       key,
@@ -123,14 +120,11 @@ async function uploadCheckinData(userId, data, signature) {
     const jsonFile = jsonToFile(data);
     const encryptedFile = await serverSideEncrypt(jsonFile, signature);
     
-    console.log('Uploading check-in data to O3 storage:', {
-      userId,
-      key,
-      bucket: BUCKETS.CHECKIN
-    })
-
-    console.log('Data to upload:', data)
-    console.log('Encrypted data:', encryptedFile)
+    // console.log('Uploading check-in data to O3 storage:', {
+    //   userId,
+    //   key,
+    //   bucket: BUCKETS.CHECKIN
+    // })
 
     // const arrayBuffer = await encryptedFile.arrayBuffer();
     // const uint8Array = new Uint8Array(arrayBuffer);
@@ -148,10 +142,10 @@ async function uploadCheckinData(userId, data, signature) {
     await command.done()
     
     const url = await getDataUrl(BUCKETS.CHECKIN, key)  
-    console.log('Check-in data uploaded to O3 storage:', {
-      key,
-      url
-    })
+    // console.log('Check-in data uploaded to O3 storage:', {
+    //   key,
+    //   url
+    // })
     return { 
       success: true, 
       key,
