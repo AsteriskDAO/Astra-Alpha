@@ -1,33 +1,43 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-import {getUniversalLink, SelfAppBuilder } from '@selfxyz/core';
+import { getUniversalLink, SelfAppBuilder } from '@selfxyz/core'
 import QRCode from 'qrcode.vue'
-// import { v4 as uuidv4 } from 'uuid'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 import { useTelegramStore } from '../stores/telegram'
+import { initWebSocket, QRCodeSteps } from '../utils/websocket'
 
 const router = useRouter()
 const userStore = useUserStore()
-const verificationStatus = ref('pending')
-// const userId = ref('')
+const telegramStore = useTelegramStore()
 const selfApp = ref<any>(null)
 const qrValue = ref('')
-const telegramStore = useTelegramStore()
+const proofStep = ref(QRCodeSteps.WAITING_FOR_MOBILE)
+const cleanup = ref<(() => void) | null>(null)
 
-const telegramId = telegramStore.userInfo.id;
+const telegramId = telegramStore.userInfo.id
+
+const handleVerificationSuccess = async () => {
+  try {
+    const isVerified = await userStore.checkGenderVerification(telegramId)
+    if (isVerified) {
+      userStore.updateIsGenderVerified(true)
+      setTimeout(() => {
+        router.push('/profile')
+      }, 2000)
+    }
+  } catch (error) {
+    console.error('Failed to verify:', error)
+  }
+}
 
 onMounted(async () => {
-  // Generate a unique user ID for this verification session
-  // userId.value = uuidv4()
-  console.log('userStore.userData', userStore.userData)
   if (!userStore.userData.user_id) {
-
     await userStore.fetchUserData(telegramId)
   }
 
-  // Create the SelfApp configuration
+  // Create Self app configuration
   selfApp.value = new SelfAppBuilder({
     appName: "Asterisk Health",
     scope: "gender-verification",
@@ -36,50 +46,58 @@ onMounted(async () => {
     disclosures: {
       gender: true
     }
-    // onSuccess: handleVerificationSuccess
   }).build()
 
-  // Generate the deeplink for the QR code
+  // Generate QR code value
+  const deeplink = getUniversalLink(selfApp.value)  
+  qrValue.value = deeplink
 
-  qrValue.value = getUniversalLink(selfApp.value)
+  // Initialize WebSocket
+  cleanup.value = initWebSocket(
+    deeplink,
+    selfApp.value,
+    'deeplink',
+    (step: QRCodeSteps) => {
+      proofStep.value = step
+    },
+    handleVerificationSuccess
+  )
 })
 
-const handleVerificationSuccess = async () => {
-  try {
-
-    const isVerified = await userStore.checkGenderVerification(telegramId)
-
-    if (isVerified) {
-      verificationStatus.value = 'verified'
-      userStore.updateIsGenderVerified(true)
-      // Show success for 2 seconds before redirecting
-      setTimeout(() => {
-        router.push('/profile')
-      }, 2000)
-    } else {
-      verificationStatus.value = 'error'
-    }
-  } catch (error) {
-    console.error('Failed to update verification status:', error)
-    verificationStatus.value = 'error'
+onUnmounted(() => {
+  if (cleanup.value) {
+    cleanup.value()
   }
-}
-
-const handleBack = () => {
-  router.push('/welcome')
-}
+})
 </script>
+
 <template>
   <div class="verify-screen screen-container">
     <div class="verify-content">
       <TitleWithAsterisk title="Verify Your Gender" />
       
-      <p class="description">
-        Scan this QR code with the Self app to verify your gender information.
-        This is a requirement for...
-      </p>
+      <div class="status-message">
+        <div v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
+          Scan QR code to begin verification...
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.MOBILE_CONNECTED">
+          Mobile connected! Starting verification...
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_GENERATION_STARTED">
+          Generating proof...
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_GENERATED">
+          Proof generated! Verifying...
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_GENERATION_FAILED">
+          Verification failed. Please try again.
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_VERIFIED">
+          Verification successful!
+        </div>
+      </div>
 
-      <div class="qr-container">
+      <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
         <QRCode
           :value="qrValue"
           :size="300"
@@ -94,17 +112,29 @@ const handleBack = () => {
       </p>
 
       <div class="status-container">
-        <div v-if="verificationStatus === 'pending'" class="status pending">
+        <div v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE" class="status pending">
           <v-icon>mdi-clock-outline</v-icon>
           <span>Waiting for verification...</span>
         </div>
-        <div v-else-if="verificationStatus === 'verified'" class="status verified">
+        <div v-else-if="proofStep === QRCodeSteps.MOBILE_CONNECTED" class="status verified">
           <v-icon>mdi-check-circle</v-icon>
-          <span>Gender verified successfully!</span>
+          <span>Mobile connected!</span>
         </div>
-        <div v-else-if="verificationStatus === 'error'" class="status error">
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_GENERATION_STARTED" class="status pending">
+          <v-icon>mdi-clock-outline</v-icon>
+          <span>Generating proof...</span>
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_GENERATED" class="status pending">
+          <v-icon>mdi-clock-outline</v-icon>
+          <span>Verifying...</span>
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_GENERATION_FAILED" class="status error">
           <v-icon>mdi-alert-circle</v-icon>
           <span>Verification failed. Please try again.</span>
+        </div>
+        <div v-else-if="proofStep === QRCodeSteps.PROOF_VERIFIED" class="status verified">
+          <v-icon>mdi-check-circle</v-icon>
+          <span>Verification successful!</span>
         </div>
 
         <v-btn
@@ -128,7 +158,7 @@ const handleBack = () => {
         <v-btn
           color="primary"
           block
-          @click="handleBack"
+          @click="router.push('/profile')"
         >
           Back to Profile
         </v-btn>
@@ -194,5 +224,13 @@ const handleBack = () => {
 
 .actions {
   margin-top: 32px;
+}
+
+.status-message {
+  margin: 20px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--gray);
+  color: var(--text);
 }
 </style> 
