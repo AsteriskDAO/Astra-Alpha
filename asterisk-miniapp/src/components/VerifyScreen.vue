@@ -54,9 +54,9 @@ onMounted(async () => {
 
   // Initialize WebSocket
   cleanup.value = initWebSocket(
-    deeplink,
+    'wss://websocket.self.xyz',
     selfApp.value,
-    'deeplink',
+    'websocket',
     (step: QRCodeSteps) => {
       proofStep.value = step
     },
@@ -100,8 +100,9 @@ onUnmounted(() => {
       <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
         <QRCode
           :value="qrValue"
-          :size="300"
-          level="H"
+          :size="280"
+          :margin="2"
+          level="M"
           render-as="svg"
         />
       </div>
