@@ -3,7 +3,7 @@ const HealthData = require('../models/healthData')
 const akave = require('../services/akave')
 const cache = require('../services/cache')
 const { addToQueue, QUEUE_TYPES } = require('../services/queue')
-
+const { verifyProof } = require('../services/self')
 
 class UserController {
   /**
@@ -199,6 +199,27 @@ class UserController {
   async verifyGender(req, res) {
     console.log('verifyGender')
     console.log(req.body)
+    try {
+      const { proof, publicSignals } = req.body
+      const { result, userId } = await verifyProof(proof, publicSignals)
+      if (!result) {
+        return res.status(400).json({ error: 'Proof verification failed' })
+      }
+
+      const user = await User.findOneAndUpdate(
+        { telegram_id: userId },
+        { $set: { isGenderVerified: true } },
+        { new: true }
+      )
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+      res.json({ message: 'Gender verified successfully' })
+    } catch (error) {
+      console.error('Failed to verify gender:', error)
+      res.status(500).json({ error: 'Failed to verify gender' })
+    }
+
   //   try {
   //     const { userHash, isGenderVerified } = req.body
   //     const user = await User.findOneAndUpdate(
