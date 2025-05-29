@@ -38,6 +38,7 @@ export function initWebSocket(
   const socket = newSocket(websocketUrl, sessionId)
 
   const handleMessage = async (data: any) => {
+    console.log(data)
     console.log('[WebSocket] Received mobile status:', data.status)
     
     switch (data.status) {
