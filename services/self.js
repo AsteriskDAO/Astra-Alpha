@@ -1,7 +1,7 @@
 const { SelfBackendVerifier, getUserIdentifier } = require('@selfxyz/core');
 
 const selfBackendVerifier = new SelfBackendVerifier(
-    "vana-asterisk-miniapp", // the scope that you chose to identify your app
+    "gender-verification", // the scope that you chose to identify your app
     process.env.SERVER_URL + "/api/users/verify-gender" // The API endpoint of this backend
 );
 
