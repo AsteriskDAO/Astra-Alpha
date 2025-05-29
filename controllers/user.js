@@ -206,24 +206,38 @@ class UserController {
         return res.status(400).json({ error: 'Proof verification failed' })
       }
 
-      // if (!result.isValid) {
-      //   return res.status(400).json({ error: 'Proof not valid' })
-      // }
 
-      // Find and update user by user_id instead of _id
-      const user = await User.findOneAndUpdate(
-        { user_id: userId },
-        { $set: { isGenderVerified: true } },
-        { new: true }
-      )
 
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' })
+      if (result.isValid) {
+        // Find and update user by user_id instead of _id
+        const user = await User.findOneAndUpdate(
+          { user_id: userId },
+          { $set: { isGenderVerified: true } },
+          { new: true }
+        )
+        if(!user) throw new Error('User not found')
+        // Return successful verification response
+        return res.status(200).json({
+          status: 'success',
+          result: true,
+          credentialSubject: result.credentialSubject
+        });
+      } else {
+        // Return failed verification response
+        return res.status(500).json({
+          status: 'error',
+          result: false,
+          message: 'Verification failed',
+          details: result.isValidDetails
+        });
       }
-      res.json({ message: 'Gender verified successfully' })
     } catch (error) {
-      console.error('Failed to verify gender:', error)
-      res.status(500).json({ error: 'Failed to verify gender' })
+      console.error('Error verifying proof:', error);
+      return res.status(500).json({
+        status: 'error',
+        result: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 }
