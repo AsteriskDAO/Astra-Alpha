@@ -206,11 +206,11 @@ class UserController {
         return res.status(400).json({ error: 'Proof verification failed' })
       }
 
-      const user = await User.findOneAndUpdate(
-        { telegram_id: userId },
-        { $set: { isGenderVerified: true } },
-        { new: true }
-      )
+      // if (!result.isValid) {
+      //   return res.status(400).json({ error: 'Proof not valid' })
+      // }
+
+      const user = await User.findByIdAndUpdate(userId, { isGenderVerified: true }, { new: true })
       if (!user) {
         return res.status(404).json({ error: 'User not found' })
       }
