@@ -38,7 +38,7 @@ router.put('/:userHash/points',
 )
 
 // Update gender verification status
-router.put('/verify-gender', 
+router.post('/verify-gender', 
   userController.verifyGender
 )
 

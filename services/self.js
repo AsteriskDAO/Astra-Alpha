@@ -5,6 +5,8 @@ const selfBackendVerifier = new SelfBackendVerifier(
     process.env.SERVER_URL + "/api/users/verify-gender" // The API endpoint of this backend
 );
 
+console.log(selfBackendVerifier);
+
 /**
  * Verify a proof using Self's backend verifier
  * @param {string} proof - The proof to verify
