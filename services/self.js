@@ -1,4 +1,4 @@
-import { SelfBackendVerifier, getUserIdentifier } from '@selfxyz/core';
+const { SelfBackendVerifier, getUserIdentifier } = require('@selfxyz/core');
 
 const selfBackendVerifier = new SelfBackendVerifier(
     "vana-asterisk-miniapp", // the scope that you chose to identify your app
@@ -23,4 +23,4 @@ const verifyProof = async (proof, publicSignals) => {
 };
 
 
-export { verifyProof };
+module.exports = { verifyProof };
