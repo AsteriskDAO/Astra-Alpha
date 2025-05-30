@@ -49,13 +49,13 @@ onMounted(async () => {
   }).build()
 
   // Generate QR code value
-  const deeplink = getUniversalLink({ 
-    ...selfApp.value,
-    sessionId: selfApp.value.sessionId
-  })  
+  // const deeplink = getUniversalLink({ 
+  //   ...selfApp.value,
+  //   sessionId: selfApp.value.sessionId
+  // })  
   
-  // qrValue.value = 'https://redirect.self.xyz/?sessionId=' + selfApp.value.sessionId
-  qrValue.value = deeplink
+  qrValue.value = 'https://redirect.self.xyz/?sessionId=' + selfApp.value.sessionId
+  // qrValue.value = deeplink
 
   // Initialize WebSocket
   cleanup.value = initWebSocket(
