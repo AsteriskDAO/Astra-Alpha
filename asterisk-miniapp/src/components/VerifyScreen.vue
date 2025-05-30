@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-import { getUniversalLink, SelfAppBuilder } from '@selfxyz/core'
+import { SelfAppBuilder } from '@selfxyz/core'
 import QRCode from 'qrcode.vue'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 import { useTelegramStore } from '../stores/telegram'
