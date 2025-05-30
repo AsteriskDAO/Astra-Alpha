@@ -53,10 +53,9 @@ onMounted(async () => {
     ...selfApp.value,
     sessionId: selfApp.value.sessionId
   })  
-  console.log("deeplink")
-  console.log(deeplink)
   
-  qrValue.value = 'https://redirect.self.xyz/' + selfApp.value.sessionId
+  // qrValue.value = 'https://redirect.self.xyz/?sessionId=' + selfApp.value.sessionId
+  qrValue.value = deeplink
 
   // Initialize WebSocket
   cleanup.value = initWebSocket(
@@ -144,7 +143,7 @@ onUnmounted(() => {
           <span>Verification successful!</span>
         </div>
 
-        <v-btn
+        <!-- <v-btn
           color="primary"
           block
           @click="handleVerificationSuccess"
@@ -159,7 +158,7 @@ onUnmounted(() => {
         @click="router.push('/profile')"
       >
         Skip for now
-      </v-btn>
+      </v-btn> -->
 
       <div class="actions">
         <v-btn
