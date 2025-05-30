@@ -142,23 +142,7 @@ onUnmounted(() => {
           <v-icon>mdi-check-circle</v-icon>
           <span>Verification successful!</span>
         </div>
-
-        <!-- <v-btn
-          color="primary"
-          block
-          @click="handleVerificationSuccess"
-        >
-          Confirm
-        </v-btn>
       </div>
-
-      <v-btn
-        color="primary"
-        block
-        @click="router.push('/profile')"
-      >
-        Skip for now
-      </v-btn> -->
 
       <div class="actions">
         <v-btn
