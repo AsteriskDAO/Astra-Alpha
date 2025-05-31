@@ -145,7 +145,7 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="actions">
+      <!-- <div class="actions">
         <v-btn
           color="primary"
           block
@@ -153,7 +153,7 @@ onUnmounted(() => {
         >
           Back to Profile
         </v-btn>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

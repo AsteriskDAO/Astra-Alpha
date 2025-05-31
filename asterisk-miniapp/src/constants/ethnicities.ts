@@ -495,10 +495,10 @@ export type EthnicityPath = {
   ethnicity: string
 } 
 
-// grab each 2nd level sub group and make it a new array
-export const ethnicityRegions = ethnicityGroups.map(group => group.subgroups).flat()
+// grab each 2nd level sub group and make it a new array[String]
+export const ethnicityRegions = ethnicityGroups.map(group => group.subgroups).flat().map(subgroup => subgroup?.label)
 
-// grab each 3rd level sub group and make it a new array
+// grab each 3rd level sub group and make it a new array[String]
 export const ethnicitySubgroups = ethnicityGroups.map(group => group.subgroups).flat().map(subgroup => subgroup?.subgroups).flat()
 
 
