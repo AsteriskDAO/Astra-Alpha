@@ -1,5 +1,5 @@
 app = "asterisk-health-profile"
-primary_region = "ord"
+primary_region = "fra"
 
 [http_service]
   internal_port = 3000
