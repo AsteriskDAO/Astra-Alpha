@@ -1,9 +1,11 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const path = require('path');
-dotenv.config({
-  path: path.resolve(__dirname, `.env.${process.env.NODE_ENV || 'development'}`)
-});
+// Fly.io handles secrets differently, so we need to use a different approach
+// const path = require('path');
+// dotenv.config({
+//   path: path.resolve(__dirname, `.env.${process.env.NODE_ENV || 'development'}`)
+// });
+dotenv.config();
 const cors = require('cors');
 const connectDB = require('./config/database');
 const config = require('./config/config');
