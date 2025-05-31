@@ -14,8 +14,8 @@ const config = {
         accessKey: process.env.AKAVE_ACCESS_KEY,
         secretKey: process.env.AKAVE_SECRET_KEY,
         buckets: {
-            health: process.env.AKAVE_BUCKET_NAME_HEALTH_TEST,
-            checkin: process.env.AKAVE_BUCKET_NAME_CHECKIN_TEST
+            health: process.env.AKAVE_BUCKET_NAME_HEALTH,
+            checkin: process.env.AKAVE_BUCKET_NAME_CHECKIN
         }
     },
     vana: {
