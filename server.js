@@ -19,7 +19,7 @@ const app = express();
 // CORS configuration based on environment
 const corsOptions = {
   origin: config.server.env === 'production' 
-    ? [/\.onrender\.com$/] // Production domains
+    ? [/\.onrender\.com$/, /\.fly\.dev$/] // Production domains including fly.io
     : ['http://localhost:5173'], // Development domains
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
