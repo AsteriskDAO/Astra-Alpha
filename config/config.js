@@ -8,7 +8,7 @@ const config = {
         apiSecret: process.env.PINATA_API_SECRET
     },
     akave: {
-        // TODO: update to production endpoint
+        
         endpoint: process.env.AKAVE_ENDPOINT,
         region: process.env.AKAVE_REGION,
         accessKey: process.env.AKAVE_ACCESS_KEY,
@@ -19,12 +19,11 @@ const config = {
         }
     },
     vana: {
-        // TODO: update to production rpc url
-        rpcUrl: "https://rpc.moksha.vana.org",
+        rpcUrl: process.env.VANA_RPC_URL,
         contracts: {
-            dlp: "0x02C6C80EDe873285b5e1a06ae425e5fE277BB310",
-            registry: "0x8C8788f98385F6ba1adD4234e551ABba0f82Cb7C",
-            teePool: "0xE8EC6BD73b23Ad40E6B9a6f4bD343FAc411bD99A"
+            dlp: process.env.VANA_CONTRACTS_DLP,
+            registry: process.env.VANA_CONTRACTS_REGISTRY,
+            teePool: process.env.VANA_CONTRACTS_TEEP_POOL
         },
         proofUrl: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v10/my-proof-10.tar.gz",
         refinementUrl: {
@@ -37,7 +36,7 @@ const config = {
             health: 53
         },
         refinementEncryptionKey: "0x04fdb1b931c1c61849105a11f02a6c1519ad5e248d682ce2f65351453ff42523f10b98f1d9cd1fe3f47cfe4223c827a4401fd4dda7c23c3bec7dc59359af9974a1",
-        dlpId: 50
+        dlpId: process.env.VANA_DLP_ID
     },
     server: {
         port: process.env.PORT || 3000,

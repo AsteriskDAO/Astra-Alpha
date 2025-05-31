@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import config from '../config/config'
 
-const API_URL = 'https://asterisk-health-profile.onrender.com'
+const API_URL = config.server.url
 
 // Create axios instance with default headers
 const api = axios.create({

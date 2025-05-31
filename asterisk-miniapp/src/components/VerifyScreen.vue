@@ -7,6 +7,7 @@ import QRCode from 'qrcode.vue'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 import { useTelegramStore } from '../stores/telegram'
 import { initWebSocket, QRCodeSteps } from '../utils/websocket'
+import config from '../config/config'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -41,7 +42,7 @@ onMounted(async () => {
   selfApp.value = new SelfAppBuilder({
     appName: "Asterisk Health",
     scope: "gender-verification",
-    endpoint: "https://asterisk-health-profile.onrender.com/api/users/verify-gender",
+    endpoint: config.server.url + "/api/users/verify-gender",
     userId: userStore.userData.user_id,
     disclosures: {
       gender: true
