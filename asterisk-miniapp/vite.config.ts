@@ -13,6 +13,7 @@ export default defineConfig({
       '127.0.0.1',
       '.ngrok-free.app', // Allow all ngrok-free.app subdomains
       '.ngrok.io',
+      '.fly.dev',
       '.loca.lt',
       '.onrender.com'
     ],
