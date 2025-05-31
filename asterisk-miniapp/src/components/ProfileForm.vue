@@ -3,7 +3,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useTelegramStore } from '../stores/telegram'
-import { ethnicities, ageRanges } from '../constants/lists'
+import { ageRanges } from '../constants/lists'
+import { ethnicityRegions } from '../constants/ethnicities' 
 import type { UserData } from '../stores/user'
 import * as yup from 'yup'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
@@ -197,7 +198,7 @@ async function handleSubmit(e: Event) {
         <label>Ethnicity<span class="required">*</span></label>
         <v-autocomplete
           v-model="form.profile.ethnicity"
-          :items="ethnicities"
+          :items="ethnicityRegions"
           variant="outlined"
           class="mb-4"
           hide-details
