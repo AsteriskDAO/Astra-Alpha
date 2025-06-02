@@ -508,7 +508,8 @@ async function setupBot() {
             break;
           }
 
-          const userHash = await User.findOne({ telegram_id: ctx.from.id }).select('user_hash');
+          const user = await User.findOne({ telegram_id: ctx.from.id });
+          const userHash = user.user_hash;
           // upload to akave
 
           console.log("userHash", userHash);
@@ -533,9 +534,9 @@ async function setupBot() {
             userHash.user_hash
           )
 
-          // Add points to user
-          await addPoints(ctx.from.id, 1);
-          await checkIn(ctx.from.id);
+          // // Add points to user
+          // await addPoints(ctx.from.id, 1);
+          await user.recordCheckIn();
 
           // Final messages after successful completion
           await updateLastCheckIn(ctx.from.id);
