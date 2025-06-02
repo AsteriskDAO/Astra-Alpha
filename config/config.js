@@ -25,7 +25,7 @@ const config = {
             registry: process.env.VANA_CONTRACTS_REGISTRY,
             teePool: process.env.VANA_CONTRACTS_TEEP_POOL
         },
-        proofUrl: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v11/my-proof-11.tar.gz",
+        proofUrl: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v12/my-proof-12.tar.gz",
         refinementUrl: {
             checkin: "https://github.com/Boka44/vana-asterisk-data-refinement-checkin/releases/download/v7/refiner-7.tar.gz",
             health: "https://github.com/Boka44/vana-asterisk-data-refinement-health-data/releases/download/v3/refiner-3.tar.gz"

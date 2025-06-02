@@ -223,18 +223,20 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
-                });
+                }); 
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("TEE proof submission failed:", errorData);
+                    console.error(errorData.detail.error.details);
+                    throw { error: errorData, state, status: false };
+                }
             } catch (error) {
                 console.error("Failed to submit proof to TEE:", error);
                 throw { error, state, status: false };
             }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("TEE proof submission failed:", errorData);
-                console.error(errorData.detail.error.details);
-                throw { error: errorData, state, status: false };
-            }
+           
 
             state.tee_proof_submitted = true;
             // console.log(response)
