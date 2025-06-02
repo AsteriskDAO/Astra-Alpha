@@ -61,7 +61,7 @@ uploadQueue.process(async (job) => {
       await job.update(job.data);
       
       results.akave = o3Response
-      console.log("o3Response", o3Response);
+      // console.log("o3Response", o3Response);
     }
 
     // Check if we have a previous Vana upload state
@@ -69,8 +69,11 @@ uploadQueue.process(async (job) => {
     
     // Then upload to Vana with same signature
     const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState);
-    if (!vanaResponse?.uploadedFileId) {
+    if (!vanaResponse.status) {
         job.data.vanaState = vanaResponse.state;
+        console.log("******************************");
+        console.log("updating state");
+        console.log("******************************");
         await job.update(job.data);
         throw new Error('Failed to upload to Vana');
     }

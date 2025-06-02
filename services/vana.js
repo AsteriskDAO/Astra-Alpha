@@ -258,9 +258,8 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     })
                 });
 
-                console.log("Refinement response:", response);
                 const result = await response.json();
-                console.log("Refinement successful:", result.detail);
+                console.log("Refinement successful");
                 state.data_refined = true;
             } catch (error) {
                 // Log detailed error info
@@ -287,11 +286,12 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
         return { 
             uploadedFileId: fileId, 
             message: "File uploaded & reward requested successfully",
-            state 
+            state,
+            status: true
         };
     } catch (error) {
         console.error("Error in handleFileUpload:", error);
-        throw { error, state };
+        throw { error, state, status: false };
     }
 };
 
