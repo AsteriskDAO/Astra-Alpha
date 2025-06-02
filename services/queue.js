@@ -71,21 +71,20 @@ uploadQueue.process(async (job) => {
     
     // Then upload to Vana with same signature
     const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState);
-    // if (!vanaResponse.status) {
-    //     job.data.vanaState = vanaResponse.state;
-    //     console.log("******************************");
-    //     console.log("updating state");
-    //     console.log("******************************");
-    //     await job.update(job.data);
-    //     throw new Error('Failed to upload to Vana');
-    // }
     
-    // // Store successful state
-    // job.data.vanaState = vanaResponse.state;
-    // await job.update(job.data);
+    // Always save the state if we got one
+    if (vanaResponse.state) {
+      console.log("Saving Vana state:", vanaResponse.state);
+      job.data.vanaState = vanaResponse.state;
+      await job.update(job.data);
+    }
+
+    // If upload not complete, throw error to trigger retry
+    if (!vanaResponse.status) {
+      throw { state: vanaResponse.state, error: new Error('Vana upload in progress') };
+    }
     
     results.vana = vanaResponse;
-
     console.log("vanaResponse", vanaResponse);
 
     // Send success message
@@ -99,12 +98,12 @@ uploadQueue.process(async (job) => {
   } catch (error) {
     console.error(`Upload failed for ${type}:`, error)
 
-      // If we have state information, store it for retry
-    
-      console.log("Saving state for retry:", error.state);
+    // If we have state information, store it for retry
+    if (error.state) {
+      console.log("Saving error state for retry:", error.state);
       job.data.vanaState = error.state;
       await job.update(job.data);
-  
+    }
 
     // On final attempt, handle failure
     if (job.attemptsMade >= job.opts.attempts - 1) {

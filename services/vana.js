@@ -88,6 +88,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
     };
 
     try {
+        
         let fileId = state.fileId;
         const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
         const wallet = new ethers.Wallet(privateKey, provider);
@@ -217,17 +218,22 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
 
             // console.log("Request body:", requestBody);
             // Submit proof to TEE
-            const response = await fetch(`${state.jobDetails.teeUrl}/RunProof`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
+            try {
+                const response = await fetch(`${state.jobDetails.teeUrl}/RunProof`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+            } catch (error) {
+                console.error("Failed to submit proof to TEE:", error);
+                throw { error, state, status: false };
+            }
 
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("TEE proof submission failed:", errorData);
                 console.error(errorData.detail.error.details);
-                throw { error: errorData, state };
+                throw { error: errorData, state, status: false };
             }
 
             state.tee_proof_submitted = true;

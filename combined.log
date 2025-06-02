@@ -98,3 +98,24 @@
 {"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-02T12:57:51.975Z"}
 {"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-02T12:57:52.056Z"}
 {"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:57:52.057Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T15:19:21.914Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T15:19:21.919Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T15:19:21.926Z"}
+{"level":"info","message":"I am the leader","timestamp":"2025-06-02T15:19:21.937Z"}
+{"level":"info","message":"Instance 4bzhye became leader","timestamp":"2025-06-02T15:19:21.938Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T15:19:21.939Z"}
+{"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-02T15:19:21.941Z"}
+{"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-02T15:19:22.064Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T15:19:22.064Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T15:25:37.038Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T15:25:37.044Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T15:25:37.053Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T15:26:10.803Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T15:26:10.808Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T15:26:10.816Z"}
+{"level":"info","message":"I am the leader","timestamp":"2025-06-02T15:26:10.829Z"}
+{"level":"info","message":"Instance 5kv3wh became leader","timestamp":"2025-06-02T15:26:10.830Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T15:26:10.831Z"}
+{"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-02T15:26:10.834Z"}
+{"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-02T15:26:10.897Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T15:26:10.898Z"}
