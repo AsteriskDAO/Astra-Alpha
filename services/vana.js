@@ -209,6 +209,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     console.error("Failed to encrypt key with TEE public key:", error);
                     requestBody.encryption_key = signature;
                     throw { error, state, status: false };
+                }
             } else {
                 requestBody.encryption_key = signature;
             }
