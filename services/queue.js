@@ -29,9 +29,11 @@ uploadQueue.process(async (job) => {
   const { type, data, telegramId, user_hash } = job.data
   const results = {}
 
-  console.log("************************\n")
+  console.log("**********************************************************\n")
+  console.log("**********************************************************\n")
   console.log("job.data", job.data);
-  console.log("************************\n")
+  console.log("**********************************************************\n")
+  console.log("**********************************************************\n")
 
   try {
     // Check if we already have an Akave upload from a previous attempt
@@ -69,14 +71,14 @@ uploadQueue.process(async (job) => {
     
     // Then upload to Vana with same signature
     const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState);
-    if (!vanaResponse.status) {
-        job.data.vanaState = vanaResponse.state;
-        console.log("******************************");
-        console.log("updating state");
-        console.log("******************************");
-        await job.update(job.data);
-        throw new Error('Failed to upload to Vana');
-    }
+    // if (!vanaResponse.status) {
+    //     job.data.vanaState = vanaResponse.state;
+    //     console.log("******************************");
+    //     console.log("updating state");
+    //     console.log("******************************");
+    //     await job.update(job.data);
+    //     throw new Error('Failed to upload to Vana');
+    // }
     
     // // Store successful state
     // job.data.vanaState = vanaResponse.state;

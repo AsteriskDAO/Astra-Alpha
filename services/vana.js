@@ -52,7 +52,7 @@ const getTeeDetails = async (teePoolContract, jobId) => {
         };
     } catch (error) {
         console.error("Error fetching job details:", error);
-        throw new Error(`Failed to fetch TEE details: ${error.message}`);
+        throw { error: new Error(`Failed to fetch TEE details: ${error.message}`), state, status: false };
     }
 };
 
@@ -81,10 +81,10 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
     // Initialize state with previous values and default flags if they don't exist
     let state = { 
         ...previousState,
-        file_registered: previousState.file_registered || false,
-        contribution_proof_requested: previousState.contribution_proof_requested || false,
-        tee_proof_submitted: previousState.tee_proof_submitted || false,
-        reward_claimed: previousState.reward_claimed || false
+        // file_registered: previousState.file_registered || false,
+        // contribution_proof_requested: previousState.contribution_proof_requested || false,
+        // tee_proof_submitted: previousState.tee_proof_submitted || false,
+        // reward_claimed: previousState.reward_claimed || false
     };
 
     try {
@@ -148,7 +148,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     state.fileId = fileId;
                     state.file_registered = true;
                 } catch (e) {
-                    throw new Error("Failed to parse file ID from logs");
+                    throw { error: new Error("Failed to parse file ID from logs"), state, status: false };
                 }
             }
         }
@@ -208,7 +208,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                 } catch (error) {
                     console.error("Failed to encrypt key with TEE public key:", error);
                     requestBody.encryption_key = signature;
-                }
+                    throw { error, state, status: false };
             } else {
                 requestBody.encryption_key = signature;
             }
@@ -269,7 +269,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     stack: error.stack
                 });
 
-                throw error; // Rethrow to trigger retry
+                throw { error, state, status: false }; // Rethrow to trigger retry
             }
         }
         
