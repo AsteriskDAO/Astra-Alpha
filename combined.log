@@ -30,3 +30,71 @@
 {"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-05-26T22:13:23.189Z"}
 {"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-05-27T09:26:12.087Z"}
 {"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-05-31T21:35:27.450Z"}
+{"level":"info","message":"Bot initialized but not started on follower instance","timestamp":"2025-06-02T12:21:47.554Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:21:47.567Z"}
+{"level":"info","message":"Instance xve06d became leader","timestamp":"2025-06-02T12:21:47.578Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:32:40.266Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:32:40.272Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:32:40.274Z"}
+{"level":"info","message":"Not leader, bot initialized but not started","timestamp":"2025-06-02T12:32:40.276Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:32:40.280Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:32:40.292Z"}
+{"level":"info","message":"Instance 0b6869 became leader","timestamp":"2025-06-02T12:33:10.324Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:36:25.148Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:36:25.152Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:36:25.154Z"}
+{"level":"info","message":"Not leader, bot initialized but not started","timestamp":"2025-06-02T12:36:25.155Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:36:25.155Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:36:25.162Z"}
+{"level":"info","message":"Instance m1s962 became leader","timestamp":"2025-06-02T12:36:55.190Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:37:06.086Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:37:06.092Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:37:06.093Z"}
+{"level":"info","message":"Not leader, bot initialized but not started","timestamp":"2025-06-02T12:37:06.094Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:37:06.095Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:37:06.101Z"}
+{"level":"info","message":"Instance xo5uc became leader","timestamp":"2025-06-02T12:37:36.139Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:38:16.322Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:38:16.328Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:38:16.330Z"}
+{"level":"info","message":"Not leader, bot initialized but not started","timestamp":"2025-06-02T12:38:16.332Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:38:16.333Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:38:16.342Z"}
+{"level":"info","message":"Instance sy84tg became leader","timestamp":"2025-06-02T12:38:46.378Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:43:30.947Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:43:30.951Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:43:30.952Z"}
+{"level":"info","message":"Not leader, bot initialized but not started","timestamp":"2025-06-02T12:43:30.954Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:43:30.955Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:43:30.961Z"}
+{"level":"info","message":"Instance ypc2pm became leader","timestamp":"2025-06-02T12:44:00.993Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:50:03.641Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:50:38.834Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:50:38.840Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:50:38.842Z"}
+{"level":"info","message":"Not leader, skipping bot command setup","timestamp":"2025-06-02T12:50:38.844Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:50:38.845Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:50:38.854Z"}
+{"level":"info","message":"Instance 3dtns became leader","timestamp":"2025-06-02T12:50:38.870Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:52:15.091Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:56:24.436Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:56:24.445Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:56:24.455Z"}
+{"level":"info","message":"I am the leader","timestamp":"2025-06-02T12:56:24.477Z"}
+{"level":"info","message":"Instance i6ljpd became leader","timestamp":"2025-06-02T12:56:24.478Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:56:24.481Z"}
+{"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-02T12:56:24.485Z"}
+{"level":"error","message":"Failed to setup bot: session is not a function","stack":"TypeError: session is not a function\n    at setupBot (C:\\Users\\nhrbo\\..crypto\\freelance\\asterisk\\HealthBuddyServer\\bots\\tgBot.js:49:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async EventEmitter.<anonymous> (C:\\Users\\nhrbo\\..crypto\\freelance\\asterisk\\HealthBuddyServer\\server.js:70:9)","timestamp":"2025-06-02T12:56:24.489Z"}
+{"level":"error","message":"Failed to setup bot: session is not a function","stack":"TypeError: session is not a function\n    at setupBot (C:\\Users\\nhrbo\\..crypto\\freelance\\asterisk\\HealthBuddyServer\\bots\\tgBot.js:49:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async EventEmitter.<anonymous> (C:\\Users\\nhrbo\\..crypto\\freelance\\asterisk\\HealthBuddyServer\\server.js:70:9)","timestamp":"2025-06-02T12:56:24.492Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:57:19.134Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:57:19.139Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:57:19.147Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-02T12:57:51.947Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-02T12:57:51.954Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-02T12:57:51.960Z"}
+{"level":"info","message":"I am the leader","timestamp":"2025-06-02T12:57:51.971Z"}
+{"level":"info","message":"Instance impva became leader","timestamp":"2025-06-02T12:57:51.971Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-02T12:57:51.973Z"}
+{"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-02T12:57:51.975Z"}
+{"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-02T12:57:52.056Z"}
+{"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T12:57:52.057Z"}

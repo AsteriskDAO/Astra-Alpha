@@ -5,7 +5,6 @@ const selfBackendVerifier = new SelfBackendVerifier(
     process.env.SERVER_URL + "/api/users/verify-gender" // The API endpoint of this backend
 );
 
-console.log(selfBackendVerifier);
 
 /**
  * Verify a proof using Self's backend verifier
@@ -15,9 +14,7 @@ console.log(selfBackendVerifier);
  */
 const verifyProof = async (proof, publicSignals) => {
     const result = await selfBackendVerifier.verify(proof, publicSignals);
-    console.log("Proof verification result:", result);
     const userId = await getUserIdentifier(publicSignals);
-    console.log("User ID:", userId);
     return {
         result,
         userId

@@ -1,19 +1,38 @@
 const { Bot, session } = require("grammy")
-const TG_BOT_API_KEY = process.env.TG_BOT_API_KEY
+const logger = require('../utils/logger')
+const leader = require('./leader')
 
-// Create a singleton bot instance
-const bot = new Bot(TG_BOT_API_KEY)
+let bot = null
 
-async function sendTelegramMessage(telegramId, message) {
+const initBot = async () => {
   try {
-    await bot.api.sendMessage(telegramId, message)
+    // Only initialize bot if not already initialized
+    if (!bot) {
+      logger.info('Initializing new bot instance')
+      bot = new Bot(process.env.TG_BOT_API_KEY)
+    }
+    return bot
   } catch (error) {
-    console.error('Failed to send Telegram message:', error)
+    logger.error('Bot initialization error:', error)
+    throw error
+  }
+}
+
+const sendTelegramMessage = async (chatId, message) => {
+  try {
+    if (!bot) {
+      await initBot()
+    }
+    await bot.api.sendMessage(chatId, message)
+  } catch (error) {
+    logger.error('Failed to send Telegram message:', error)
+    throw error
   }
 }
 
 module.exports = {
-  bot,
+  initBot,
   session,
-  sendTelegramMessage
+  sendTelegramMessage,
+  getBot: () => bot
 } 
