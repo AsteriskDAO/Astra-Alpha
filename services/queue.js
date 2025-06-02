@@ -97,6 +97,13 @@ uploadQueue.process(async (job) => {
   } catch (error) {
     console.error(`Upload failed for ${type}:`, error)
 
+      // If we have state information, store it for retry
+    
+      console.log("Saving state for retry:", error.state);
+      job.data.vanaState = error.state;
+      await job.update(job.data);
+  
+
     // On final attempt, handle failure
     if (job.attemptsMade >= job.opts.attempts - 1) {
       if (type === QUEUE_TYPES.CHECKIN) {
@@ -120,11 +127,6 @@ uploadQueue.process(async (job) => {
       }
     }
 
-    // If we have state information, store it for retry
-    if (error.state) {
-        job.data.vanaState = error.state;
-        await job.update(job.data);
-    }
     throw error.error || error;
   }
 })
