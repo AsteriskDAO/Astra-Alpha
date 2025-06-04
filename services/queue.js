@@ -109,8 +109,9 @@ uploadQueue.process(async (job) => {
       await job.update(job.data);
       
       // If there's a specific error message, use it
-      vanaResponse.error = JSON.stringify(vanaResponse.error);
-      throw new Error(vanaResponse.error || 'Vana upload in progress');
+      console.log("vanaResponse.error", vanaResponse.error);
+      console.log("vanaResponse.message", vanaResponse.message);
+      throw new Error(vanaResponse.message || 'Vana upload in progress');
     }
     
     results.vana = vanaResponse;

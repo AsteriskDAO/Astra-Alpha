@@ -145,10 +145,10 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     state.fileId = fileId;
                     state.file_registered = true;
                 } else {
-                    return { ...state, error: "Failed to parse file ID from logs" };
+                    return { ...state, error: "Failed to parse file ID from logs", message: "Failed to parse file ID from logs" };
                 }
             } catch (error) {
-                return { ...state, error: `File registration failed: ${error.message}` };
+                return { ...state, error: `File registration failed`, message: error.message };
             }
         }
 
@@ -167,7 +167,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                 state.jobDetails = jobDetails;
                 state.contribution_proof_requested = true;
             } catch (error) {
-                return { ...state, error: `Contribution proof request failed: ${error.message}` };
+                    return { ...state, error: `Contribution proof request failed`, message: error.message };
             }
         }
 
@@ -215,7 +215,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
 
                 state.tee_proof_submitted = true;
             } catch (error) {
-                return { ...state, error: `TEE proof submission failed: ${error.message}` };
+                return { ...state, error: `TEE proof submission failed`, message: error.message };
             }
         }
 
@@ -247,7 +247,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                 await response.json();
                 state.data_refined = true;
             } catch (error) {
-                return { ...state, error: `Data refinement failed: ${error.message}` };
+                return { ...state, error: `Data refinement failed`, message: error.message };
             }
         }
         
@@ -259,7 +259,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                 await claimTx.wait();
                 state.reward_claimed = true;
             } catch (error) {
-                return { ...state, error: `Reward claim failed: ${error.message}` };
+                return { ...state, error: `Reward claim failed`, message: error.message };
             }
         }
 
@@ -272,7 +272,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
 
     } catch (error) {
         console.error("Error in handleFileUpload:", error);
-        return { ...state, error: `Unexpected error: ${error.message}` };
+        return { ...state, error: `Unexpected error`, message: error.message };
     }
 };
 
