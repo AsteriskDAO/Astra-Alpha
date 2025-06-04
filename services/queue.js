@@ -140,6 +140,8 @@ uploadQueue.process(async (job) => {
 
 async function handleFailure(job) {
   const { type, telegramId, user_hash } = job.data
+  console.log("job.attemptsMade", job.attemptsMade);
+  console.log("job.opts.attempts", job.opts.attempts);
   if (job.attemptsMade >= job.opts.attempts - 1) {
     if (type === QUEUE_TYPES.CHECKIN) {
       // Rollback check-in
