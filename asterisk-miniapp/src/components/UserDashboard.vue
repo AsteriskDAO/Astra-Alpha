@@ -49,7 +49,7 @@ function goToProfile() {
       <div class="stats">
         <div class="stat-card">
           <div class="stat-value">{{ averageCheckins }}</div>
-          <div class="stat-label">average logins</div>
+          <div class="stat-label">average weekly check-ins</div>
         </div>
 
         <div class="stat-card">
