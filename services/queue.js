@@ -161,6 +161,10 @@ async function handleFailure(job) {
         '⚠️ Your health profile was saved but there was an issue syncing it. Please try updating it again.'
       )
     }
+    job.moveToFailed({
+      message: 'Upload failed',
+      failedReason: 'Upload failed'
+    })
   }
 }
 
