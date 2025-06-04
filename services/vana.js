@@ -241,7 +241,8 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                 });
 
                 if (!response.ok) {
-                    return { ...state, error: 'Data refinement failed' };
+                    const errorData = await response.json();
+                    return { ...state, error: 'Data refinement failed', message: errorData.detail?.error?.details || 'Unknown error' };
                 }
 
                 await response.json();
