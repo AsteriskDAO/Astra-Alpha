@@ -210,7 +210,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    return { ...state, error: `TEE proof submission failed: ${errorData.detail?.error?.details || 'Unknown error'}` };
+                    return { ...state, error: `TEE proof submission failed`, message: errorData.detail?.error?.details || 'Unknown error' };
                 }
 
                 state.tee_proof_submitted = true;
