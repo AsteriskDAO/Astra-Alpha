@@ -114,6 +114,7 @@ uploadQueue.process(async (job) => {
       // Create error object with state information
       const error = new Error(vanaResponse.message || 'Vana upload in progress');
       error.state = serializedState;
+      await handleFailure(job)
       throw error;
     }
     
@@ -132,31 +133,34 @@ uploadQueue.process(async (job) => {
     console.error(`Upload failed for ${type}:`, error)
 
     // On final attempt, handle failure
-    if (job.attemptsMade >= job.opts.attempts - 1) {
-      if (type === QUEUE_TYPES.CHECKIN) {
-        // Rollback check-in
-        const user = await User.findOne({ user_hash })
-        if (user) {
-          await user.rollbackCheckIn()
-        }
-
-        // Send failure message
-        await sendTelegramMessage(
-          telegramId, 
-          '❌ Sorry, there was an issue processing your check-in. Please try checking in again.'
-        )
-      } else {
-        // For health data, just notify of sync issue
-        await sendTelegramMessage(
-          telegramId,
-          '⚠️ Your health profile was saved but there was an issue syncing it. Please try updating it again.'
-        )
-      }
-    }
-
+    await handleFailure(job)
     throw error;
   }
 })
+
+async function handleFailure(job) {
+  if (job.attemptsMade >= job.opts.attempts - 1) {
+    if (type === QUEUE_TYPES.CHECKIN) {
+      // Rollback check-in
+      const user = await User.findOne({ user_hash })
+      if (user) {
+        await user.rollbackCheckIn()
+      }
+
+      // Send failure message
+      await sendTelegramMessage(
+        telegramId, 
+        '❌ Sorry, there was an issue processing your check-in. Please try checking in again.'
+      )
+    } else {
+      // For health data, just notify of sync issue
+      await sendTelegramMessage(
+        telegramId,
+        '⚠️ Your health profile was saved but there was an issue syncing it. Please try updating it again.'
+      )
+    }
+  }
+}
 
 // Add to queue
 async function addToQueue(type, data, telegramId, user_hash) {
