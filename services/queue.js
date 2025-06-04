@@ -75,12 +75,12 @@ uploadQueue.process(async (job) => {
     // If upload not complete or has error, store state and retry
     if (!vanaResponse.status) {
 
-      console.log("vanaResponse", vanaResponse);
-      // parse vanaResponse for bigInt
+      // console.log("vanaResponse", vanaResponse);
       job.data.vanaState = vanaResponse;
       await job.update(job.data);
       
       // If there's a specific error message, use it
+      vanaResponse.error = JSON.stringify(vanaResponse.error);
       throw new Error(vanaResponse.error || 'Vana upload in progress');
     }
     
