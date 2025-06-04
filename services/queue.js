@@ -114,7 +114,6 @@ uploadQueue.process(async (job) => {
       // Create error object with state information
       const error = new Error(vanaResponse.message || 'Vana upload in progress');
       error.state = serializedState;
-      await handleFailure(job)
       throw error;
     }
     
