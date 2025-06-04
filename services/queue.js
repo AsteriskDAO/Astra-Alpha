@@ -24,6 +24,35 @@ const QUEUE_TYPES = {
   HEALTH: 'health'
 }
 
+/**
+ * Recursively converts BigInt values to strings in an object
+ * @param {*} obj - The object to process
+ * @returns {*} - The processed object with BigInt values converted to strings
+ */
+function serializeBigInts(obj) {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (typeof obj === 'bigint') {
+    return obj.toString();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(serializeBigInts);
+  }
+
+  if (typeof obj === 'object') {
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      result[key] = serializeBigInts(value);
+    }
+    return result;
+  }
+
+  return obj;
+}
+
 // Process queue items
 uploadQueue.process(async (job) => {
   const { type, data, telegramId, user_hash } = job.data
@@ -76,7 +105,7 @@ uploadQueue.process(async (job) => {
     if (!vanaResponse.status) {
 
       // console.log("vanaResponse", vanaResponse);
-      job.data.vanaState = vanaResponse;
+      job.data.vanaState = serializeBigInts(vanaResponse);
       await job.update(job.data);
       
       // If there's a specific error message, use it
