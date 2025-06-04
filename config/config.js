@@ -33,7 +33,7 @@ const config = {
         refinementServiceUrl: "https://a7df0ae43df690b889c1201546d7058ceb04d21b-8000.dstack-prod5.phala.network/refine",
         refinerIds: {
             checkin: 52,
-            health: 91
+            health: 92
         },
         refinementEncryptionKey: "0x04fdb1b931c1c61849105a11f02a6c1519ad5e248d682ce2f65351453ff42523f10b98f1d9cd1fe3f47cfe4223c827a4401fd4dda7c23c3bec7dc59359af9974a1",
         dlpId: process.env.VANA_DLP_ID
