@@ -78,37 +78,37 @@ const fileJobIds = async (teePoolContract, fileId) => {
  */
 
 const handleFileUpload = async (encryptedFileUrl, signature, data_type, previousState = {}) => {
-    // Initialize state with previous values and default flags if they don't exist
+    // Initialize state with previous values and default flags
     let state = { 
         ...previousState,
-        // file_registered: previousState.file_registered || false,
-        // contribution_proof_requested: previousState.contribution_proof_requested || false,
-        // tee_proof_submitted: previousState.tee_proof_submitted || false,
-        // reward_claimed: previousState.reward_claimed || false
+        status: false  // Will be set to true only when complete
     };
 
     try {
-        
         let fileId = state.fileId;
         const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
         const wallet = new ethers.Wallet(privateKey, provider);
         const signer = wallet.connect(provider);
 
         // Use the same IV and ephemeral key throughout the process
-        let fixed_iv = state.fixed_iv;
-        let fixed_ephemeral_key = state.fixed_ephemeral_key;
+        let fixed_iv;
+        let fixed_ephemeral_key;
 
         if (!state.fixed_iv) {
             fixed_iv = crypto.getRandomValues(new Uint8Array(16));
             // Store both buffer and hex
             state.fixed_iv_buffer = Buffer.from(fixed_iv);
             state.fixed_iv = state.fixed_iv_buffer.toString('hex');
+        } else {
+            fixed_iv = state.fixed_iv_buffer;
         }
+
         if (!state.fixed_ephemeral_key) {
             fixed_ephemeral_key = crypto.getRandomValues(new Uint8Array(32))
-            // Store both buffer and hex
             state.fixed_ephemeral_key_buffer = Buffer.from(fixed_ephemeral_key);
             state.fixed_ephemeral_key = state.fixed_ephemeral_key_buffer.toString('hex');
+        } else {
+            fixed_ephemeral_key = state.fixed_ephemeral_key_buffer;
         }
 
         const dlpContract = new ethers.Contract(contractAddress, DataLiquidityPoolABI.abi, signer);
@@ -117,30 +117,26 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
 
         const publicKey = await dlpContract.publicKey();
         
-        // Check if the file is already registered for retry purposes
+        // File Registration Stage
         if (!state.file_registered) {
             console.log("Registering file...");
+            try {
+                const encryptedKey = await encryptWithWalletPublicKey(
+                    signature, 
+                    publicKey,
+                    state.fixed_iv_buffer,
+                    state.fixed_ephemeral_key_buffer
+                );
+                
+                const tx = await dataRegistryContract.addFileWithPermissions(
+                    encryptedFileUrl, 
+                    wallet.address,
+                    [{ account: contractAddress.toLowerCase(), key: encryptedKey }] 
+                );
+                const receipt = await tx.wait();
 
-            // Register file with Vana
-            const encryptedKey = await encryptWithWalletPublicKey(
-                signature, 
-                publicKey,
-                state.fixed_iv_buffer,  // Use buffer for encryption
-                state.fixed_ephemeral_key_buffer  // Use buffer for encryption
-            );
-
-            
-            const tx = await dataRegistryContract.addFileWithPermissions(
-                encryptedFileUrl, 
-                wallet.address,
-                [{ account: contractAddress.toLowerCase(), key: encryptedKey }] 
-            );
-            const receipt = await tx.wait();
-
-            // Parse file ID
-            if (receipt.logs && receipt.logs.length > 0) {
-                const log = receipt.logs[0];
-                try {
+                if (receipt.logs && receipt.logs.length > 0) {
+                    const log = receipt.logs[0];
                     const parsedLog = dataRegistryContract.interface.parseLog({
                         topics: log.topics,
                         data: log.data
@@ -148,77 +144,64 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     fileId = Number(parsedLog?.args[0]);
                     state.fileId = fileId;
                     state.file_registered = true;
-                } catch (e) {
-                    throw { error: new Error("Failed to parse file ID from logs"), state, status: false };
+                } else {
+                    return { ...state, error: "Failed to parse file ID from logs" };
                 }
+            } catch (error) {
+                return { ...state, error: `File registration failed: ${error.message}` };
             }
         }
 
-        // Request contribution proof if not already done
+        // Contribution Proof Stage
         if (!state.contribution_proof_requested) {
             console.log("Requesting contribution proof...");
-            const teeFee = await teePoolContract.teeFee();
-            
-            // Request proof and get job ID directly
-            const tx = await teePoolContract.requestContributionProof(fileId, { value: teeFee });
-            const receipt = await tx.wait();
-            
-            const jobIds = await fileJobIds(teePoolContract, fileId);
-            const latestJobId = jobIds[jobIds.length - 1];
-            
-            // Get the job details from the contract
-            const jobDetails = await getTeeDetails(teePoolContract, latestJobId);
-            
-            state.jobDetails = jobDetails;
-            state.contribution_proof_requested = true;
+            try {
+                const teeFee = await teePoolContract.teeFee();
+                const tx = await teePoolContract.requestContributionProof(fileId, { value: teeFee });
+                await tx.wait();
+
+                const jobIds = await fileJobIds(teePoolContract, fileId);
+                const latestJobId = jobIds[jobIds.length - 1];
+                const jobDetails = await getTeeDetails(teePoolContract, latestJobId);
+                
+                state.jobDetails = jobDetails;
+                state.contribution_proof_requested = true;
+            } catch (error) {
+                return { ...state, error: `Contribution proof request failed: ${error.message}` };
+            }
         }
 
-        // Submit proof to TEE if not already done
+        // TEE Proof Submission Stage
         if (!state.tee_proof_submitted && state.jobDetails) {
             console.log("Submitting proof to TEE...");
+            try {
+                const nonce = await provider.getTransactionCount(wallet.address);
+                const requestBody = {
+                    job_id: state.jobDetails.jobId,
+                    file_id: fileId,
+                    nonce: nonce,
+                    proof_url: config.vana.proofUrl,
+                    encryption_seed: FIXED_MESSAGE,
+                    validate_permissions: [{
+                        address: contractAddress.toLowerCase(),
+                        public_key: publicKey,
+                        iv: state.fixed_iv,
+                        ephemeral_key: state.fixed_ephemeral_key,
+                    }]
+                };
 
-            const nonce = await provider.getTransactionCount(wallet.address);
-        
-
-            // Build the request body
-            
-            const requestBody = {
-                job_id: state.jobDetails.jobId,
-                file_id: fileId,
-                nonce: nonce,
-                proof_url: config.vana.proofUrl,
-                encryption_seed: FIXED_MESSAGE,
-                validate_permissions: [{
-                    address: contractAddress.toLowerCase(),
-                    public_key: publicKey,
-                    iv: state.fixed_iv,
-                    ephemeral_key: state.fixed_ephemeral_key,
-                }]
-            };
-
-            if (state.jobDetails.teePublicKey) {
-                try {
+                if (state.jobDetails.teePublicKey) {
                     const encryptedKey = await encryptWithWalletPublicKey(
                         signature,
                         state.jobDetails.teePublicKey,
                         state.fixed_iv_buffer,
                         state.fixed_ephemeral_key_buffer
                     );
-                    // console.log("Encrypted key for TEE:", encryptedKey);
                     requestBody.encrypted_encryption_key = encryptedKey;
-                } catch (error) {
-                    console.error("Failed to encrypt key with TEE public key:", error);
+                } else {
                     requestBody.encryption_key = signature;
-                    throw { error, state, status: false };
                 }
-            } else {
-                requestBody.encryption_key = signature;
-            }
-            
 
-            // console.log("Request body:", requestBody);
-            // Submit proof to TEE
-            try {
                 const response = await fetch(`${state.jobDetails.teeUrl}/RunProof`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -227,34 +210,24 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.error("TEE proof submission failed:", errorData);
-                    console.error(errorData.detail.error.details);
-                    throw { error: errorData, state, status: false };
+                    return { ...state, error: `TEE proof submission failed: ${errorData.detail?.error?.details || 'Unknown error'}` };
                 }
+
+                state.tee_proof_submitted = true;
             } catch (error) {
-                console.error("Failed to submit proof to TEE:", error);
-                throw { error, state, status: false };
+                return { ...state, error: `TEE proof submission failed: ${error.message}` };
             }
-
-           
-
-            state.tee_proof_submitted = true;
-            // console.log(response)
         }
 
-        // Refine data
-        if(!state.data_refined) {
+        // Data Refinement Stage
+        if (!state.data_refined) {
             console.log("Refining data...");
-            // if checkin, use checkin refiner, if health, use health refiner
-            const refinerId = config.vana.refinerIds[data_type];
-            // const refinementEncryptionKey = config.vana.refinementEncryptionKey;
-            // const refinementUrl = config.vana.refinementUrl[data_type];
-            console.log(config.pinata.apiKey)
             try {
+                const refinerId = config.vana.refinerIds[data_type];
                 const response = await fetch(config.vana.refinementServiceUrl, {
                     method: 'POST',
                     headers: {
-                      'Content-Type': 'application/json',
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         file_id: fileId,
@@ -267,40 +240,39 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
                     })
                 });
 
-                const result = await response.json();
-                console.log("Refinement successful");
+                if (!response.ok) {
+                    return { ...state, error: 'Data refinement failed' };
+                }
+
+                await response.json();
                 state.data_refined = true;
             } catch (error) {
-                // Log detailed error info
-                console.error("Error refining data:", {
-                    message: error.message,
-                    cause: error.cause,
-                    stack: error.stack
-                });
-
-                throw { error, state, status: false }; // Rethrow to trigger retry
+                return { ...state, error: `Data refinement failed: ${error.message}` };
             }
         }
         
-        // Claim reward if not already done
+        // Reward Claim Stage
         if (!state.reward_claimed) {
             console.log("Claiming reward...");
-            const claimTx = await dlpContract.requestReward(fileId, 1);
-            await claimTx.wait();
-            state.reward_claimed = true;
+            try {
+                const claimTx = await dlpContract.requestReward(fileId, 1);
+                await claimTx.wait();
+                state.reward_claimed = true;
+            } catch (error) {
+                return { ...state, error: `Reward claim failed: ${error.message}` };
+            }
         }
 
         console.log("File uploaded & reward requested successfully");
-
         return { 
             uploadedFileId: fileId, 
             message: "File uploaded & reward requested successfully",
-            state,
-            status: true
+            state: { ...state, status: true }
         };
+
     } catch (error) {
         console.error("Error in handleFileUpload:", error);
-        throw { error, state, status: false };
+        return { ...state, error: `Unexpected error: ${error.message}` };
     }
 };
 
