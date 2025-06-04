@@ -11,12 +11,12 @@ const uploadQueue = new Queue('dataUpload',
     process.env.REDIS_URL, 
     {
         defaultJobOptions: {
-        attempts: 3,
+        attempts: 2,
         backoff: {
-        type: 'exponential',
-        delay: 2000
+          type: 'exponential',
+          delay: 2000
+      }
     }
-  }
 })
 
 const QUEUE_TYPES = {
