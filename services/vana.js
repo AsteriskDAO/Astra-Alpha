@@ -77,7 +77,7 @@ const fileJobIds = async (teePoolContract, fileId) => {
  * @dev Manages the full flow: registration, proof request, TEE submission, reward claim
  */
 
-const handleFileUpload = async (encryptedFileUrl, signature, data_type, previousState = {}) => {
+const handleFileUpload = async (encryptedFileUrl, signature, data_type, previousState = {}, attempts) => {
     // Initialize state with previous values and default flags
     let state = { 
         ...previousState,
@@ -174,6 +174,10 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
         // TEE Proof Submission Stage
         if (!state.tee_proof_submitted && state.jobDetails) {
             console.log("Submitting proof to TEE...");
+            if (attempts > 0) {
+                // If we've already tried once, return an error, the job hangs on this step on retries
+                return { ...state, error: `TEE proof submission failed`, message: "TEE proof submission failed" };
+            }
             try {
                 const nonce = await provider.getTransactionCount(wallet.address);
                 const requestBody = {

@@ -101,7 +101,7 @@ uploadQueue.process(async (job) => {
     let vanaState = job.data.vanaState;
     
     // Then upload to Vana with same signature
-    const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState);
+    const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState, job.attemptsMade);
 
     // If upload not complete or has error, store state and retry
     if (!vanaResponse.status) {

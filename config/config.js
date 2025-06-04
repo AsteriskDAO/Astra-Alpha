@@ -28,12 +28,12 @@ const config = {
         proofUrl: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v14/my-proof-14.tar.gz",
         refinementUrl: {
             checkin: "https://github.com/Boka44/vana-asterisk-data-refinement-checkin/releases/download/v7/refiner-7.tar.gz",
-            health: "https://github.com/Boka44/vana-asterisk-data-refinement-health-data/releases/download/v3/refiner-3.tar.gz"
+            health: "https://github.com/Boka44/vana-asterisk-data-refinement-health-data/releases/download/v4/refiner-4.tar.gz"
         },
         refinementServiceUrl: "https://a7df0ae43df690b889c1201546d7058ceb04d21b-8000.dstack-prod5.phala.network/refine",
         refinerIds: {
             checkin: 52,
-            health: 53
+            health: 91
         },
         refinementEncryptionKey: "0x04fdb1b931c1c61849105a11f02a6c1519ad5e248d682ce2f65351453ff42523f10b98f1d9cd1fe3f47cfe4223c827a4401fd4dda7c23c3bec7dc59359af9974a1",
         dlpId: process.env.VANA_DLP_ID
