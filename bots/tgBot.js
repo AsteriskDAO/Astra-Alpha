@@ -510,6 +510,7 @@ async function setupBot() {
 
           const user = await User.findOne({ telegram_id: ctx.from.id });
           const userHash = user.user_hash;
+
           // upload to akave
 
           console.log("userHash", userHash);
@@ -517,7 +518,7 @@ async function setupBot() {
           await addToQueue(
             QUEUE_TYPES.CHECKIN,
             {
-              user_hash: userHash.user_hash,
+              user_hash: userHash,
               timestamp: new Date(),
               mood: mood,
               health_comment: healthComment,

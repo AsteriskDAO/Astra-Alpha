@@ -79,8 +79,6 @@ uploadQueue.process(async (job) => {
       const wallet = new ethers.Wallet(privateKey, provider)
       const signature = await wallet.signMessage("Please sign to retrieve your encryption key")
 
-      // Edge case
-      data.user_hash = user_hash;
       // First upload to Akave with signature
       if (type === QUEUE_TYPES.CHECKIN) {
         o3Response = await akave.uploadCheckinData(user_hash, data, signature)

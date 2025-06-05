@@ -115,11 +115,7 @@ async function uploadHealthData(userId, data, signature) {
  */
 async function uploadCheckinData(userId, data, signature) {
   const key = `checkin/${userId}/${Date.now()}.json`
-
-  // console.log("uploadCheckinData");
-  // console.log("data", data);
-  data.user_hash = userId;
-  console.log("data", data);
+  
   try {
     // Convert JSON to File before encryption
     const jsonFile = jsonToFile(data);
