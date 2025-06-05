@@ -106,9 +106,9 @@ uploadQueue.process(async (job) => {
     const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState, job.attemptsMade);
 
     // If upload not complete or has error, store state and retry
-    if (!vanaResponse.status) {
+    if (!vanaResponse.state.status) {
       // console.log("vanaResponse", vanaResponse);
-      const serializedState = serializeBigInts(vanaResponse);
+      const serializedState = serializeBigInts(vanaResponse.state);
       job.data.vanaState = serializedState;
       await job.update(job.data);
       
