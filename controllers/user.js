@@ -208,7 +208,7 @@ class UserController {
 
 
 
-      if (result.isValid && result.credentialSubject.gender === 'M') {
+      if (result.isValid && result.credentialSubject.gender === 'F') {
         // Find and update user by user_id instead of _id
         
         const user = await User.findOneAndUpdate(
