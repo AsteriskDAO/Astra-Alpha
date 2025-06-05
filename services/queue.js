@@ -108,7 +108,7 @@ uploadQueue.process(async (job) => {
     // If upload not complete or has error, store state and retry
     if (!vanaResponse?.state?.status) {
       // console.log("vanaResponse", vanaResponse);
-      const serializedState = serializeBigInts(vanaResponse.state);
+      const serializedState = serializeBigInts(vanaResponse);
       job.data.vanaState = serializedState;
       await job.update(job.data);
       
