@@ -169,7 +169,7 @@ class UserController {
       // Queue the uploads
       await addToQueue(
         QUEUE_TYPES.HEALTH,
-        healthData,
+        updatedHealthData,
         user.telegram_id,
         user.user_hash
       )
