@@ -215,6 +215,14 @@ export const useUserStore = defineStore('user', {
       const storedValue = sessionStorage.getItem('is_first_login')
       console.log('first login stored value', storedValue)
       return storedValue ? JSON.parse(storedValue) : false
+    },
+
+    async submitVoucherCode(telegramId: string, voucherCode: string) {
+      const response = await api.post('/api/users/submit-voucher-code', {
+        telegramId,
+        voucherCode
+      })
+      return response.data
     }
   }
 }) 

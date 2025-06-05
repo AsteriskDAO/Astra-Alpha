@@ -19,6 +19,21 @@ const cleanup = ref<(() => void) | null>(null)
 
 const telegramId = telegramStore.userInfo.id
 
+const voucherCode = ref('')
+const error = ref('')
+
+const handleSubmitVoucherCode = async () => {
+  console.log('voucherCode', voucherCode.value)
+  const result = await userStore.submitVoucherCode(telegramId, voucherCode.value)
+  console.log('result', result)
+  if (result.success) {
+    router.push('/profile')
+  } else {
+    console.error('Failed to submit voucher code')
+    error.value = 'Invalid voucher code'
+  }
+}
+
 const handleVerificationSuccess = async () => {
   try {
     const isVerified = await userStore.checkGenderVerification(telegramId)
@@ -143,6 +158,30 @@ onUnmounted(() => {
           <v-icon>mdi-check-circle</v-icon>
           <span>Verification successful!</span>
         </div>
+      </div>
+
+      <!-- Field for voucher code -->
+      <div class="voucher-code-container">
+        <v-text-field
+          v-model="voucherCode"
+          label="Voucher Code"
+          placeholder="Enter voucher code to skip verification"
+        />
+      </div>
+
+      <div v-if="error" class="error-message">
+        {{ error }}
+      </div>
+
+      <!-- submit button -->
+      <div class="actions">
+        <v-btn
+          color="primary"
+          block
+          @click="handleSubmitVoucherCode"
+        >
+          Submit Voucher Code
+        </v-btn>
       </div>
 
       <!-- <div class="actions">

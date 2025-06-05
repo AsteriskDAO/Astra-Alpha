@@ -42,4 +42,9 @@ router.post('/verify-gender',
   userController.verifyGender
 )
 
+// Submit voucher code
+router.post('/submit-voucher-code', 
+  userController.submitVoucherCode
+)
+
 module.exports = router 
