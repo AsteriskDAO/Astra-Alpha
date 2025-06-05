@@ -59,7 +59,7 @@ function serializeBigInts(obj) {
 
 // Process queue items
 uploadQueue.process(async (job) => {
-  const { type, data, telegramId, user_hash } = job.data
+  const { type, data, telegramId } = job.data
   const results = {}
 
   console.log("**********************************************************\n")
@@ -81,9 +81,9 @@ uploadQueue.process(async (job) => {
 
       // First upload to Akave with signature
       if (type === QUEUE_TYPES.CHECKIN) {
-        o3Response = await akave.uploadCheckinData(user_hash, data, signature)
+        o3Response = await akave.uploadCheckinData(job.data.user_hash, data, signature)
       } else {
-        o3Response = await akave.uploadHealthData(user_hash, data, signature)
+        o3Response = await akave.uploadHealthData(job.data.user_hash, data, signature)
       }
 
       if (!o3Response?.url) {
@@ -106,7 +106,7 @@ uploadQueue.process(async (job) => {
     const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState, job.attemptsMade);
 
     // If upload not complete or has error, store state and retry
-    if (!vanaResponse.state.status) {
+    if (!vanaResponse?.state?.status) {
       // console.log("vanaResponse", vanaResponse);
       const serializedState = serializeBigInts(vanaResponse.state);
       job.data.vanaState = serializedState;
