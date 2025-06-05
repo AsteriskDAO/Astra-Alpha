@@ -130,6 +130,7 @@ uploadQueue.process(async (job) => {
       : '✅ Your health profile has been successfully updated and processed!'
     
     await sendTelegramMessage(telegramId, successMsg)
+    job.moveToCompleted()
     return results
 
   } catch (error) {
