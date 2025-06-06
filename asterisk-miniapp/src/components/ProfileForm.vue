@@ -29,6 +29,7 @@ const caretakerOptions = [
   { title: 'Parents', value: 'Parents' },
   { title: 'Partner', value: 'Partner' },
   { title: 'Friend', value: 'Friend' },
+  { title: 'No', value: 'No' },
   { title: 'Other', value: 'Other' }
 ]
 

@@ -87,7 +87,7 @@ function goToProfile() {
         </v-card-title>
         
         <v-card-text class="modal-content">
-          <p>Good job completing your profile! Now, return to the bot and type <code class="code-text">/checkin</code> to complete your first daily checkin.</p>
+          <p>Good job completing your profile! Now, click "Close" above to take you back to the bot and type <code class="code-text">/checkin</code> to complete your first daily checkin.</p>
           <br>
           <p>Completing daily checkins will earn you points. Those points will convert to your vote on the future direction of Asterisk in the form of tokens. So try to check in every day!</p>
         </v-card-text>

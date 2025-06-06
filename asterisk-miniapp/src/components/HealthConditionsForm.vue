@@ -9,6 +9,10 @@ const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
 
+const searchConditions = ref('')
+const searchMedications = ref('')
+const searchTreatments = ref('')
+
 const form = ref({
   conditions: [] as string[],
   medications: [] as string[],
@@ -62,11 +66,16 @@ async function handleSubmit() {
           :items="conditionsList"
           item-title="label"
           item-value="label"
+          label="Type to search"
+          v-model:search="searchConditions"
+          @update:search="searchConditions = ''"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Condition is required']"
           chips
           closable-chips
+          attached
+          offset-y
           class="mb-4"
           hide-details
         />
@@ -77,11 +86,16 @@ async function handleSubmit() {
         <v-autocomplete
           v-model="form.medications"
           :items="medicationOptions"
+          label="Type to search"
+          v-model:search="searchMedications"
+          @update:search="searchMedications = ''"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Medication is required']"
           chips
           closable-chips
+          attached
+          offset-y
           class="mb-4"
           hide-details
         />
@@ -92,11 +106,17 @@ async function handleSubmit() {
         <v-autocomplete
           v-model="form.treatments"
           :items="treatmentOptions"
+          label="Type to search"
+          v-model:search="searchTreatments"
+          @update:search="searchTreatments = ''"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Treatment is required']"
           chips
           closable-chips
+          :autofocus="false"
+          attached
+          offset-y
           class="mb-4"
           hide-details
         />

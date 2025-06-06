@@ -31,6 +31,7 @@ const DAILY_SCHEDULE = '* * * * *'; // every minute for testing
 
 // Add mini app URL as a constant at the top
 const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
+const COMMUNITY_URL = "https://t.me/+4WUgyZr9a0s1ZDAx";
 
 // Use a single cron job instead of per-user jobs
 const NOTIFICATION_TIME = '0 10 * * *'; // 10am daily
@@ -225,11 +226,11 @@ async function setupBot() {
           }
 
           // Check if user has already checked in today
-          // const lastCheckIn = await User.findOne({ telegram_id: ctx.from.id }).select('last_checkin');
-          // if (lastCheckIn?.last_checkin.toDateString() === new Date().toDateString()) {
-          //   await ctx.reply("You've already checked in today! Come back tomorrow to check in again.");
-          //   return;
-          // }
+          const lastCheckIn = await User.findOne({ telegram_id: ctx.from.id }).select('last_checkin');
+          if (lastCheckIn?.last_checkin.toDateString() === new Date().toDateString()) {
+            await ctx.reply("You've already checked in today! Come back tomorrow to check in again.");
+            return;
+          }
 
           let showAppButton = false;
           let healthProfileUpdate = false;
@@ -560,7 +561,7 @@ async function setupBot() {
             await ctx.reply(
               "That's it! We're all done. You can edit these options in your profile at any time. " +
               "Just type /menu for my options. I'll send you a notification tomorrow to remind you to check in. Can't wait!" + 
-              "Don't forget to update your profile in the mini app to keep your health data up to date."
+              "Don't forget to update your profile in the app to keep your health data up to date."
             ,{
               reply_markup: {
                 inline_keyboard: [[
@@ -596,17 +597,19 @@ async function setupBot() {
         const isRegistered = await checkUserRegistration(ctx.from.id);
         
         if (isRegistered) {
-          await ctx.reply("Hello! I'm the Asterisk bot. Here are my options:", {
+          await ctx.reply("Hello! I'm the Astra bot. Here are my options:", {
             reply_markup: {
               inline_keyboard: [
                 [{ text: "Check In", callback_data: "checkin" }],
-                [{ text: "Edit Profile", web_app: { url: MINI_APP_URL } }]
+                [{ text: "Edit Profile", web_app: { url: MINI_APP_URL } }],
+                [{ text: "Feedback", callback_data: "feedback" }],
+                [{ text: "Community", callback_data: "community" }]
               ]
             }
           });
         } else {
           await ctx.reply(
-            "Welcome to Asterisk! To get started, please register in our mini app:", {
+            "Welcome to Astra! To get started, please register in our app:", {
             reply_markup: {
               inline_keyboard: [
                 [{ text: "Register Now", web_app: { url: MINI_APP_URL } }]
@@ -622,7 +625,7 @@ async function setupBot() {
         
         if (!isRegistered) {
           await ctx.reply(
-            "You'll need to register first before checking in. Please register in our mini app:",
+            "You'll need to register first before checking in. Please register in our app:",
             {
               reply_markup: {
                 inline_keyboard: [[
@@ -640,7 +643,7 @@ async function setupBot() {
       // Add to registration or first interaction to start scheduling reminders
       bot.command("start", async (ctx) => {
         await scheduleNotification(ctx.from.id);
-        await ctx.reply("Welcome to Asterisk! To get started, please register in our mini app:", {
+        await ctx.reply("Welcome to Astra! To get started, please register in our app. Don't forget to join our community as well!" + COMMUNITY_URL, {
           reply_markup: {
             inline_keyboard: [[
               { text: "Register Now", web_app: { url: MINI_APP_URL } }
@@ -745,7 +748,7 @@ async function setupBot() {
       // Add command to open mini app
       bot.command("app", async (ctx) => {
         await ctx.reply(
-          "Open Asterisk mini app to manage your profile and health data:",
+          "Open the Astra app to manage your profile and health data:",
           {
             reply_markup: {
               inline_keyboard: [[
@@ -754,6 +757,14 @@ async function setupBot() {
             }
           }
         );
+      });
+
+      bot.command("feedback", async (ctx) => {
+        await ctx.reply("Have any feedback? Please join our community to share your thoughts: https://t.me/+4WUgyZr9a0s1ZDAx");
+      });
+
+      bot.command("community", async (ctx) => {
+        await ctx.reply(COMMUNITY_URL);
       });
 
 
@@ -784,27 +795,29 @@ async function setupBot() {
         }
       }
 
-      bot.use(createConversation(deleteAccount));
+      // bot.use(createConversation(deleteAccount));
 
-      bot.command("delete", async (ctx) => {
-        const user = await User.findOne({ telegram_id: ctx.from.id });
-        if (!user) {
-          await ctx.reply("You haven't registered yet. Please register in our mini app to delete your account.");
-          return;
-        }
+      // bot.command("delete", async (ctx) => {
+      //   const user = await User.findOne({ telegram_id: ctx.from.id });
+      //   if (!user) {
+      //     await ctx.reply("You haven't registered yet. Please register in our app to delete your account.");
+      //     return;
+      //   }
 
-        await ctx.conversation.enter("deleteAccount");
-      });
+      //   await ctx.conversation.enter("deleteAccount");
+      // });
 
       // Update setupBotCommands function
       async function setupBotCommands() {
         try {
           await bot.api.setMyCommands([
             { command: "checkin", description: "Start your daily check-in" },
-            { command: "app", description: "Open Asterisk mini app" },
+            { command: "app", description: "My Profile" },
             { command: "notifications", description: "Manage notification settings" },
             { command: "menu", description: "Show all available options" },
-            { command: "delete", description: "Delete your account" },
+            { command: "feedback", description: "Share your feedback" },
+            { command: "community", description: "Join our community" },
+            // { command: "delete", description: "Delete your account" },
             // { command: "debug", description: "Show debug information" }
           ]);
           console.log('Bot commands menu updated successfully');

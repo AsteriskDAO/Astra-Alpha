@@ -455,6 +455,7 @@ export const conditionsList = [
 ]
 
 export const medicationOptions = [
+  'None',
   'Analgesics',
   'Antacids',
   'Antianxiety Drugs',

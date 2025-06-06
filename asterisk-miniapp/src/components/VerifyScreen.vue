@@ -21,15 +21,18 @@ const telegramId = telegramStore.userInfo.id
 
 const voucherCode = ref('')
 const error = ref('')
+const isError = ref(false)
 
 const handleSubmitVoucherCode = async () => {
   console.log('voucherCode', voucherCode.value)
+  voucherCode.value = voucherCode.value.trim()
   const result = await userStore.submitVoucherCode(telegramId, voucherCode.value)
   console.log('result', result)
   if (result.success) {
     router.push('/profile')
   } else {
     console.error('Failed to submit voucher code')
+    isError.value = true
     error.value = 'Invalid voucher code'
   }
 }
@@ -96,6 +99,12 @@ onUnmounted(() => {
   <div class="verify-screen screen-container">
     <div class="verify-content">
       <TitleWithAsterisk title="Verify Your Gender" />
+
+      <div class="description">
+        <p>
+          This helps us stay research compliant.
+        </p>
+      </div>
       
       <div class="status-message">
         <div v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
@@ -169,7 +178,7 @@ onUnmounted(() => {
         />
       </div>
 
-      <div v-if="error" class="error-message">
+      <div v-if="isError" class="error-message">
         {{ error }}
       </div>
 
