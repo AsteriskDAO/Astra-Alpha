@@ -70,12 +70,6 @@ async function handleSubmit() {
           chips
           closable-chips
           density="compact"
-          :attach="true"
-          :menu-props="{
-            contentClass: 'position-menu',
-            openOnClick: false,
-            maxHeight: 300
-          }"
           class="mb-4"
           hide-details
         />
@@ -94,12 +88,6 @@ async function handleSubmit() {
           chips
           closable-chips
           density="compact"
-          :attach="true"
-          :menu-props="{
-            contentClass: 'position-menu',
-            openOnClick: false,
-            maxHeight: 300
-          }"
           class="mb-4"
           hide-details
         />
@@ -119,12 +107,6 @@ async function handleSubmit() {
           closable-chips
           :autofocus="false"
           density="compact"
-          :attach="true"
-          :menu-props="{
-            contentClass: 'position-menu',
-            openOnClick: false,
-            maxHeight: 300
-          }"
           class="mb-4"
           hide-details
         />
@@ -218,10 +200,5 @@ label {
 :deep(.v-switch) {
   margin-top: 8px;
 }
-
-:deep(.position-menu) {
-  position: fixed !important;
-  top: auto !important;
-  transform: none !important;
-}
+  
 </style> 
