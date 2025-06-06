@@ -74,8 +74,7 @@ async function handleSubmit() {
           :rules="[(v) => v.length > 0 || 'Condition is required']"
           chips
           closable-chips
-          :menu-props="{ location: 'bottom' }"
-          class="mb-4"
+          class="mb-4 force-bottom-menu"
           hide-details
         />
       </div>
@@ -94,7 +93,7 @@ async function handleSubmit() {
           chips
           closable-chips
           location="bottom"
-          class="mb-4"
+          class="mb-4 force-bottom-menu"
           hide-details
         />
       </div>
@@ -113,9 +112,7 @@ async function handleSubmit() {
           chips
           closable-chips
           :autofocus="false"
-          location="bottom"
-          :menu-props="{ location: 'bottom' }"
-          class="mb-4"
+          class="mb-4 force-bottom-menu"
           hide-details
         />
       </div>
@@ -207,5 +204,28 @@ label {
 
 :deep(.v-switch) {
   margin-top: 8px;
+}
+
+.force-bottom-menu :deep(.v-menu__content) {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 0 !important;
+  max-height: 50vh !important;
+  width: 100% !important;
+  border-radius: 12px 12px 0 0 !important;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.force-bottom-menu :deep(.v-field__input) {
+  position: relative;
+  z-index: 5;
+}
+
+.force-bottom-menu :deep(.v-overlay__content) {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
 }
 </style> 
