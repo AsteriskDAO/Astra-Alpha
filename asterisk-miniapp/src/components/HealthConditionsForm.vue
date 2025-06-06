@@ -9,10 +9,6 @@ const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
 
-const searchConditions = ref('')
-const searchMedications = ref('')
-const searchTreatments = ref('')
-
 const form = ref({
   conditions: [] as string[],
   medications: [] as string[],
@@ -67,14 +63,20 @@ async function handleSubmit() {
           item-title="label"
           item-value="label"
           label="Type to search"
-          v-model:search="searchConditions"
-          @update:model-value="searchConditions = ''"
+          :clear-on-select="true"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Condition is required']"
           chips
           closable-chips
-          class="mb-4 force-bottom-menu"
+          density="compact"
+          :attach="true"
+          :menu-props="{
+            contentClass: 'position-menu',
+            openOnClick: false,
+            maxHeight: 300
+          }"
+          class="mb-4"
           hide-details
         />
       </div>
@@ -85,15 +87,20 @@ async function handleSubmit() {
           v-model="form.medications"
           :items="medicationOptions"
           label="Type to search"
-          v-model:search="searchMedications"
-          @update:model-value="searchMedications = ''"
+          :clear-on-select="true"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Medication is required']"
           chips
           closable-chips
-          location="bottom"
-          class="mb-4 force-bottom-menu"
+          density="compact"
+          :attach="true"
+          :menu-props="{
+            contentClass: 'position-menu',
+            openOnClick: false,
+            maxHeight: 300
+          }"
+          class="mb-4"
           hide-details
         />
       </div>
@@ -104,15 +111,21 @@ async function handleSubmit() {
           v-model="form.treatments"
           :items="treatmentOptions"
           label="Type to search"
-          v-model:search="searchTreatments"
-          @update:model-value="searchTreatments = ''"
+          :clear-on-select="true"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Treatment is required']"
           chips
           closable-chips
           :autofocus="false"
-          class="mb-4 force-bottom-menu"
+          density="compact"
+          :attach="true"
+          :menu-props="{
+            contentClass: 'position-menu',
+            openOnClick: false,
+            maxHeight: 300
+          }"
+          class="mb-4"
           hide-details
         />
       </div>
@@ -206,26 +219,9 @@ label {
   margin-top: 8px;
 }
 
-.force-bottom-menu :deep(.v-menu__content) {
+:deep(.position-menu) {
   position: fixed !important;
   top: auto !important;
-  bottom: 0 !important;
-  max-height: 50vh !important;
-  width: 100% !important;
-  border-radius: 12px 12px 0 0 !important;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
-}
-
-.force-bottom-menu :deep(.v-field__input) {
-  position: relative;
-  z-index: 5;
-}
-
-.force-bottom-menu :deep(.v-overlay__content) {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  width: 100% !important;
+  transform: none !important;
 }
 </style> 
