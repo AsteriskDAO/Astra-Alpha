@@ -68,14 +68,13 @@ async function handleSubmit() {
           item-value="label"
           label="Type to search"
           v-model:search="searchConditions"
-          @update:search="searchConditions = ''"
+          @update:model-value="searchConditions = ''"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Condition is required']"
           chips
           closable-chips
-          attached
-          offset-y
+          :menu-props="{ location: 'bottom' }"
           class="mb-4"
           hide-details
         />
@@ -88,14 +87,13 @@ async function handleSubmit() {
           :items="medicationOptions"
           label="Type to search"
           v-model:search="searchMedications"
-          @update:search="searchMedications = ''"
+          @update:model-value="searchMedications = ''"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Medication is required']"
           chips
           closable-chips
-          attached
-          offset-y
+          location="bottom"
           class="mb-4"
           hide-details
         />
@@ -108,15 +106,15 @@ async function handleSubmit() {
           :items="treatmentOptions"
           label="Type to search"
           v-model:search="searchTreatments"
-          @update:search="searchTreatments = ''"
+          @update:model-value="searchTreatments = ''"
           variant="outlined"
           multiple
           :rules="[(v) => v.length > 0 || 'Treatment is required']"
           chips
           closable-chips
           :autofocus="false"
-          attached
-          offset-y
+          location="bottom"
+          :menu-props="{ location: 'bottom' }"
           class="mb-4"
           hide-details
         />
