@@ -27,14 +27,14 @@ const activeReminders = new Map();
 
 // Remove frequency constants since we're only using daily
 const DAILY_SCHEDULE = '* * * * *'; // every minute for testing
-// const DAILY_SCHEDULE = '0 10 * * *'; // 10am daily for production
+// const DAILY_SCHEDULE = '0 10 * * *'; // 10am UTC daily for production
 
 // Add mini app URL as a constant at the top
 const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
 const COMMUNITY_URL = "https://t.me/+4WUgyZr9a0s1ZDAx";
 
 // Use a single cron job instead of per-user jobs
-const NOTIFICATION_TIME = '0 10 * * *'; // 10am daily
+const NOTIFICATION_TIME = '0 10 * * *'; // 10am UTC daily
 const BATCH_SIZE = 100; // Process users in batches
 
 async function setupBot() {
@@ -170,7 +170,7 @@ async function setupBot() {
                           await retryWithBackoff(async () => {
                               await bot.api.sendMessage(
                                   notification.user_id,
-                                  "👋 Time for your daily check-in! Share how you're feeling today and earn points. Type /checkin to start."
+                                  "👋 Time for your check-in. How are you feeling today? \n\nType /checkin to start."
                               );
                           });
 
