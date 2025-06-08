@@ -55,9 +55,17 @@ const handleContinue = async () => {
         <label>Nickname</label>
         <span>{{ userStore.userData?.nickname }}</span>
       </div>
+      <div v-else class="nickname">
+        <label>Nickname</label>
+        <span>No nickname available</span>
+      </div>
       <div v-if="telegramStore.userInfo?.username" class="nickname">
         <label>Telegram Handle</label>
         <span class="handle">@{{ tgHandle }}</span>
+      </div>
+      <div v-else class="nickname">
+        <label>Telegram Handle</label>
+        <span>No handle available</span>
       </div>
     </div>
     
