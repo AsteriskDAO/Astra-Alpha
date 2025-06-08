@@ -158,8 +158,8 @@ async function setupBot() {
                           const user = await User.findOne({ telegram_id: notification.user_id });
                           
                           // Skip if user already checked in today
-                          if (user?.last_checkin) {
-                              const lastCheckIn = new Date(user.last_checkin);
+                          if (user?.lastCheckIn) {
+                              const lastCheckIn = new Date(user.lastCheckIn);
                               if (lastCheckIn.toDateString() === new Date().toDateString()) {
                                   console.log(`User ${notification.user_id} already checked in today`);
                                   return;
@@ -226,8 +226,8 @@ async function setupBot() {
           }
 
           // Check if user has already checked in today
-          const lastCheckIn = await User.findOne({ telegram_id: ctx.from.id }).select('last_checkin');
-          if (lastCheckIn?.last_checkin.toDateString() === new Date().toDateString()) {
+          const lastCheckIn = await User.findOne({ telegram_id: ctx.from.id }).select('lastCheckIn');
+          if (lastCheckIn?.lastCheckIn?.toDateString() === new Date().toDateString()) {
             await ctx.reply("You've already checked in today! Come back tomorrow to check in again.");
             return;
           }
