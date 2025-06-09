@@ -26,6 +26,8 @@ const handleContinue = async () => {
     if (!telegramId) {
       throw new Error('No Telegram ID found')
     }
+
+    
     
     // Create initial user
     await userStore.createUser(telegramId)
@@ -34,7 +36,12 @@ const handleContinue = async () => {
     userStore.isFirstLogin = true
     
     // Navigate to verify
-    router.push('/verify')
+    // if user is verified, navigate to profile
+    if (await userStore.checkGenderVerification(telegramId)) {
+      router.push('/profile')
+    } else {
+      router.push('/verify')
+    }
   } catch (error) {
     console.error('Failed to create initial user:', error)
   } finally {
