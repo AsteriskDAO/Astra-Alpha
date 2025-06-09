@@ -15,10 +15,6 @@ const HealthData = require('../models/healthData');
 const leader = require('../services/leader')
 const logger = require('../utils/logger')
 
-// Registration cache
-const registrationCache = new Map();
-const CACHE_TTL = 1000 * 60 * 5; // 5 minutes
-
 // Store last check-in times
 const lastCheckIns = new Map();
 
@@ -50,50 +46,19 @@ async function setupBot() {
       bot.use(session({ initial: () => ({}) }));
       bot.use(conversations());
 
-      // Helper function to check user registration with caching
+      // Helper function to check user registration
       async function checkUserRegistration(userId) {
-        // return true;
-        const now = Date.now();
-        
-        // Check cache first
-        if (registrationCache.has(userId)) {
-          const cached = registrationCache.get(userId);
-          if (now < cached.expiresAt) {
-            return cached.isRegistered;
-          }
-          // Cache expired, remove it
-          registrationCache.delete(userId);
-        }
-
         try {
-          
-          const isRegistered = await User.findOne({ telegram_id: userId });
-          // Cache the result
-          registrationCache.set(userId, {
-            isRegistered,
-            expiresAt: now + CACHE_TTL
-          });
-          return isRegistered;
+          const user = await User.findOne({ telegram_id: userId });
+          if (!user) {
+            return false;
+          }
+          return user.isRegistered;
         } catch (error) {
           console.error('Failed to check registration:', error);
           return false;
         }
       }
-
-      // Helper to invalidate cache (use when user registers)
-      function invalidateRegistrationCache(userId) {
-        registrationCache.delete(userId);
-      }
-
-      // Clean up expired cache entries periodically
-      setInterval(() => {
-        const now = Date.now();
-        for (const [userId, data] of registrationCache.entries()) {
-          if (now >= data.expiresAt) {
-            registrationCache.delete(userId);
-          }
-        }
-      }, CACHE_TTL);
 
       // Add points to user
       async function addPoints(userId, points) {
@@ -122,6 +87,12 @@ async function setupBot() {
       async function scheduleNotification(userId) {
         // create a notification in the db
         if (await Notification.findOne({ user_id: userId })) {
+          return;
+        }
+
+        // if user is not registered, return
+        const isRegistered = await checkUserRegistration(userId);
+        if (!isRegistered) {
           return;
         }
 
