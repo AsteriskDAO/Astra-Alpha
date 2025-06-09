@@ -102,7 +102,7 @@ onUnmounted(() => {
 
       <div class="description">
         <p>
-          This helps us stay research compliant.
+          You’ll now be taken through a short identity verification to ensure our data remains female only (and human). We retain none of your identification after the verification.
         </p>
       </div>
       
