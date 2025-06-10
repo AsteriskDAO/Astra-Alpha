@@ -208,8 +208,8 @@ class UserController {
 
 
 
-      // if (result.isValid && result.credentialSubject.gender === 'F') {
-      if (result.isValid) {
+      if (result.isValid && result.credentialSubject.gender === 'F') {
+      // if (result.isValid) {
         // Find and update user by user_id instead of _id
         
         const user = await User.findOneAndUpdate(
@@ -250,7 +250,7 @@ class UserController {
       return res.status(404).json({ error: 'User not found' })
     }
   
-    const validateVoucherCode = "Boka rocks";
+    const validateVoucherCode = process.env.VOUCHER_CODE;
     if (voucherCode === validateVoucherCode) {
       user.isGenderVerified = true
       await user.save()

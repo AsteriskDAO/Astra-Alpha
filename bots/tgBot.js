@@ -740,43 +740,43 @@ async function setupBot() {
 
 
       // Delete account conversation
-      async function deleteAccount(conversation, ctx) {
+      // async function deleteAccount(conversation, ctx) {
 
-        // grab user hash from db
-        const user = await User.findOne({ telegram_id: ctx.from.id });
-        const userHash = user.user_hash;
+      //   // grab user hash from db
+      //   const user = await User.findOne({ telegram_id: ctx.from.id });
+      //   const userHash = user.user_hash;
 
-        await ctx.reply("Are you sure you want to delete your account? This action cannot be undone.",
-          {
-            reply_markup: {
-              inline_keyboard: [
-                [{ text: "Confirm", callback_data: "confirm" }],
-                [{ text: "Cancel", callback_data: "cancel" }]
-              ]
-            }
-          });
-        const confirmResponse = await conversation.waitFor("callback_query");
-        if (confirmResponse.callbackQuery.data === "confirm") {
-          await User.deleteOne({ telegram_id: ctx.from.id });
-          await Notification.deleteOne({ user_id: ctx.from.id });
-          await HealthData.deleteOne({ user_hash: userHash });
-          await ctx.reply("Your account has been deleted.");
-        } else {
-          await ctx.reply("Account deletion cancelled.");
-        }
-      }
+      //   await ctx.reply("Are you sure you want to delete your account? This action cannot be undone.",
+      //     {
+      //       reply_markup: {
+      //         inline_keyboard: [
+      //           [{ text: "Confirm", callback_data: "confirm" }],
+      //           [{ text: "Cancel", callback_data: "cancel" }]
+      //         ]
+      //       }
+      //     });
+      //   const confirmResponse = await conversation.waitFor("callback_query");
+      //   if (confirmResponse.callbackQuery.data === "confirm") {
+      //     await User.deleteOne({ telegram_id: ctx.from.id });
+      //     await Notification.deleteOne({ user_id: ctx.from.id });
+      //     await HealthData.deleteOne({ user_hash: userHash });
+      //     await ctx.reply("Your account has been deleted.");
+      //   } else {
+      //     await ctx.reply("Account deletion cancelled.");
+      //   }
+      // }
 
-      bot.use(createConversation(deleteAccount));
+      // bot.use(createConversation(deleteAccount));
 
-      bot.command("delete", async (ctx) => {
-        const user = await User.findOne({ telegram_id: ctx.from.id });
-        if (!user) {
-          await ctx.reply("You haven't registered yet. Please register in our app to delete your account.");
-          return;
-        }
+      // bot.command("delete", async (ctx) => {
+      //   const user = await User.findOne({ telegram_id: ctx.from.id });
+      //   if (!user) {
+      //     await ctx.reply("You haven't registered yet. Please register in our app to delete your account.");
+      //     return;
+      //   }
 
-        await ctx.conversation.enter("deleteAccount");
-      });
+      //   await ctx.conversation.enter("deleteAccount");
+      // });
 
       // Update setupBotCommands function
       async function setupBotCommands() {
@@ -788,7 +788,7 @@ async function setupBot() {
             { command: "menu", description: "Show all available options" },
             { command: "feedback", description: "Share your feedback" },
             { command: "community", description: "Join our community" },
-            { command: "delete", description: "Delete your account" },
+            // { command: "delete", description: "Delete your account" },
             // { command: "debug", description: "Show debug information" }
           ]);
           console.log('Bot commands menu updated successfully');
