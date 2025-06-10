@@ -62,17 +62,15 @@ const handleContinue = async () => {
         <label>Nickname</label>
         <span>{{ userStore.userData?.nickname }}</span>
       </div>
-      <div v-else class="nickname">
-        <label>Nickname</label>
-        <span>No nickname available</span>
-      </div>
+      
       <div v-if="telegramStore.userInfo?.username" class="nickname">
         <label>Telegram Handle</label>
         <span class="handle">@{{ tgHandle }}</span>
       </div>
       <div v-else class="nickname">
         <label>Telegram Handle</label>
-        <span>No handle available</span>
+        <span>No handle available. There could be an issue with your Telegram account's privacy settings.</span>
+        <span>This is not a problem, you can still use the app. For troubleshooting, try setting a username, or updating your privacy settings.</span>
       </div>
     </div>
     
