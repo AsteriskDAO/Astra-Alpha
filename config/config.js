@@ -28,7 +28,7 @@ const config = {
         proofUrl: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v15/my-proof-15.tar.gz",
         refinementUrl: {
             checkin: "https://github.com/Boka44/vana-asterisk-data-refinement-checkin/releases/download/v7/refiner-7.tar.gz",
-            health: "https://github.com/Boka44/vana-asterisk-data-refinement-health-data/releases/download/v4/refiner-4.tar.gz"
+            health: "https://github.com/Boka44/vana-asterisk-data-refinement-health-data/releases/download/v5/refiner-5.tar.gz"
         },
         refinementServiceUrl: process.env.VANA_REFINER_SERVICE_URL,
         refinerIds: {
