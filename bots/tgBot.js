@@ -779,7 +779,7 @@ async function setupBot() {
       // });
 
       // Update setupBotCommands function
-      async function setupBotCommands() {
+      async function setupBotCommands() {git 
         try {
           await bot.api.setMyCommands([
             { command: "checkin", description: "Start your daily check-in" },

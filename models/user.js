@@ -43,7 +43,7 @@ userSchema.methods.recordCheckIn = async function() {
   const now = new Date()
   const startOfWeek = getStartOfWeek(now)
   
-  // Find or create current week's record - use date string comparison instead of timestamp
+  // Find or create current week's record
   let weekRecord = this.weeklyCheckIns.find(w => 
     w.week.toISOString().split('T')[0] === startOfWeek.toISOString().split('T')[0]
   )
@@ -65,14 +65,9 @@ userSchema.methods.recordCheckIn = async function() {
     .filter(w => w.week >= fourWeeksAgo)
     .sort((a, b) => b.week - a.week)
   
-  // Calculate average based on actual weeks elapsed
-  const oldestWeek = this.weeklyCheckIns[this.weeklyCheckIns.length - 1].week
-  const weeksElapsed = Math.ceil((now - oldestWeek) / (7 * 24 * 60 * 60 * 1000))
+  // Simplified average calculation - just use total check-ins divided by number of weeks with data
   const totalCheckins = this.weeklyCheckIns.reduce((sum, week) => sum + week.count, 0)
-  
-  // Use actual weeks elapsed, minimum 1 week
-  const divisor = Math.max(1, Math.min(4, weeksElapsed))
-  this.averageWeeklyCheckIns = Math.round(totalCheckins / divisor)
+  this.averageWeeklyCheckIns = Math.round(totalCheckins / this.weeklyCheckIns.length)
   
   await this.save()
   return this.averageWeeklyCheckIns
