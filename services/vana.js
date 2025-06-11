@@ -226,14 +226,7 @@ const handleFileUpload = async (encryptedFileUrl, signature, data_type, previous
         // Data Refinement Stage
         if (!state.data_refined) {
             console.log("Refining data...");
-            console.log("state", state);
-            console.log("data_type", data_type);
-            console.log("fileId", fileId);
-            console.log("signature", signature);
-            console.log("refinerId", config.vana.refinerIds[data_type]);
-            console.log("refinementServiceUrl", config.vana.refinementServiceUrl);
-            
-            
+        
             try {
                 const refinerId = config.vana.refinerIds[data_type];
                 const response = await fetch(config.vana.refinementServiceUrl, {

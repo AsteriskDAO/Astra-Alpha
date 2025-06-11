@@ -30,7 +30,7 @@ const config = {
             checkin: "https://github.com/Boka44/vana-asterisk-data-refinement-checkin/releases/download/v7/refiner-7.tar.gz",
             health: "https://github.com/Boka44/vana-asterisk-data-refinement-health-data/releases/download/v4/refiner-4.tar.gz"
         },
-        refinementServiceUrl: "https://a7df0ae43df690b889c1201546d7058ceb04d21b-8000.dstack-prod5.phala.network/refine",
+        refinementServiceUrl: process.env.VANA_REFINER_SERVICE_URL,
         refinerIds: {
             checkin: process.env.VANA_REFINER_CHECKIN_ID,
             health: process.env.VANA_REFINER_HEALTH_ID
