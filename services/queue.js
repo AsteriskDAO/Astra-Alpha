@@ -57,8 +57,8 @@ function serializeBigInts(obj) {
   return obj;
 }
 
-// Process queue items
-uploadQueue.process(async (job) => {
+// Process queue items with concurrency control
+uploadQueue.process(1, async (job) => {
   const { type, data, telegramId } = job.data
   const results = {}
 
