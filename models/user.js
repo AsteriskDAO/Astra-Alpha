@@ -43,9 +43,9 @@ userSchema.methods.recordCheckIn = async function() {
   const now = new Date()
   const startOfWeek = getStartOfWeek(now)
   
-  // Find or create current week's record
+  // Find or create current week's record - use date string comparison instead of timestamp
   let weekRecord = this.weeklyCheckIns.find(w => 
-    w.week.getTime() === startOfWeek.getTime()
+    w.week.toISOString().split('T')[0] === startOfWeek.toISOString().split('T')[0]
   )
   
   if (!weekRecord) {
