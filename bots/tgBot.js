@@ -275,7 +275,7 @@ async function setupBot() {
                   inline_keyboard: [
                     [{ text: "none at all 😀", callback_data: "1" }],
                     [{ text: "a bit, but it’s easily forgotten 🥲", callback_data: "2" }],
-                    [{ text: "the pain is always there and but I’m getting by 😓", callback_data: "3" }],
+                    [{ text: "the pain is always there but I’m getting by 😓", callback_data: "3" }],
                     [{ text: "the pain makes it hard to concentrate 😩", callback_data: "4" }],
                     [{ text: "I can’t function the pain is so bad 😖", callback_data: "5" }]
                   ]
