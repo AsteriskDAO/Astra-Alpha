@@ -16,4 +16,14 @@ notificationSchema.pre('save', function(next) {
   next();
 });
 
+notificationSchema.statics.createNotification = async function(user_id) {
+  const notification = new this({
+    user_id: user_id,
+    type: 'daily_checkin',
+    scheduled_time: '0 10 * * *', // 10 AM daily
+    is_active: true
+  })
+  return notification.save()
+}
+
 module.exports = mongoose.model('Notification', notificationSchema); 

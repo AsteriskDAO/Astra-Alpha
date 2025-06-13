@@ -174,6 +174,12 @@ class UserController {
         user.user_hash
       )
 
+      // add notification for the user if they don't have one yet
+      const notification = await Notification.findOne({ user_id: user.user_id })
+      if (!notification) {
+        await Notification.createNotification(user.user_id)
+      }
+
       const response = {
         ...user._doc,
         isRegistered: true,
