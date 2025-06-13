@@ -38,6 +38,11 @@ function getStartOfWeek(date) {
   return d
 }
 
+// Helper to compare weeks (same week start date)
+function isSameWeek(date1, date2) {
+  return getStartOfWeek(date1).getTime() === getStartOfWeek(date2).getTime()
+}
+
 // Method to record a check-in and update averages
 userSchema.methods.recordCheckIn = async function() {
   const now = new Date()
@@ -113,18 +118,13 @@ userSchema.statics.checkIn = async function(telegramId) {
 }
 
 userSchema.methods.rollbackCheckIn = async function() {
-  // Decrement points and check-ins
-  this.points = Math.max(0, this.points - 1)
-  this.checkIns = Math.max(0, this.checkIns - 1)
-  
-  // Update weekly check-ins
   const now = new Date()
   const startOfWeek = getStartOfWeek(now)
   
-  let weekRecord = this.weeklyCheckIns.find(w => 
-    w.week.getTime() === startOfWeek.getTime()
-  )
+  // Find current week's record using proper date comparison (same as recordCheckIn)
+  let weekRecord = this.weeklyCheckIns.find(w => isSameWeek(w.week, startOfWeek))
   
+  // Only decrement if week record exists and has counts (opposite of recordCheckIn which creates if not exists)
   if (weekRecord && weekRecord.count > 0) {
     weekRecord.count--
     
@@ -135,8 +135,23 @@ userSchema.methods.rollbackCheckIn = async function() {
     this.averageWeeklyCheckIns = 0
   }
   
-  // Reset last check-in
+  // Decrement counts (opposite of recordCheckIn increment)
+  this.checkIns = Math.max(0, this.checkIns - 1)
   this.lastCheckIn = null
+  this.points = Math.max(0, this.points - 1)
+  
+  // Clean up old weeks - keep only last 4 weeks (exactly same as recordCheckIn)
+  const fourWeeksAgo = new Date(startOfWeek.getTime() - (4 * 7 * 24 * 60 * 60 * 1000))
+  this.weeklyCheckIns = this.weeklyCheckIns
+    .filter(w => w.week >= fourWeeksAgo)
+    .sort((a, b) => b.week - a.week)
+  
+  // Calculate average based on number of week records we have (exactly same as recordCheckIn)
+  const totalCheckins = this.weeklyCheckIns.reduce((sum, week) => sum + week.count, 0)
+  const numberOfWeeks = this.weeklyCheckIns.length
+  
+  // Average = total checkins / number of weeks (minimum 1 week) (exactly same as recordCheckIn)
+  this.averageWeeklyCheckIns = Math.round(totalCheckins / Math.max(1, numberOfWeeks))
   
   await this.save()
 }
