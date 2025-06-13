@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --exit",
     "start": "node server.js"
   },
   "dependencies": {
@@ -33,5 +33,9 @@
     "openpgp": "^6.1.0",
     "qrcode.vue": "^3.6.0",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^11.6.0"
   }
 }

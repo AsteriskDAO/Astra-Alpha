@@ -49,25 +49,29 @@ userSchema.methods.recordCheckIn = async function() {
   )
   
   if (!weekRecord) {
-    weekRecord = { week: startOfWeek, count: 0 }
+    weekRecord = { week: startOfWeek, count: 1 }  // Start with 1 since this is a new check-in
     this.weeklyCheckIns.push(weekRecord)
+  } else {
+    weekRecord.count += 1  // Increment existing week's count
   }
   
-  // Increment counts
-  weekRecord.count++
+  // Increment other counts
   this.checkIns++
   this.lastCheckIn = now
   this.points += 1
   
   // Keep only last 4 weeks of data and sort by most recent
-  const fourWeeksAgo = new Date(now - (4 * 7 * 24 * 60 * 60 * 1000))
+  const fourWeeksAgo = getStartOfWeek(new Date(now))
+  fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 21) // Go back 3 weeks from current week start
+  
   this.weeklyCheckIns = this.weeklyCheckIns
     .filter(w => w.week >= fourWeeksAgo)
     .sort((a, b) => b.week - a.week)
+    .slice(0, 4) // Ensure we only keep exactly 4 weeks
   
-  // Simplified average calculation - just use total check-ins divided by number of weeks with data
+  // Calculate average: total check-ins divided by number of weeks
   const totalCheckins = this.weeklyCheckIns.reduce((sum, week) => sum + week.count, 0)
-  this.averageWeeklyCheckIns = Math.round(totalCheckins / this.weeklyCheckIns.length)
+  this.averageWeeklyCheckIns = totalCheckins === 0 ? 0 : Math.round(totalCheckins / this.weeklyCheckIns.length)
   
   await this.save()
   return this.averageWeeklyCheckIns
@@ -124,10 +128,11 @@ userSchema.methods.rollbackCheckIn = async function() {
   if (weekRecord && weekRecord.count > 0) {
     weekRecord.count--
     
-    // Recalculate average
+    // Recalculate average using the same logic as recordCheckIn
     const totalCheckins = this.weeklyCheckIns.reduce((sum, week) => sum + week.count, 0)
-    const weeks = Math.min(4, Math.max(1, this.weeklyCheckIns.length))
-    this.averageWeeklyCheckIns = Math.floor(totalCheckins / weeks)
+    this.averageWeeklyCheckIns = totalCheckins === 0 ? 0 : Math.round(totalCheckins / this.weeklyCheckIns.length)
+  } else {
+    this.averageWeeklyCheckIns = 0
   }
   
   // Reset last check-in
