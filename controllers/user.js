@@ -1,5 +1,6 @@
 const User = require('../models/user')
 const HealthData = require('../models/healthData')
+const Notification = require('../models/notification')
 const akave = require('../services/akave')
 const cache = require('../services/cache')
 const { addToQueue, QUEUE_TYPES } = require('../services/queue')

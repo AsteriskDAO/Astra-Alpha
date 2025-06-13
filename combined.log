@@ -119,3 +119,6 @@
 {"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-02T15:26:10.834Z"}
 {"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-02T15:26:10.897Z"}
 {"level":"info","message":"Bot setup completed","timestamp":"2025-06-02T15:26:10.898Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-13T14:29:00.240Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-13T14:29:00.245Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-13T14:29:00.254Z"}
