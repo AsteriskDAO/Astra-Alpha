@@ -168,9 +168,9 @@ class UserController {
       }
 
       // add notification for the user if they don't have one yet
-      const notification = await Notification.findOne({ user_id: user.user_id })
+      const notification = await Notification.findOne({ user_id: user.telegram_id })
       if (!notification) {
-        await Notification.createNotification(user.user_id)
+        await Notification.createNotification(user.telegram_id)
       }
       
       // Queue the uploads
