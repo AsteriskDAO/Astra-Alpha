@@ -156,6 +156,7 @@ class UserController {
         return res.status(404).json({ error: 'User not found' });
       }
 
+      healthData.timestamp = new Date()
       let updatedHealthData = await HealthData.findOneAndUpdate(
         { user_hash: user.user_hash }, 
         { $set: healthData }, 
