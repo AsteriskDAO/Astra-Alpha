@@ -239,7 +239,7 @@ class UserController {
         return res.status(500).json({
           status: 'error',
           result: false,
-          message: 'Verification failed',
+          message: 'Verification completed, but gender must be female',
           details: result.isValidDetails
         });
       }

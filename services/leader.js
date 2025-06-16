@@ -6,7 +6,7 @@ class LeaderElection {
   constructor() {
     this.redis = new Redis(process.env.REDIS_URL)
     this.lockKey = 'asterisk:leader-lock'
-    this.lockTTL = 10 * 60 // 10 minutes
+    this.lockTTL = 30 // 30 seconds
     this.instanceId = Math.random().toString(36).substring(7)
     this.isLeader = false
   }
