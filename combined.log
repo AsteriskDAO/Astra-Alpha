@@ -122,3 +122,38 @@
 {"level":"info","message":"MongoDB connected","timestamp":"2025-06-13T14:29:00.240Z"}
 {"level":"info","message":"Leader election initialized","timestamp":"2025-06-13T14:29:00.245Z"}
 {"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-13T14:29:00.254Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-20T23:09:29.619Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-20T23:09:29.624Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-20T23:09:29.633Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-20T23:12:13.127Z"}
+{"level":"info","message":"Leader election disabled - this instance is always the leader","timestamp":"2025-06-20T23:12:13.130Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-20T23:12:13.131Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-20T23:12:13.137Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-20T23:12:38.583Z"}
+{"level":"info","message":"Leader election disabled - this instance is always the leader","timestamp":"2025-06-20T23:12:38.589Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-20T23:12:38.590Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-20T23:12:38.595Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-20T23:13:37.040Z"}
+{"level":"info","message":"Leader election disabled - this instance is always the leader","timestamp":"2025-06-20T23:13:37.045Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-20T23:13:37.047Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-20T23:13:37.048Z"}
+{"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-20T23:13:37.050Z"}
+{"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-20T23:13:37.152Z"}
+{"level":"info","message":"Bot setup completed (leader election disabled)","timestamp":"2025-06-20T23:13:37.154Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-20T23:13:37.172Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-20T23:14:51.608Z"}
+{"level":"info","message":"Leader election disabled - this instance is always the leader","timestamp":"2025-06-20T23:14:51.612Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-20T23:14:51.613Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-20T23:14:51.614Z"}
+{"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-20T23:14:51.616Z"}
+{"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-20T23:14:51.697Z"}
+{"level":"info","message":"Bot setup completed (leader election disabled)","timestamp":"2025-06-20T23:14:51.698Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-20T23:14:51.709Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-06-20T23:15:14.546Z"}
+{"level":"info","message":"Leader election disabled - this instance is always the leader","timestamp":"2025-06-20T23:15:14.551Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-06-20T23:15:14.552Z"}
+{"level":"info","message":"Initializing new bot instance","timestamp":"2025-06-20T23:15:14.553Z"}
+{"level":"info","message":"Setting up bot commands as leader","timestamp":"2025-06-20T23:15:14.554Z"}
+{"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-20T23:15:14.631Z"}
+{"level":"info","message":"Bot setup completed (leader election disabled)","timestamp":"2025-06-20T23:15:14.632Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-20T23:15:14.640Z"}

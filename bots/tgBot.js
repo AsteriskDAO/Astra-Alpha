@@ -10,6 +10,7 @@ const schedule = require('node-schedule');
 const Notification = require('../models/notification');
 const User = require('../models/user');
 const HealthData = require('../models/healthData');
+const CheckIn = require("../models/checkIn");
 // const { sendTelegramMessage } = require('../services/telegram');
 // const { Bot } = require('grammy')
 const leader = require('../services/leader')
@@ -483,28 +484,32 @@ async function setupBot() {
           const user = await User.findOne({ telegram_id: ctx.from.id });
           const userHash = user.user_hash;
 
-          // upload to akave
+          // Create check-in data object
+          const checkInData = {
+            user_hash: userHash,
+            timestamp: new Date(),
+            mood: mood,
+            health_comment: healthComment,
+            doctor_visit: doctorVisit,  
+            health_profile_update: healthProfileUpdate,
+            anxiety_level: anxietyLevel,
+            anxiety_details: anxietyDetailsText,
+            pain_level: painLevel,
+            pain_details: painDetailsText,
+            fatigue_level: fatigueLevel,
+            fatigue_details: fatigueDetailsText
+          };
 
-          console.log("userHash", userHash);
+          // Store check-in in database
+          const checkIn = await CheckIn.create(checkInData);
+          console.log("Check-in stored in database:", checkIn._id);
 
+          // Queue the check-in for upload to akave
           await addToQueue(
             QUEUE_TYPES.CHECKIN,
-            {
-              user_hash: userHash,
-              timestamp: new Date(),
-              mood: mood,
-              health_comment: healthComment,
-              doctor_visit: doctorVisit,  
-              health_profile_update: healthProfileUpdate,
-              anxiety_level: anxietyLevel,
-              anxiety_details: anxietyDetailsText,
-              pain_level: painLevel,
-              pain_details: painDetailsText,
-              fatigue_level: fatigueLevel,
-              fatigue_details: fatigueDetailsText
-            },
+            checkInData,
             ctx.from.id,
-            userHash.user_hash
+            userHash
           )
 
           // // Add points to user

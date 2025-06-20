@@ -74,6 +74,16 @@ const startServer = async () => {
       }
     })
     
+    // If leader election is disabled, set up bot immediately
+    if (leader.disabled) {
+      try {
+        await setupBot()
+        logger.info('Bot setup completed (leader election disabled)')
+      } catch (error) {
+        logger.error('Failed to setup bot:', error)
+      }
+    }
+    
     // Start Express server
     app.listen(config.server.port, () => {
       logger.info(`Server started in ${config.server.env} mode on port ${config.server.port}`)

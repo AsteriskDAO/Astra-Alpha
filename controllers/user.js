@@ -5,6 +5,7 @@ const akave = require('../services/akave')
 const cache = require('../services/cache')
 const { addToQueue, QUEUE_TYPES } = require('../services/queue')
 const { verifyProof } = require('../services/self')
+const CheckIn = require('../models/checkIn')
 
 class UserController {
   /**
@@ -58,7 +59,15 @@ class UserController {
       if (!user) {
         return res.status(404).json({ error: 'User not found' })
       }
-      const healthData = await HealthData.findOne({ user_hash: user.user_hash })
+      
+      // Fetch current health data using the reference
+      let healthData = null
+      if (user.currentHealthDataId) {
+        healthData = await HealthData.findOne({ healthDataId: user.currentHealthDataId })
+      } else {
+        healthData = await HealthData.findOne({ user_hash: user.user_hash })
+      }
+      
       const response = {
         ...user._doc,
         isRegistered: true,
@@ -115,7 +124,14 @@ class UserController {
         })
       }
 
-      const healthData = await HealthData.findOne({ user_hash: user.user_hash })
+      // Fetch current health data using the reference
+      let healthData = null
+      if (user.currentHealthDataId) {
+        healthData = await HealthData.findOne({ healthDataId: user.currentHealthDataId })
+      } else {
+        healthData = await HealthData.findOne({ user_hash: user.user_hash })
+      }
+      
       const response = {
         ...user._doc,
         healthData: healthData
@@ -140,7 +156,7 @@ class UserController {
       const userData = req.body
       const healthData = userData.healthData
 
-      // Update user in MongoDB
+      // Update user in MongoDB first to get user object
       const user = await User.findOneAndUpdate(
         { telegram_id: userData.telegramId },
         { 
@@ -156,17 +172,21 @@ class UserController {
         return res.status(404).json({ error: 'User not found' });
       }
 
+      // Create new health data record (instead of updating existing)
+      healthData.user_hash = user.user_hash
       healthData.timestamp = new Date()
-      let updatedHealthData = await HealthData.findOneAndUpdate(
-        { user_hash: user.user_hash }, 
-        { $set: healthData }, 
-        { new: true }
-      )      
+      const newHealthData = await HealthData.createHealthData(healthData)
 
-      if (!updatedHealthData) {
-        healthData.user_hash = user.user_hash
-        updatedHealthData = await HealthData.createHealthData(healthData)
-      }
+      // Update user with reference to current health data
+      await User.findOneAndUpdate(
+        { telegram_id: userData.telegramId },
+        { 
+          $set: {
+            currentHealthDataId: newHealthData.healthDataId,
+            updated_at: new Date()
+          }
+        }
+      )
 
       // add notification for the user if they don't have one yet
       const notification = await Notification.findOne({ user_id: user.telegram_id })
@@ -177,17 +197,16 @@ class UserController {
       // Queue the uploads
       await addToQueue(
         QUEUE_TYPES.HEALTH,
-        updatedHealthData,
+        newHealthData.toObject(),
         user.telegram_id,
         user.user_hash
       )
 
-      
-
       const response = {
         ...user._doc,
+        currentHealthDataId: newHealthData.healthDataId,
         isRegistered: true,
-        healthData: updatedHealthData
+        healthData: newHealthData
       }
 
       res.json(response)

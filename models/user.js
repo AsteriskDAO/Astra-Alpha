@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
   updated_at: { type: Date, default: Date.now },
   isGenderVerified: { type: Boolean, default: false },
   isRegistered: { type: Boolean, default: false },
+  currentHealthDataId: { type: String, default: null }, // Reference to current health data
   weeklyCheckIns: [{
     week: Date, // Start of week
     count: { type: Number, default: 0 }

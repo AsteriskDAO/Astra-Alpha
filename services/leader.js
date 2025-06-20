@@ -4,7 +4,13 @@ const { leaderEvents } = require('./events')
 
 class LeaderElection {
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL)
+    this.disabled = process.env.DISABLE_LEADER_ELECTION === 'true'
+    
+    // Only create Redis connection if leader election is not disabled
+    if (!this.disabled) {
+      this.redis = new Redis(process.env.REDIS_URL)
+    }
+    
     this.lockKey = 'asterisk:leader-lock'
     this.lockTTL = 30 // 30 seconds
     this.instanceId = Math.random().toString(36).substring(7)
@@ -12,6 +18,13 @@ class LeaderElection {
   }
 
   async initialize() {
+    // If leader election is disabled, always be the leader
+    if (this.disabled) {
+      this.isLeader = true
+      logger.info('Leader election disabled - this instance is always the leader')
+      return
+    }
+
     // Start periodic leader election
     this.startElection()
     
@@ -84,10 +97,20 @@ class LeaderElection {
   }
 
   isCurrentLeader() {
+    // If leader election is disabled, always return true
+    if (this.disabled) {
+      return true
+    }
     return this.isLeader
   }
 
   async releaseLock() {
+    // If leader election is disabled, no lock to release
+    if (this.disabled) {
+      logger.info('Leader election disabled - no lock to release')
+      return
+    }
+    
     try {
       // Only release if we own the lock
       const result = await this.redis.eval(`
