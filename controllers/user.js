@@ -65,7 +65,8 @@ class UserController {
       if (user.currentHealthDataId) {
         healthData = await HealthData.findOne({ healthDataId: user.currentHealthDataId })
       } else {
-        healthData = await HealthData.findOne({ user_hash: user.user_hash })
+        // if no current health data, get the latest health data
+        healthData = await HealthData.findOne({ user_hash: user.user_hash }).sort({ timestamp: -1 })
       }
       
       const response = {
@@ -129,7 +130,8 @@ class UserController {
       if (user.currentHealthDataId) {
         healthData = await HealthData.findOne({ healthDataId: user.currentHealthDataId })
       } else {
-        healthData = await HealthData.findOne({ user_hash: user.user_hash })
+        // if no current health data, get the latest health data
+        healthData = await HealthData.findOne({ user_hash: user.user_hash }).sort({ timestamp: -1 })
       }
       
       const response = {
