@@ -317,7 +317,7 @@ async function setupBot() {
                 reply_markup: {
                   inline_keyboard: [
                     [{ text: "today is easy breezy 🪶", callback_data: "1" }],
-                    [{ text: "I barely notice it�", callback_data: "2" }],
+                    [{ text: "I barely notice it 🎋", callback_data: "2" }],
                     [{ text: "some, but I’m coping 💪", callback_data: "3" }],
                     [{ text: "it sucks but I can carry it if I’m careful 🏋️‍♀️", callback_data: "4" }],
                     [{ text: "I’m overwhelmed 😭", callback_data: "5" }]
