@@ -19,7 +19,7 @@ describe('User Model Weekly Check-in Tests', () => {
 
   beforeEach(async () => {
     // Clear the users collection before each test
-    await User.deleteMany({})
+    // await User.deleteMany({})
     
     // Create a new user for each test
     user = await User.createUser({
