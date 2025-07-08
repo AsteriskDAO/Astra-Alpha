@@ -15,6 +15,7 @@ const userStore = useUserStore()
 const telegramStore = useTelegramStore()
 const selfApp = ref<any>(null)
 const qrValue = ref('')
+const linkValue = ref('')
 const proofStep = ref(QRCodeSteps.WAITING_FOR_MOBILE)
 const cleanup = ref<(() => void) | null>(null)
 
@@ -64,8 +65,11 @@ onMounted(async () => {
     scope: "gender-verification",
     endpoint: config.server.url + "/api/users/verify-gender",
     userId: userStore.userData.user_id,
-    userDefinedData: 'Test',
+    userDefinedData: 'This is a one time verification, we do not store or have access to your data',
     disclosures: {
+      minimumAge: 18,
+      excludedCountries: [],
+      ofac: false,
       gender: true
     }
   }).build()
@@ -77,8 +81,9 @@ onMounted(async () => {
   // }) 
   
   const deeplink = getUniversalLink(selfApp.value)
-  
-  qrValue.value = deeplink
+
+  linkValue.value = deeplink
+  qrValue.value = 'https://redirect.self.xyz/?sessionId=' + selfApp.value.sessionId
 
   // Initialize WebSocket
   cleanup.value = initWebSocket(
@@ -143,7 +148,7 @@ onUnmounted(() => {
 
       <p>
         If you don't have the Self app, you can download it from the App Store or Google Play.
-        If you're on mobile, you can visit this link: <a :href="qrValue" target="_blank">Verify</a>
+        If you're on mobile, you can visit this link: <a :href="linkValue" target="_blank">Verify</a>
       </p>
 
       <div class="status-container">
