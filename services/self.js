@@ -2,7 +2,6 @@ const { SelfBackendVerifier, AllIds, DefaultConfigStore } = require('@selfxyz/co
 
 // Create configuration storage with verification requirements
 const configStore = new DefaultConfigStore({
-  minimumAge: 18,  // Minimum age requirement
   excludedCountries: [],  // No country exclusions for gender verification
   ofac: false,  // Disable OFAC checking for gender verification
   gender: true

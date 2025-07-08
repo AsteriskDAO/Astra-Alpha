@@ -67,7 +67,6 @@ onMounted(async () => {
     userId: userStore.userData.user_id,
     userDefinedData: 'This is a one time verification, we do not store or have access to your data',
     disclosures: {
-      minimumAge: 18,
       excludedCountries: [],
       ofac: false,
       gender: true
