@@ -2,7 +2,8 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-import { SelfAppBuilder } from '@selfxyz/core'
+import { getUniversalLink } from '@selfxyz/core'
+import { SelfAppBuilder } from "@selfxyz/qrcode";
 import QRCode from 'qrcode.vue'
 import TitleWithAsterisk from './reusable/TitleWithAsterisk.vue'
 import { useTelegramStore } from '../stores/telegram'
@@ -58,10 +59,12 @@ onMounted(async () => {
 
   // Create Self app configuration
   selfApp.value = new SelfAppBuilder({
+    version: 2,
     appName: "Asterisk Health",
     scope: "gender-verification",
     endpoint: config.server.url + "/api/users/verify-gender",
     userId: userStore.userData.user_id,
+    userDefinedData: 'Test',
     disclosures: {
       gender: true
     }
@@ -71,10 +74,11 @@ onMounted(async () => {
   // const deeplink = getUniversalLink({ 
   //   ...selfApp.value,
   //   sessionId: selfApp.value.sessionId
-  // })  
+  // }) 
   
-  qrValue.value = 'https://redirect.self.xyz/?sessionId=' + selfApp.value.sessionId
-  // qrValue.value = deeplink
+  const deeplink = getUniversalLink(selfApp.value)
+  
+  qrValue.value = deeplink
 
   // Initialize WebSocket
   cleanup.value = initWebSocket(

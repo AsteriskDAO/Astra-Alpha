@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@selfxyz/core": "^0.0.25",
+    "@selfxyz/core": "^1.0.5-beta.1",
+    "@selfxyz/qrcode": "^1.0.10-beta.1",
     "@vueuse/core": "^12.8.2",
     "axios": "^1.8.3",
     "class-variance-authority": "^0.7.1",
