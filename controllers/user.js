@@ -231,33 +231,46 @@ class UserController {
     console.log('verifyGender')
     console.log(req.body)
     try {
-      const { proof, publicSignals } = req.body
-      const { result, userId } = await verifyProof(proof, publicSignals)
-      if (!result) {
-        return res.status(400).json({ error: 'Proof verification failed' })
+      const { attestationId, proof, publicSignals, userContextData } = req.body
+      
+      if (!attestationId || !proof || !publicSignals || !userContextData) {
+        return res.status(400).json({ 
+          error: 'Missing required parameters: attestationId, proof, publicSignals, userContextData' 
+        })
       }
 
+      const result = await verifyProof(attestationId, proof, publicSignals, userContextData)
+      
+      if (!result.isValid) {
+        return res.status(400).json({ 
+          error: 'Proof verification failed',
+          details: result.isValidDetails 
+        })
+      }
 
-
-      if (result.isValid && result.credentialSubject.gender === 'F') {
-      // if (result.isValid) {
-        // Find and update user by user_id instead of _id
-        
+      // Check if gender is female
+      if (result.credentialSubject.gender === 'F') {
+        // Find and update user by user_id from userData
         const user = await User.findOneAndUpdate(
-          { user_id: userId },
+          { user_id: result.userData.userIdentifier },
           { $set: { isGenderVerified: true } },
           { new: true }
         )
-        if(!user) throw new Error('User not found')
+        
+        if(!user) {
+          throw new Error('User not found')
+        }
+        
         // Return successful verification response
         return res.status(200).json({
           status: 'success',
           result: true,
-          credentialSubject: result.credentialSubject
+          credentialSubject: result.credentialSubject,
+          userData: result.userData
         });
       } else {
         // Return failed verification response
-        return res.status(500).json({
+        return res.status(400).json({
           status: 'error',
           result: false,
           message: 'Verification completed, but gender must be female',

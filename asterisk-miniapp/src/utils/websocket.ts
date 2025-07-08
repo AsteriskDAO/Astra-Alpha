@@ -1,5 +1,5 @@
 import { Socket, io } from 'socket.io-client'
-import type { SelfApp } from '@selfxyz/core'
+import type { SelfApp } from '@selfxyz/qrcode'
 
 export enum QRCodeSteps {
   WAITING_FOR_MOBILE = 0,
