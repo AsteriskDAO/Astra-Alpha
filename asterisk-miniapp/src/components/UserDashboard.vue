@@ -164,7 +164,7 @@ function goToProfile() {
 }
 
 .stat-card {
-  background: var(--light-blue);
+  background: var(--blue);
   border-radius: 12px;
   padding: 20px;
   text-align: center;
