@@ -31,7 +31,7 @@ const MINI_APP_URL = "https://asterisk-health-profile-miniapp.onrender.com";
 const COMMUNITY_URL = "https://t.me/+4WUgyZr9a0s1ZDAx";
 
 // Use a single cron job instead of per-user jobs
-const NOTIFICATION_TIME = '0 10 * * *'; // 10am UTC daily
+const NOTIFICATION_TIME = '0 16 * * *'; // 1600 UTC daily
 const BATCH_SIZE = 100; // Process users in batches
 
 async function setupBot() {
@@ -138,13 +138,24 @@ async function setupBot() {
                               }
                           }
 
-                          // Send notification with exponential backoff retry
-                          await retryWithBackoff(async () => {
-                              await bot.api.sendMessage(
-                                  notification.user_id,
-                                  "👋 Time for your check-in. How are you feeling today? \n\nType /checkin to start."
-                              );
-                          });
+                          // if user has not checked in in over a week, send a different message
+                          if (user?.lastCheckIn) {
+                            const lastCheckIn = new Date(user.lastCheckIn);
+                            const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                            if (lastCheckIn < oneWeekAgo) {
+                              await bot.api.sendMessage(notification.user_id, "👋 It's been a while since your last check-in. Did you know that you can be rewarded for daily check-ins? \n\nType /checkin to start.");
+                              return;
+                            }
+                          } else {
+
+                            // Send notification with exponential backoff retry
+                            await retryWithBackoff(async () => {
+                                await bot.api.sendMessage(
+                                    notification.user_id,
+                                    "👋 Time for your check-in. How are you feeling today? \n\nType /checkin to start."
+                                );
+                            });
+                          }
 
                           // Update last sent time
                           notification.last_sent = new Date();
