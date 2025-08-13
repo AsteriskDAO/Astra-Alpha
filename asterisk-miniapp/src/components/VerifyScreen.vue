@@ -53,6 +53,10 @@ const handleVerificationSuccess = async () => {
   }
 }
 
+const openSelfApp = () => {
+  window.open(linkValue.value, '_blank')
+}
+
 onMounted(async () => {
   if (!userStore.userData.user_id) {
     await userStore.fetchUserData(telegramId)
@@ -106,12 +110,62 @@ onUnmounted(() => {
 <template>
   <div class="verify-screen screen-container">
     <div class="verify-content">
-      <TitleWithAsterisk title="Verify Your Gender" />
+      <TitleWithAsterisk title="Welcome to Astra!" />
 
       <div class="description">
         <p>
-          You’ll now be taken through a short identity verification to ensure our data remains female only (and human). We retain none of your identification after the verification.
+          We are the first female-only health tracker in the world. To get started, we need to verify your gender.
         </p>
+        <br>
+        <p>
+          Our partner, Self, will do that. We don't hold any of your information, nor does Self.
+        </p>
+        <br>
+        <p>
+          <strong>Step One:</strong> Download the Self App and register your ID. Then come back here for Step Two.
+        </p>
+      </div>
+
+      <v-btn
+        color="primary"
+        block
+        @click="openSelfApp"  
+      >
+        GET THE SELF APP
+      </v-btn>
+
+      <v-expansion-panels>
+        <v-expansion-panel
+          title="Click here if on desktop"
+          text="Scan the QR code to begin verification. You can also use this to download the Self app."
+        >
+        <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
+          <QRCode
+            :value="qrValue"
+            :size="280"
+            :margin="2"
+            level="M"
+            render-as="svg"
+          />
+        </div>
+        </v-expansion-panel>
+      </v-expansion-panels>
+
+
+      <div class="description">
+        <p>
+          <strong>Step Two:</strong> Click below to take this final step and start using Astra!
+        </p>
+      </div>
+
+      <div class="actions">
+        <v-btn
+          color="primary"
+          block
+          @click="openSelfApp"
+        >
+          VERIFY YOUR GENDER
+        </v-btn>
       </div>
       
       <div class="status-message">
@@ -135,20 +189,6 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
-        <QRCode
-          :value="qrValue"
-          :size="280"
-          :margin="2"
-          level="M"
-          render-as="svg"
-        />
-      </div>
-
-      <p>
-        If you don't have the Self app, you can download it from the App Store or Google Play.
-        If you're on mobile, you can visit this link: <a :href="linkValue" target="_blank">Verify</a>
-      </p>
 
       <div class="status-container">
         <div v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE" class="status pending">
@@ -178,20 +218,20 @@ onUnmounted(() => {
       </div>
 
       <!-- Field for voucher code -->
-      <div class="voucher-code-container">
+      <!-- <div class="voucher-code-container">
         <v-text-field
           v-model="voucherCode"
           label="Voucher Code"
           placeholder="Enter voucher code to skip verification"
         />
-      </div>
+      </div> -->
 
       <div v-if="isError" class="error-message">
         {{ error }}
       </div>
 
       <!-- submit button -->
-      <div class="actions">
+      <!-- <div class="actions">
         <v-btn
           color="primary"
           block
@@ -199,7 +239,7 @@ onUnmounted(() => {
         >
           Submit Voucher Code
         </v-btn>
-      </div>
+      </div> -->
 
       <!-- <div class="actions">
         <v-btn

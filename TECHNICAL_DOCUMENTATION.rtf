@@ -1,0 +1,358 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}{\f1 Courier New;}}
+{\colortbl;\red17\green85\blue204;}
+{\stylesheet
+{\s0 Normal;}
+{\s1\sbasedon0\snext0\b\fs40 Heading 1;}
+{\s2\sbasedon0\snext0\b\fs32 Heading 2;}
+{\s3\sbasedon0\snext0\b\fs28 Heading 3;}
+}
+\paperw12240\paperh15840\margl1440\margr1440\margt1440\margb1440
+
+\pard\plain\s1 Asterisk Health Profile - Technical Documentation\par
+
+\pard\plain\s2 Table of Contents\par
+\pard\plain\s0 \u8226? Project Overview\par
+\u8226? Architecture\par
+\u8226? Data Flow\par
+\u8226? API Endpoints\par
+\u8226? Data Schemas\par
+\u8226? Vana Integration\par
+\u8226? Akave Integration\par
+\u8226? Security Features\par
+\u8226? Frontend Mini App\par
+\u8226? Telegram Bot\par
+\u8226? Deployment & Infrastructure\par
+\u8226? Monitoring & Logging\par
+\u8226? Scaling Considerations\par
+\u8226? Development Guidelines\par
+\u8226? Testing\par
+\par
+
+\pard\plain\s2 Project Overview\par
+\pard\plain\s0 Asterisk Health Profile is a platform for collecting and storing women's health data. It offers a Web2-like user experience via a Telegram mini app while leveraging decentralized protocols (Vana, Akave) for data privacy and ownership.\par
+\par
+\pard\plain\s3 Key Features\par
+\pard\plain\s0 \u8226? Telegram bot for registration and daily check-ins\par
+\u8226? Vue mini app for health profile creation and updates\par
+\u8226? Self.xyz for zero-knowledge proof identity verification\par
+\u8226? Vana data union integration for contributing encrypted data and earning rewards\par
+\u8226? Akave O3 S3-compatible storage for encrypted data\par
+\u8226? Automated, localized reminders for daily check-ins\par
+\par
+\pard\plain\s3 Technology Stack\par
+\pard\plain\s0 \u8226? Backend: Node.js, Express.js, MongoDB, Bull (Redis)\par
+\u8226? Frontend: Vue 3, TypeScript, Vite, Pinia, Vuetify\par
+\u8226? Blockchain: Ethers.js, Vana Protocol\par
+\u8226? Storage: Akave O3 (S3-compatible)\par
+\u8226? Auth/Identity: Telegram Web App, Self.xyz\par
+\u8226? Encryption: OpenPGP, AES\par
+\par
+\pard\plain\s2 Architecture\par
+\pard\plain\s0 Services and integrations work together to collect, encrypt, store, and contribute data to a data union.\par
+\par
+Telegram Bot   \tab Vue Mini App   \tab Express API\par
+\tab\tab  \tab  |\par
+\tab\tab  +-----+-------------------\'3e MongoDB (Users, HealthData, CheckIns)\par
+\tab\tab         |\par
+\tab\tab         +\'3e Akave O3 (encrypted files)\par
+\tab\tab         +\'3e Vana (Registry, TEE, DLP)\par
+\tab\tab         +\'3e Bull Queue (async jobs, retries)\par
+\par
+\pard\plain\s3 Service Roles\par
+\pard\plain\s0 \u8226? Akave Service: encrypted file storage\par
+\u8226? Vana Service: file registration, TEE proof, reward claim\par
+\u8226? Queue System: async uploads, retries, state management\par
+\u8226? Telegram Service: bot setup, notifications, conversations\par
+\par
+\pard\plain\s2 Data Flow\par
+\pard\plain\s0 Pipeline: User Input \'96 Validation \'96 Encryption \'96 Akave Storage \'96 Vana Registration \'96 TEE Proof \'96 Reward Claim\par
+\par
+\pard\plain\s3 Akave Upload Flow\par
+\pard\plain\s0 1) Convert JSON to a File object\par
+2) Encrypt via OpenPGP with the user's signature\par
+3) Upload to O3 (S3-compatible) storage\par
+4) Return a signed URL for retrieval\par
+\par
+\pard\plain\s3 Vana Upload Flow\par
+\pard\plain\s0 1) Use O3 signed URL from Akave\par
+2) Register file with Data Registry contract\par
+3) Request TEE proof from TEE Pool\par
+4) Submit proof with fixed IV and ephemeral key, permission params, and encrypted encryption key\par
+5) Claim reward after successful proof\par
+\par
+\pard\plain\s3 Queue System\par
+\pard\plain\s0 \u8226? Separates health profile and check-in uploads\par
+\u8226? Retries failures and persists intermediate state\par
+\u8226? Supports parallel processing\par
+\par
+\pard\plain\s2 API Endpoints\par
+\pard\plain\s0 Base: /api\par
+\par
+\pard\plain\s3 Users\par
+\pard\plain\s0 Create User \emdash  POST /api/users/create\par
+Headers: x-telegram-init-data, x-telegram-auth\par
+\par
+Get User by Telegram \emdash  GET /api/users/telegram/:telegramId\par
+Headers: x-telegram-init-data, x-telegram-auth\par
+\par
+Update User \emdash  PUT /api/users/update\par
+Headers: x-telegram-init-data, x-telegram-auth\par
+\par
+Get User by Hash \emdash  GET /api/users/:userHash\par
+Headers: x-telegram-init-data, x-telegram-auth\par
+\par
+Update Points \emdash  PUT /api/users/:userHash/points\par
+Headers: x-telegram-init-data, x-telegram-auth\par
+Body:\par
+{\pard\li720\f1\fs18 "points": 5\par}\par
+\par
+Verify Gender \emdash  POST /api/users/verify-gender\par
+Submit Voucher Code \emdash  POST /api/users/submit-voucher-code\par
+\par
+\pard\plain\s3 Check-ins\par
+\pard\plain\s0 Create Check-in \emdash  POST /api/checkins/:user_hash\par
+Headers: x-telegram-init-data, x-telegram-auth\par
+Body:\par
+{\pard\li720\f1\fs18
+"mood": "string",\line
+"health_comment": "string",\line
+"doctor_visit": false,\line
+"health_profile_update": false,\line
+"anxiety_level": "low|med|high",\line
+"anxiety_details": "string",\line
+"pain_level": 0,\line
+"pain_details": "string",\line
+"fatigue_level": 0,\line
+"fatigue_details": "string"
+\par}
+\par
+Get User Check-ins \emdash  GET /api/checkins/:userId\par
+Headers: x-telegram-init-data, x-telegram-auth\par
+\par
+\pard\plain\s3 Vana\par
+\pard\plain\s0 Upload File \emdash  POST /api/vana/upload/:userId\par
+\par
+\pard\plain\s2 Data Schemas\par
+\pard\plain\s3 User\par
+\pard\plain\s0 {\par
+{\pard\li720\f1\fs18
+"user_id": "uuid",\line
+"telegram_id": "string",\line
+"user_hash": "string",\line
+"wallet_address": "string|null",\line
+"proof_of_passport_id": "string",\line
+"name": "string",\line
+"nickname": "string",\line
+"checkIns": 0,\line
+"points": 0,\line
+"lastCheckIn": "Date|null",\line
+"created_at": "Date",\line
+"updated_at": "Date",\line
+"isGenderVerified": false,\line
+"isRegistered": false,\line
+"currentHealthDataId": "string|null",\line
+"weeklyCheckIns": [{ "week": "Date", "count": 0 }],\line
+"averageWeeklyCheckIns": 0
+\par}}
+\par
+\pard\plain\s3 Health Data\par
+\pard\plain\s0 {\par
+{\pard\li720\f1\fs18
+"healthDataId": "uuid",\line
+"user_hash": "string",\line
+"research_opt_in": false,\line
+"profile": {\line
+    "age_range": "18-20|20-25|25-30|30-35|35-40|40-45|45-50|50+",\line
+    "ethnicity": "string",\line
+    "location": "string",\line
+    "is_pregnant": false\line
+},\line
+"conditions": ["string"],\line
+"medications": ["string"],\line
+"treatments": ["string"],\line
+"caretaker": ["string"],\line
+"timestamp": "Date"
+\par}}
+\par
+\pard\plain\s3 Check-in\par
+\pard\plain\s0 {\par
+{\pard\li720\f1\fs18
+"user_hash": "string",\line
+"timestamp": "Date",\line
+"mood": "string",\line
+"health_comment": "string",\line
+"doctor_visit": false,\line
+"health_profile_update": false,\line
+"anxiety_level": "string",\line
+"anxiety_details": "string",\line
+"pain_level": 0,\line
+"pain_details": "string",\line
+"fatigue_level": 0,\line
+"fatigue_details": "string"
+\par}}
+\par
+\pard\plain\s2 Vana Integration\par
+\pard\plain\s0 Vana enables users to contribute encrypted data to a data liquidity pool and earn rewards.\par
+\par
+\pard\plain\s3 Key Components\par
+\pard\plain\s0 \u8226? Data Liquidity Pool (DLP): reward requests\par
+\u8226? Data Registry: file registration and permissions\par
+\u8226? TEE Pool: trusted execution proofs\par
+\par
+\pard\plain\s3 Integration Flow\par
+\pard\plain\s0 1) Register encrypted file in the Data Registry\par
+2) Request a TEE proof job and fetch TEE public key & URL\par
+3) Submit proof with fixed IV/ephemeral key and encrypted user key\par
+4) Run data refinement (refiner service)\par
+5) Request reward via DLP\par
+\par
+\pard\plain\s3 Configuration (example)\par
+\pard\li720\f1\fs18 {
+"vana": {\line
+  "rpcUrl": "<rpc-url>",\line
+  "contracts": {\line
+    "dlp": "<address>",\line
+    "registry": "<address>",\line
+    "teePool": "<address>"\line
+  },\line
+  "refinementServiceUrl": "<url>",\line
+  "refinerIds": { "checkin": "<id>", "health": "<id>" },\line
+  "dlpId": "<id>"\line
+}\line
+}\par
+\pard\plain\s0\par
+
+\pard\plain\s2 Akave Integration\par
+\pard\plain\s0 Akave O3 provides S3-compatible object storage for encrypted files.\par
+\par
+\pard\plain\s3 Features\par
+\pard\plain\s0 \u8226? S3-compatible API\par
+\u8226? End-to-end encryption before upload\par
+\u8226? Signed URLs for controlled access\par
+\par
+\pard\plain\s3 Configuration (example)\par
+\pard\li720\f1\fs18 {
+"akave": {\line
+  "endpoint": "<endpoint>",\line
+  "region": "<region>",\line
+  "accessKey": "<access-key>",\line
+  "secretKey": "<secret-key>",\line
+  "buckets": { "health": "<bucket>", "checkin": "<bucket>" }\line
+}\line
+}\par
+\pard\plain\s3 AWS CLI Examples\par
+\pard\li720\f1\fs18 # List buckets\line
+aws s3 ls --profile akave --endpoint-url https://o3-rc2.akave.xyz\line
+\line
+# Create bucket\line
+aws s3 mb s3://asterisk-checkin-data --profile akave --endpoint-url https://o3-rc2.akave.xyz\line
+\line
+# List contents\line
+aws s3 ls s3://my-bucket --profile akave --endpoint-url https://o3-rc2.akave.xyz\line
+\line
+# Remove bucket\line
+aws s3 rb s3://my-bucket --profile akave --endpoint-url https://o3-rc2.akave.xyz\par
+\pard\plain\s0\par
+
+\pard\plain\s2 Security Features\par
+\pard\plain\s0 \u8226? Telegram Web App auth; request validation middleware; rate limiting\par
+\u8226? OpenPGP/AES encryption; fixed IV and ephemeral keys for Vana proof\par
+\u8226? User hashing and consent management; permission-based access\par
+\u8226? HTTPS, environment-based configuration, structured logging\par
+\par
+\pard\plain\s2 Frontend Mini App\par
+\pard\plain\s0 \u8226? Stack: Vue 3, TypeScript, Vite, Pinia, Vuetify\par
+\u8226? Screens: Welcome, Profile form, Conditions form, Review, Dashboard, Verify\par
+\u8226? Integration: Telegram Web App, Self.xyz\par
+\par
+\pard\plain\s3 Frontend Config (example)\par
+\pard\li720\f1\fs18 export const config = {\line
+  apiBaseUrl: "<backend-url>",\line
+  telegramBotUsername: "<bot-username>",\line
+  selfAppId: "<self-app-id>"\line
+}\par
+\pard\plain\s0\par
+
+\pard\plain\s2 Telegram Bot\par
+\pard\plain\s0 \u8226? User registration and profile setup\par
+\u8226? Daily check-ins with reminders (batch scheduling, leader election)\par
+\u8226? Commands: /start, /checkin, /profile, /stats, /help\par
+\par
+\pard\plain\s2 Deployment & Infrastructure\par
+\pard\plain\s3 Environment Variables (sample)\par
+\pard\li720\f1\fs18 # Server\line
+PORT=3000\line
+NODE_ENV=production\line
+\line
+# MongoDB\line
+MONGODB_URI=mongodb://localhost:27017/asterisk\line
+\line
+# Telegram\line
+TG_BOT_API_KEY=your_bot_token\line
+\line
+# Akave O3\line
+AKAVE_ENDPOINT=https://o3-rc2.akave.xyz\line
+AKAVE_REGION=us-east-1\line
+AKAVE_ACCESS_KEY=your_access_key\line
+AKAVE_SECRET_KEY=your_secret_key\line
+AKAVE_BUCKET_NAME_HEALTH=asterisk-health-data\line
+AKAVE_BUCKET_NAME_CHECKIN=asterisk-checkin-data\line
+\line
+# Vana\line
+VANA_RPC_URL=<rpc>\line
+VANA_CONTRACTS_DLP=<address>\line
+VANA_CONTRACTS_REGISTRY=<address>\line
+VANA_CONTRACTS_TEEP_POOL=<address>\line
+VANA_REFINER_SERVICE_URL=<url>\line
+VANA_REFINER_CHECKIN_ID=<id>\line
+VANA_REFINER_HEALTH_ID=<id>\line
+VANA_DLP_ID=<id>\line
+\line
+# Self.xyz\line
+SELF_APP_ID=<id>\line
+\line
+# Pinata\line
+PINATA_API_KEY=<key>\line
+PINATA_API_SECRET=<secret>\line
+\line
+# Redis\line
+REDIS_URL=redis://localhost:6379\par
+\pard\plain\s3 Platforms\par
+\pard\plain\s0 \u8226? Backend: Fly.io, Render\par
+\u8226? Frontend: Render, Vercel\par
+\u8226? Database: MongoDB Atlas\par
+\u8226? Queues/Cache: Redis\par
+\u8226? Storage: Akave O3, IPFS via Pinata\par
+\par
+\pard\plain\s2 Monitoring & Logging\par
+\pard\plain\s0 \u8226? Centralized logging with winston to files (combined.log, error.log)\par
+\u8226? Request-level logs enabled via route logger in API (method, URL, params, body, duration)\par
+\u8226? Bot lifecycle logs and leader election events\par
+\u8226? Basic performance tracking via response time in route logger\par
+\u8226? Health checks recommended at /health (HTTP 200, DB connectivity)\par
+\par
+\pard\plain\s2 Scaling Considerations\par
+\pard\plain\s0 \u8226? Horizontal scale API behind a load balancer; stateless routes\par
+\u8226? Leader election controls a single active Telegram bot instance\par
+\u8226? Redis-backed Bull queues for async workloads and retry semantics\par
+\u8226? MongoDB indexing on frequent queries (e.g., user by telegram_id, check-ins by user_hash, timestamp)\par
+\u8226? Apply rate limits per IP/user to protect endpoints\par
+\par
+\pard\plain\s2 Development Guidelines\par
+\pard\plain\s0 \u8226? Code style: clear naming, early returns, handle edge cases, minimal inline comments\par
+\u8226? Backend in Node.js CommonJS; frontend in Vue 3 + TS (keep types explicit on public APIs)\par
+\u8226? Configuration via environment variables; never hardcode secrets\par
+\u8226? Keep routes thin, move logic to services; validate inputs with middleware\par
+\u8226? Commit messages: feat/fix/chore/docs with concise scope\par
+\par
+\pard\plain\s2 Testing\par
+\pard\plain\s0 \u8226? Frameworks: Mocha + Chai (backend)\par
+\u8226? Unit tests for controllers/services; integration tests for API endpoints\par
+\u8226? Mock external services (Akave, Vana) when testing; use test DB\par
+\u8226? Suggested commands: \par
+{\pard\li720\f1\fs18 npm test\line
+NODE_ENV=test mocha "test/**/*.test.js" --exit\par}
+\par
+\pard\plain\s0 This document was generated from the project structure and code to ensure accuracy.\par
+}

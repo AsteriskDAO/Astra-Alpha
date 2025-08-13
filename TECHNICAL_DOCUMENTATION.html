@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asterisk Health Profile - Technical Documentation</title>
+  <meta name="description" content="Technical documentation for Asterisk Health Profile, covering architecture, API, data schemas, Vana and Akave integrations." />
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; line-height: 1.5; color: #111; margin: 24px; }
+    code, pre { font-family: Consolas, Monaco, 'Courier New', monospace; }
+    pre { background: #f6f8fa; padding: 12px; overflow: auto; border-radius: 6px; }
+    a { color: #0b57d0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .small { color: #555; font-size: 0.95em; }
+  </style>
+  <!-- Google Docs recognizes h1/h2/h3 on import. Upload this file via Google Docs File -> Open -> Upload. -->
+</head>
+<body>
+  <h1 id="title">Asterisk Health Profile - Technical Documentation</h1>
+
+  <h2 id="table-of-contents">Table of Contents</h2>
+  <ul>
+    <li><a href="#project-overview">Project Overview</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#data-flow">Data Flow</a></li>
+    <li><a href="#api-endpoints">API Endpoints</a></li>
+    <li><a href="#data-schemas">Data Schemas</a></li>
+    <li><a href="#vana-integration">Vana Integration</a></li>
+    <li><a href="#akave-integration">Akave Integration</a></li>
+    <li><a href="#security-features">Security Features</a></li>
+    <li><a href="#frontend-mini-app">Frontend Mini App</a></li>
+    <li><a href="#telegram-bot">Telegram Bot</a></li>
+    <li><a href="#deployment-infrastructure">Deployment &amp; Infrastructure</a></li>
+  </ul>
+
+  <h2 id="project-overview">Project Overview</h2>
+  <p><strong>Asterisk Health Profile</strong> is a platform for collecting and storing women's health data. It provides a Web2-like user experience via a Telegram mini app while leveraging decentralized protocols for data privacy, security, and ownership.</p>
+  <h3 id="key-features">Key Features</h3>
+  <ul>
+    <li>Telegram bot for registration and daily check-ins</li>
+    <li>Vue mini app for health profile creation and updates</li>
+    <li>Self.xyz for zero-knowledge proof identity verification</li>
+    <li>Vana data union integration for contributing encrypted data and earning rewards</li>
+    <li>Akave O3 S3-compatible storage for encrypted data</li>
+    <li>Automated, localized reminders for daily check-ins</li>
+  </ul>
+  <h3 id="technology-stack">Technology Stack</h3>
+  <ul>
+    <li><strong>Backend</strong>: Node.js, Express.js, MongoDB, Bull (Redis)</li>
+    <li><strong>Frontend</strong>: Vue 3, TypeScript, Vite, Pinia, Vuetify</li>
+    <li><strong>Blockchain</strong>: Ethers.js, Vana Protocol</li>
+    <li><strong>Storage</strong>: Akave O3 (S3-compatible)</li>
+    <li><strong>Auth/Identity</strong>: Telegram Web App, Self.xyz</li>
+    <li><strong>Encryption</strong>: OpenPGP, AES</li>
+  </ul>
+
+  <h2 id="architecture">Architecture</h2>
+  <p>The system is organized into services and integrations that work together to collect, encrypt, store, and contribute data to a data union.</p>
+  <pre><code>Telegram Bot      Vue Mini App         Express API
+      \
+       \               /                   |
+        +-------------+-------------------+--> MongoDB (Users, HealthData, CheckIns)
+                        |
+                        +--> Akave O3 (encrypted files)
+                        +--> Vana (Registry, TEE, DLP)
+                        +--> Bull Queue (async jobs, retries)
+  </code></pre>
+  <h3 id="service-roles">Service Roles</h3>
+  <ul>
+    <li><strong>Akave Service</strong> (<span class="small">encrypted file storage</span>)</li>
+    <li><strong>Vana Service</strong> (<span class="small">file registration, TEE proof, reward claim</span>)</li>
+    <li><strong>Queue System</strong> (<span class="small">async uploads, retries, state management</span>)</li>
+    <li><strong>Telegram Service</strong> (<span class="small">bot setup, notifications, conversations</span>)</li>
+  </ul>
+
+  <h2 id="data-flow">Data Flow</h2>
+  <p><strong>Pipeline</strong>: User Input → Validation → Encryption → Akave Storage → Vana Registration → TEE Proof → Reward Claim</p>
+  <h3 id="akave-upload-flow">Akave Upload Flow</h3>
+  <ol>
+    <li>Convert JSON to a File object</li>
+    <li>Encrypt via OpenPGP with the user's signature</li>
+    <li>Upload to O3 (S3-compatible) storage</li>
+    <li>Return a signed URL for retrieval</li>
+  </ol>
+  <h3 id="vana-upload-flow">Vana Upload Flow</h3>
+  <ol>
+    <li>Use O3 signed URL from Akave</li>
+    <li>Register file with Data Registry contract</li>
+    <li>Request TEE proof from TEE Pool</li>
+    <li>Submit proof with fixed IV and ephemeral key, permission params, and encrypted encryption key</li>
+    <li>Claim reward after successful proof</li>
+  </ol>
+  <h3 id="queue-system">Queue System</h3>
+  <ul>
+    <li>Separates health profile and check-in uploads</li>
+    <li>Retries failures and persists intermediate state</li>
+    <li>Supports parallel processing</li>
+  </ul>
+
+  <h2 id="api-endpoints">API Endpoints</h2>
+  <p><strong>Base</strong>: <code>/api</code></p>
+  <h3 id="users">Users</h3>
+  <p><strong>Create User</strong> — <code>POST /api/users/create</code></p>
+  <p><em>Headers</em>: <code>x-telegram-init-data</code>, <code>x-telegram-auth</code></p>
+  <pre><code>{
+  "telegram_id": "string",
+  "name": "string",
+  "nickname": "string",
+  "points": 0
+}
+  </code></pre>
+
+  <p><strong>Get User by Telegram</strong> — <code>GET /api/users/telegram/:telegramId</code></p>
+  <p><em>Headers</em>: <code>x-telegram-init-data</code>, <code>x-telegram-auth</code></p>
+
+  <p><strong>Update User</strong> — <code>PUT /api/users/update</code></p>
+  <p><em>Headers</em>: <code>x-telegram-init-data</code>, <code>x-telegram-auth</code></p>
+
+  <p><strong>Get User by Hash</strong> — <code>GET /api/users/:userHash</code></p>
+  <p><em>Headers</em>: <code>x-telegram-init-data</code>, <code>x-telegram-auth</code></p>
+
+  <p><strong>Update Points</strong> — <code>PUT /api/users/:userHash/points</code></p>
+  <p><em>Headers</em>: <code>x-telegram-init-data</code>, <code>x-telegram-auth</code></p>
+  <pre><code>{
+  "points": 5
+}
+  </code></pre>
+
+  <p><strong>Verify Gender</strong> — <code>POST /api/users/verify-gender</code></p>
+  <p><strong>Submit Voucher Code</strong> — <code>POST /api/users/submit-voucher-code</code></p>
+
+  <h3 id="checkins">Check-ins</h3>
+  <p><strong>Create Check-in</strong> — <code>POST /api/checkins/:user_hash</code></p>
+  <p><em>Headers</em>: <code>x-telegram-init-data</code>, <code>x-telegram-auth</code></p>
+  <pre><code>{
+  "mood": "string",
+  "health_comment": "string",
+  "doctor_visit": false,
+  "health_profile_update": false,
+  "anxiety_level": "low|med|high",
+  "anxiety_details": "string",
+  "pain_level": 0,
+  "pain_details": "string",
+  "fatigue_level": 0,
+  "fatigue_details": "string"
+}
+  </code></pre>
+
+  <p><strong>Get User Check-ins</strong> — <code>GET /api/checkins/:userId</code></p>
+  <p><em>Headers</em>: <code>x-telegram-init-data</code>, <code>x-telegram-auth</code></p>
+
+  <h3 id="vana-endpoints">Vana</h3>
+  <p><strong>Upload File</strong> — <code>POST /api/vana/upload/:userId</code></p>
+
+  <h2 id="data-schemas">Data Schemas</h2>
+  <h3 id="user-schema">User</h3>
+  <pre><code>{
+  "user_id": "uuid",
+  "telegram_id": "string",
+  "user_hash": "string",
+  "wallet_address": "string|null",
+  "proof_of_passport_id": "string",
+  "name": "string",
+  "nickname": "string",
+  "checkIns": 0,
+  "points": 0,
+  "lastCheckIn": "Date|null",
+  "created_at": "Date",
+  "updated_at": "Date",
+  "isGenderVerified": false,
+  "isRegistered": false,
+  "currentHealthDataId": "string|null",
+  "weeklyCheckIns": [{ "week": "Date", "count": 0 }],
+  "averageWeeklyCheckIns": 0
+}
+  </code></pre>
+
+  <h3 id="healthdata-schema">Health Data</h3>
+  <pre><code>{
+  "healthDataId": "uuid",
+  "user_hash": "string",
+  "research_opt_in": false,
+  "profile": {
+    "age_range": "18-20|20-25|25-30|30-35|35-40|40-45|45-50|50+",
+    "ethnicity": "string",
+    "location": "string",
+    "is_pregnant": false
+  },
+  "conditions": ["string"],
+  "medications": ["string"],
+  "treatments": ["string"],
+  "caretaker": ["string"],
+  "timestamp": "Date"
+}
+  </code></pre>
+
+  <h3 id="checkin-schema">Check-in</h3>
+  <pre><code>{
+  "user_hash": "string",
+  "timestamp": "Date",
+  "mood": "string",
+  "health_comment": "string",
+  "doctor_visit": false,
+  "health_profile_update": false,
+  "anxiety_level": "string",
+  "anxiety_details": "string",
+  "pain_level": 0,
+  "pain_details": "string",
+  "fatigue_level": 0,
+  "fatigue_details": "string"
+}
+  </code></pre>
+
+  <h2 id="vana-integration">Vana Integration</h2>
+  <p>Vana enables users to contribute encrypted data to a data liquidity pool and earn rewards.</p>
+  <h3 id="vana-components">Key Components</h3>
+  <ul>
+    <li><strong>Data Liquidity Pool (DLP)</strong>: reward requests</li>
+    <li><strong>Data Registry</strong>: file registration and permissions</li>
+    <li><strong>TEE Pool</strong>: trusted execution proofs</li>
+  </ul>
+  <h3 id="vana-flow">Integration Flow</h3>
+  <ol>
+    <li>Register encrypted file in the Data Registry</li>
+    <li>Request a TEE proof job and fetch TEE public key &amp; URL</li>
+    <li>Submit proof with fixed IV/ephemeral key and encrypted user key</li>
+    <li>Run data refinement (refiner service)</li>
+    <li>Request reward via DLP</li>
+  </ol>
+  <h3 id="vana-config">Configuration</h3>
+  <pre><code>{
+  "vana": {
+    "rpcUrl": "&lt;rpc-url&gt;",
+    "contracts": {
+      "dlp": "&lt;address&gt;",
+      "registry": "&lt;address&gt;",
+      "teePool": "&lt;address&gt;"
+    },
+    "refinementServiceUrl": "&lt;url&gt;",
+    "refinerIds": { "checkin": "&lt;id&gt;", "health": "&lt;id&gt;" },
+    "dlpId": "&lt;id&gt;"
+  }
+}
+  </code></pre>
+
+  <h2 id="akave-integration">Akave Integration</h2>
+  <p>Akave O3 provides S3-compatible object storage for encrypted files.</p>
+  <h3 id="akave-features">Features</h3>
+  <ul>
+    <li>S3-compatible API</li>
+    <li>End-to-end encryption before upload</li>
+    <li>Signed URLs for controlled access</li>
+  </ul>
+  <h3 id="akave-config">Configuration</h3>
+  <pre><code>{
+  "akave": {
+    "endpoint": "&lt;endpoint&gt;",
+    "region": "&lt;region&gt;",
+    "accessKey": "&lt;access-key&gt;",
+    "secretKey": "&lt;secret-key&gt;",
+    "buckets": { "health": "&lt;bucket&gt;", "checkin": "&lt;bucket&gt;" }
+  }
+}
+  </code></pre>
+  <h3 id="akave-commands">AWS CLI Examples</h3>
+  <pre><code># List buckets
+aws s3 ls --profile akave --endpoint-url https://o3-rc2.akave.xyz
+
+# Create bucket
+aws s3 mb s3://asterisk-checkin-data --profile akave --endpoint-url https://o3-rc2.akave.xyz
+
+# List contents
+aws s3 ls s3://my-bucket --profile akave --endpoint-url https://o3-rc2.akave.xyz
+
+# Remove bucket
+aws s3 rb s3://my-bucket --profile akave --endpoint-url https://o3-rc2.akave.xyz
+  </code></pre>
+
+  <h2 id="security-features">Security Features</h2>
+  <ul>
+    <li>Telegram Web App auth; request validation middleware; rate limiting</li>
+    <li>OpenPGP/AES encryption; fixed IV and ephemeral keys for Vana proof</li>
+    <li>User hashing and consent management; permission-based access</li>
+    <li>HTTPS, environment-based configuration, structured logging</li>
+  </ul>
+
+  <h2 id="frontend-mini-app">Frontend Mini App</h2>
+  <ul>
+    <li><strong>Stack</strong>: Vue 3, TypeScript, Vite, Pinia, Vuetify</li>
+    <li><strong>Screens</strong>: Welcome, Profile form, Conditions form, Review, Dashboard, Verify</li>
+    <li><strong>Integration</strong>: Telegram Web App, Self.xyz</li>
+  </ul>
+  <h3 id="frontend-config">Frontend Config (example)</h3>
+  <pre><code>export const config = {
+  apiBaseUrl: "&lt;backend-url&gt;",
+  telegramBotUsername: "&lt;bot-username&gt;",
+  selfAppId: "&lt;self-app-id&gt;"
+}
+  </code></pre>
+
+  <h2 id="telegram-bot">Telegram Bot</h2>
+  <ul>
+    <li>User registration and profile setup</li>
+    <li>Daily check-ins with reminders (batch scheduling, leader election)</li>
+    <li>Commands: <code>/start</code>, <code>/checkin</code>, <code>/profile</code>, <code>/stats</code>, <code>/help</code></li>
+  </ul>
+
+  <h2 id="deployment-infrastructure">Deployment &amp; Infrastructure</h2>
+  <h3 id="env-config">Environment Variables (sample)</h3>
+  <pre><code># Server
+PORT=3000
+NODE_ENV=production
+
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/asterisk
+
+# Telegram
+TG_BOT_API_KEY=your_bot_token
+
+# Akave O3
+AKAVE_ENDPOINT=https://o3-rc2.akave.xyz
+AKAVE_REGION=us-east-1
+AKAVE_ACCESS_KEY=your_access_key
+AKAVE_SECRET_KEY=your_secret_key
+AKAVE_BUCKET_NAME_HEALTH=asterisk-health-data
+AKAVE_BUCKET_NAME_CHECKIN=asterisk-checkin-data
+
+# Vana
+VANA_RPC_URL=<rpc>
+VANA_CONTRACTS_DLP=<address>
+VANA_CONTRACTS_REGISTRY=<address>
+VANA_CONTRACTS_TEEP_POOL=<address>
+VANA_REFINER_SERVICE_URL=<url>
+VANA_REFINER_CHECKIN_ID=<id>
+VANA_REFINER_HEALTH_ID=<id>
+VANA_DLP_ID=<id>
+
+# Self.xyz
+SELF_APP_ID=<id>
+
+# Pinata
+PINATA_API_KEY=<key>
+PINATA_API_SECRET=<secret>
+
+# Redis
+REDIS_URL=redis://localhost:6379
+  </code></pre>
+  <h3 id="platforms">Platforms</h3>
+  <ul>
+    <li>Backend: Fly.io, Render</li>
+    <li>Frontend: Render, Vercel</li>
+    <li>Database: MongoDB Atlas</li>
+    <li>Queues/Cache: Redis</li>
+    <li>Storage: Akave O3, IPFS via Pinata</li>
+  </ul>
+
+  <p class="small">This document is generated from the project structure and code to ensure accuracy.</p>
+</body>
+</html>
