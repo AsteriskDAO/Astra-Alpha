@@ -21,23 +21,23 @@ const cleanup = ref<(() => void) | null>(null)
 
 const telegramId = telegramStore.userInfo.id
 
-const voucherCode = ref('')
+// const voucherCode = ref('')
 const error = ref('')
 const isError = ref(false)
 
-const handleSubmitVoucherCode = async () => {
-  console.log('voucherCode', voucherCode.value)
-  voucherCode.value = voucherCode.value.trim()
-  const result = await userStore.submitVoucherCode(telegramId, voucherCode.value)
-  console.log('result', result)
-  if (result.success) {
-    router.push('/profile')
-  } else {
-    console.error('Failed to submit voucher code')
-    isError.value = true
-    error.value = 'Invalid voucher code'
-  }
-}
+// const handleSubmitVoucherCode = async () => {
+//   console.log('voucherCode', voucherCode.value)
+//   voucherCode.value = voucherCode.value.trim()
+//   const result = await userStore.submitVoucherCode(telegramId, voucherCode.value)
+//   console.log('result', result)
+//   if (result.success) {
+//     router.push('/profile')
+//   } else {
+//     console.error('Failed to submit voucher code')
+//     isError.value = true
+//     error.value = 'Invalid voucher code'
+//   }
+// }
 
 const handleVerificationSuccess = async () => {
   try {
