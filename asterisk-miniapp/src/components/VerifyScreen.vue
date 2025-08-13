@@ -142,8 +142,8 @@ onUnmounted(() => {
                        <v-expansion-panel-title>
               <template v-slot:default="{ expanded }">
                 <div class="d-flex align-center">
-                  <span v-if="!expanded" class="text-h6">Click here if on desktop</span>
-                  <span v-else class="text-h6">Scan the QR code to begin verification. You can also use this to download the Self app.</span>
+                  <span v-if="!expanded" class="text-body-1">Click here if on desktop</span>
+                  <span v-else class="text-body-1">Scan the QR code to begin verification. You can also use this to download the Self app.</span>
                 </div>
               </template>
             </v-expansion-panel-title>
