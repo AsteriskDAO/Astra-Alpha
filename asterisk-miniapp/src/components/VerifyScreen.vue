@@ -134,23 +134,36 @@ onUnmounted(() => {
         GET THE SELF APP
       </v-btn>
 
+      <br>
+
+
       <v-expansion-panels>
         <v-expansion-panel
           title="Click here if on desktop"
           text="Scan the QR code to begin verification. You can also use this to download the Self app."
         >
-        <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
-          <QRCode
-            :value="qrValue"
-            :size="280"
-            :margin="2"
-            level="M"
-            render-as="svg"
-          />
-        </div>
+        <template v-slot:default="{ expanded }">
+          <v-fade-transition leave-absolute>
+            <span
+              v-if="expanded"
+              key="0"
+            >
+            <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
+              <QRCode
+                :value="qrValue"
+                :size="280"
+                :margin="2"
+                level="M"
+                render-as="svg"
+              />
+            </div>
+          </span>
+        </v-fade-transition>
+        </template>
         </v-expansion-panel>
       </v-expansion-panels>
 
+      <br>
 
       <div class="description">
         <p>
@@ -168,9 +181,9 @@ onUnmounted(() => {
         </v-btn>
       </div>
       
-      <div class="status-message">
+      <!-- <div class="status-message">
         <div v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
-          Scan QR code to begin verification...
+          Waiting for verification to begin...
         </div>
         <div v-else-if="proofStep === QRCodeSteps.MOBILE_CONNECTED">
           Mobile connected! Starting verification...
@@ -187,7 +200,7 @@ onUnmounted(() => {
         <div v-else-if="proofStep === QRCodeSteps.PROOF_VERIFIED">
           Verification successful!
         </div>
-      </div>
+      </div> -->
 
 
       <div class="status-container">
