@@ -142,7 +142,7 @@ onUnmounted(() => {
                        <v-expansion-panel-title>
               <template v-slot:default="{ expanded }">
                 <div class="d-flex align-center">
-                  <span v-if="expanded" class="text-h6">Click here if on desktop</span>
+                  <span v-if="!expanded" class="text-h6">Click here if on desktop</span>
                   <span v-else class="text-h6">Scan the QR code to begin verification. You can also use this to download the Self app.</span>
                 </div>
               </template>
@@ -285,7 +285,8 @@ onUnmounted(() => {
 
 .qr-container {
   background: white;
-  padding: 24px;
+  padding-top: 24px;
+  padding-bottom: 24px;
   border-radius: 12px;
   margin-bottom: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
