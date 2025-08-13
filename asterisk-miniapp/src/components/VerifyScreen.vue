@@ -137,31 +137,39 @@ onUnmounted(() => {
       <br>
 
 
-      <v-expansion-panels>
-        <v-expansion-panel
-          title="Click here if on desktop"
-          text="Scan the QR code to begin verification. You can also use this to download the Self app."
-        >
-        <template v-slot:default="{ expanded }">
-          <v-fade-transition leave-absolute>
-            <span
-              v-if="expanded"
-              key="0"
-            >
-            <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
-              <QRCode
-                :value="qrValue"
-                :size="280"
-                :margin="2"
-                level="M"
-                render-as="svg"
-              />
-            </div>
-          </span>
-        </v-fade-transition>
-        </template>
-        </v-expansion-panel>
-      </v-expansion-panels>
+             <v-expansion-panels>
+         <v-expansion-panel>
+           <v-expansion-panel-title>
+             <template v-slot:default="{ expanded }">
+               <div class="d-flex align-center">
+                 <span class="text-h6">Click here if on desktop</span>
+                 <v-spacer></v-spacer>
+                 <span class="text-caption text-medium-emphasis">
+                   Scan the QR code to begin verification. You can also use this to download the Self app.
+                 </span>
+               </div>
+             </template>
+           </v-expansion-panel-title>
+           <v-expansion-panel-text>
+             <v-fade-transition leave-absolute>
+               <span
+                 v-if="expanded"
+                 key="0"
+               >
+                 <div class="qr-container" v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE">
+                   <QRCode
+                     :value="qrValue"
+                     :size="280"
+                     :margin="2"
+                     level="M"
+                     render-as="svg"
+                   />
+                 </div>
+               </span>
+             </v-fade-transition>
+           </v-expansion-panel-text>
+         </v-expansion-panel>
+       </v-expansion-panels>
 
       <br>
 
