@@ -142,18 +142,8 @@ onUnmounted(() => {
                        <v-expansion-panel-title>
               <template v-slot:default="{ expanded }">
                 <div class="d-flex align-center">
-                  <span class="text-h6">Click here if on desktop</span>
-                  <v-spacer></v-spacer>
-                  <span class="text-caption text-medium-emphasis">
-                    <v-fade-transition leave-absolute>
-                      <span v-if="expanded">
-                        Scan the QR code to begin verification. You can also use this to download the Self app.
-                      </span>
-                      <span v-else>
-                        Click to expand and see QR code
-                      </span>
-                    </v-fade-transition>
-                  </span>
+                  <span v-if="expanded" class="text-h6">Click here if on desktop</span>
+                  <span v-else class="text-h6">Scan the QR code to begin verification. You can also use this to download the Self app.</span>
                 </div>
               </template>
             </v-expansion-panel-title>
@@ -209,7 +199,7 @@ onUnmounted(() => {
           Verification successful!
         </div>
       </div> -->
-
+      <br>
 
       <div class="status-container">
         <div v-if="proofStep === QRCodeSteps.WAITING_FOR_MOBILE" class="status pending">
