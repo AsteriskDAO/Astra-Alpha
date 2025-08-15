@@ -162,7 +162,7 @@ onUnmounted(() => {
        </v-expansion-panels>
 
       <br>
-      <img width="100" src="../assets/pink-arrow.png" alt="arrow" class="arrow-img">
+      <img width="250" src="../assets/pink-arrow.png" alt="arrow" class="arrow-img">
       <br>
 
       <div class="description">
