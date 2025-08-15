@@ -149,10 +149,10 @@ async function handleFailure(job) {
   if (job.attemptsMade >= job.opts.attempts - 1) {
     if (type === QUEUE_TYPES.CHECKIN) {
       // Rollback check-in
-      const user = await User.findOne({ user_hash })
-      if (user) {
-        await user.rollbackCheckIn()
-      }
+      // const user = await User.findOne({ user_hash })
+      // if (user) {
+      //   await user.rollbackCheckIn()
+      // }
 
       // Send failure message
       // await sendTelegramMessage(
