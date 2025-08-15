@@ -129,7 +129,7 @@ uploadQueue.process(1, async (job) => {
       ? '✅ Your check-in has been successfully recorded and processed!'
       : '✅ Your health profile has been successfully updated and processed!'
     
-    await sendTelegramMessage(telegramId, successMsg)
+    // await sendTelegramMessage(telegramId, successMsg)
     job.moveToCompleted()
     return results
 
@@ -155,16 +155,16 @@ async function handleFailure(job) {
       }
 
       // Send failure message
-      await sendTelegramMessage(
-        telegramId, 
-        '❌ Sorry, there was an issue processing your check-in. Please try checking in again.'
-      )
+      // await sendTelegramMessage(
+      //   telegramId, 
+      //   '❌ Sorry, there was an issue processing your check-in. Please try checking in again.'
+      // )
     } else {
       // For health data, just notify of sync issue
-      await sendTelegramMessage(
-        telegramId,
-        '⚠️ Your health profile was saved but there was an issue syncing it. Please try updating it again.'
-      )
+      // await sendTelegramMessage(
+      //   telegramId,
+      //   '⚠️ Your health profile was saved but there was an issue syncing it. Please try updating it again.'
+      // )
     }
     job.moveToFailed({
       message: 'Upload failed',
