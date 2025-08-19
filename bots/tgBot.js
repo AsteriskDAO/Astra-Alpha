@@ -34,6 +34,12 @@ const COMMUNITY_URL = "https://t.me/+4WUgyZr9a0s1ZDAx";
 const NOTIFICATION_TIME = '0 16 * * *'; // 1600 UTC daily
 const BATCH_SIZE = 100; // Process users in batches
 
+const checkInMessages = [
+  "👋 Time for your check-in. How are you feeling today? \n\nType /checkin to start.",
+  "💭 Take a moment to think about your health. Check-in with Astra, now. \n\nType /checkin to start.",
+  "💚 Astra needs to know how you are to help you with your health. Time to check in. \n\nType /checkin to start.",
+]
+
 async function setupBot() {
   try {
     // Initialize bot instance
@@ -144,18 +150,21 @@ async function setupBot() {
                             const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
                             if (lastCheckIn < oneWeekAgo) {
                               await bot.api.sendMessage(notification.user_id, "👋 It's been a while since your last check-in. Did you know that you can be rewarded for daily check-ins? \n\nType /checkin to start.");
+                              // Update last sent time and continue
+                              notification.last_sent = new Date();
+                              await notification.save();
+                              processed++;
                               return;
                             }
-                          } else {
-
-                            // Send notification with exponential backoff retry
-                            await retryWithBackoff(async () => {
-                                await bot.api.sendMessage(
-                                    notification.user_id,
-                                    "👋 Time for your check-in. How are you feeling today? \n\nType /checkin to start."
-                                );
-                            });
                           }
+
+                          // Send regular notification for users who checked in within a week or never checked in
+                          await retryWithBackoff(async () => {
+                              await bot.api.sendMessage(
+                                  notification.user_id,
+                                  checkInMessages[Math.floor(Math.random() * checkInMessages.length)]
+                              );
+                          });
 
                           // Update last sent time
                           notification.last_sent = new Date();
