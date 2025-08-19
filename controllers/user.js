@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const HealthData = require('../models/healthData')
 const Notification = require('../models/notification')
+const DataUnion = require('../models/dataUnion')
 const akave = require('../services/akave')
 const cache = require('../services/cache')
 const { addToQueue, QUEUE_TYPES } = require('../services/queue')
@@ -301,6 +302,84 @@ class UserController {
       return res.status(200).json({ success: true })
     } else {
       return res.status(400).json({ error: 'Invalid voucher code' })
+    }
+  }
+
+  // Admin method to get sync statistics
+  async getSyncStats(req, res) {
+    try {
+      const totalRecords = await DataUnion.countDocuments()
+      const akaveSuccess = await DataUnion.countDocuments({ 'partners.akave.is_synced': true })
+      const vanaSuccess = await DataUnion.countDocuments({ 'partners.vana.is_synced': true })
+      const akaveFailed = await DataUnion.countDocuments({ 'partners.akave.is_synced': false })
+      const vanaFailed = await DataUnion.countDocuments({ 'partners.vana.is_synced': false })
+      
+      const stats = {
+        total: totalRecords,
+        akave: { 
+          success: akaveSuccess, 
+          failed: akaveFailed, 
+          successRate: totalRecords > 0 ? Math.round((akaveSuccess / totalRecords) * 100) : 0 
+        },
+        vana: { 
+          success: vanaSuccess, 
+          failed: vanaFailed, 
+          successRate: totalRecords > 0 ? Math.round((vanaSuccess / totalRecords) * 100) : 0 
+        }
+      }
+      
+      res.json(stats)
+    } catch (error) {
+      console.error('Failed to get sync stats:', error)
+      res.status(500).json({ error: 'Failed to get sync stats' })
+    }
+  }
+
+  // Admin method to retry failed syncs
+  async retryFailedSyncs(req, res) {
+    try {
+      const { partner, dataType } = req.body
+      
+      if (!partner || !['akave', 'vana'].includes(partner)) {
+        return res.status(400).json({ error: 'Invalid partner. Must be "akave" or "vana"' })
+      }
+      
+      const failedSyncs = await DataUnion.findFailedSyncs(partner, dataType)
+      let retryCount = 0
+      
+      for (const failedSync of failedSyncs) {
+        try {
+          // Find the original data to retry
+          let originalData
+          if (failedSync.data_type === 'checkin') {
+            originalData = await CheckIn.findOne({ checkinId: failedSync.data_id })
+          } else {
+            originalData = await HealthData.findOne({ healthDataId: failedSync.data_id })
+          }
+          
+          if (originalData) {
+            // Add back to queue for retry
+            await addToQueue(
+              failedSync.data_type === 'checkin' ? QUEUE_TYPES.CHECKIN : QUEUE_TYPES.HEALTH,
+              originalData,
+              null, // We don't have telegramId here, but the queue can handle it
+              failedSync.user_hash
+            )
+            retryCount++
+          }
+        } catch (retryError) {
+          console.error(`Failed to retry sync for ${failedSync.data_id}:`, retryError)
+        }
+      }
+      
+      res.json({ 
+        message: `Added ${retryCount} failed syncs back to queue for retry`,
+        totalFailed: failedSyncs.length,
+        retryCount
+      })
+    } catch (error) {
+      console.error('Failed to retry failed syncs:', error)
+      res.status(500).json({ error: 'Failed to retry failed syncs' })
     }
   }
 }

@@ -47,4 +47,8 @@ router.post('/submit-voucher-code',
   userController.submitVoucherCode
 )
 
+// Admin endpoints for sync management
+router.get('/admin/sync-stats', userController.getSyncStats)
+router.post('/admin/retry-failed-syncs', userController.retryFailedSyncs)
+
 module.exports = router 

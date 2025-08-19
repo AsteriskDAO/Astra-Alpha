@@ -11,8 +11,8 @@ class CheckInController {
     try {
       const { user_hash } = req.params
 
-      // Create check-in in MongoDB
-      const checkIn = await CheckIn.create({
+      // Create check-in in MongoDB with auto-generated checkin_id
+      const checkIn = await CheckIn.createCheckIn({
         user_hash,
         ...req.body
       })
