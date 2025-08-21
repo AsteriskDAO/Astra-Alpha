@@ -344,37 +344,11 @@ class UserController {
         return res.status(400).json({ error: 'Invalid partner. Must be "akave" or "vana"' })
       }
       
-      const failedSyncs = await DataUnion.findFailedSyncs(partner, dataType)
-      let retryCount = 0
-      
-      for (const failedSync of failedSyncs) {
-        try {
-          // Find the original data to retry
-          let originalData
-          if (failedSync.data_type === 'checkin') {
-            originalData = await CheckIn.findOne({ checkinId: failedSync.data_id })
-          } else {
-            originalData = await HealthData.findOne({ healthDataId: failedSync.data_id })
-          }
-          
-          if (originalData) {
-            // Add back to queue for retry
-            await addToQueue(
-              failedSync.data_type === 'checkin' ? QUEUE_TYPES.CHECKIN : QUEUE_TYPES.HEALTH,
-              originalData,
-              null, // We don't have telegramId here, but the queue can handle it
-              failedSync.user_hash
-            )
-            retryCount++
-          }
-        } catch (retryError) {
-          console.error(`Failed to retry sync for ${failedSync.data_id}:`, retryError)
-        }
-      }
+      const retryCount = await require('../services/queue').retryFailedSyncs(partner, dataType)
       
       res.json({ 
         message: `Added ${retryCount} failed syncs back to queue for retry`,
-        totalFailed: failedSyncs.length,
+        totalFailed: retryCount,
         retryCount
       })
     } catch (error) {

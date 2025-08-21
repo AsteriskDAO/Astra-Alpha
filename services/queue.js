@@ -126,13 +126,20 @@ uploadQueue.process(1, async (job) => {
     // Check if we have a previous Vana upload state
     let vanaState = job.data.vanaState;
     
+    // Reconstruct buffers from hex if present in state
+    if (vanaState && vanaState.fixed_iv && vanaState.fixed_ephemeral_key) {
+		  vanaState.fixed_iv_buffer = Buffer.from(vanaState.fixed_iv, 'hex')
+		  vanaState.fixed_ephemeral_key_buffer = Buffer.from(vanaState.fixed_ephemeral_key, 'hex')
+    }
+    
     // Then upload to Vana with same signature
     const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState, job.attemptsMade);
 
     // If upload not complete or has error, store state and retry
     if (!vanaResponse?.state?.status) {
-      // console.log("vanaResponse", vanaResponse);
-      const serializedState = serializeBigInts(vanaResponse);
+      // Persist only the inner state for accurate resume (whitelisted fields, no buffers)
+      const { fileId, fixed_iv, fixed_ephemeral_key, file_registered, contribution_proof_requested, jobDetails, tee_proof_submitted, data_refined, reward_claimed } = vanaResponse.state || {};
+      const serializedState = { fileId, fixed_iv, fixed_ephemeral_key, file_registered, contribution_proof_requested, jobDetails, tee_proof_submitted, data_refined, reward_claimed };
       job.data.vanaState = serializedState;
       await job.update(job.data);
       
@@ -224,60 +231,74 @@ async function handleFailure(job, dataUnionRecord) {
 }
 
 // Add to queue
-async function addToQueue(type, data, telegramId, user_hash) {
-  return uploadQueue.add({
-    type,
-    data,
-    telegramId,
-    user_hash
-  })
+async function addToQueue(type, data, telegramId, user_hash, extraJobData = {}) {
+	return uploadQueue.add({
+		type,
+		data,
+		telegramId,
+		user_hash,
+		...extraJobData
+	})
 }
 
 // Utility function to retry failed syncs
 async function retryFailedSyncs(partner, dataType = null) {
-  const failedSyncs = await DataUnion.findFailedSyncs(partner, dataType)
-  
-  for (const failedSync of failedSyncs) {
-    // Find the original data to retry
-    let originalData
-    if (failedSync.data_type === 'checkin') {
-      originalData = await CheckIn.findOne({ checkinId: failedSync.data_id })
-    } else {
-      originalData = await HealthData.findOne({ healthDataId: failedSync.data_id })
-    }
-    
-    if (originalData) {
-      // Add back to queue for retry
-      await addToQueue(
-        failedSync.data_type === 'checkin' ? QUEUE_TYPES.CHECKIN : QUEUE_TYPES.HEALTH,
-        originalData,
-        null, // We don't have telegramId here, but the queue can handle it
-        failedSync.user_hash
-      )
-    }
-  }
-  
-  return failedSyncs.length
+	const failedSyncs = await DataUnion.findFailedSyncs(partner, dataType)
+	
+	for (const failedSync of failedSyncs) {
+		// Find the original data to retry
+		let originalData
+		if (failedSync.data_type === 'checkin') {
+			originalData = await CheckIn.findOne({ checkinId: failedSync.data_id })
+		} else {
+			originalData = await HealthData.findOne({ healthDataId: failedSync.data_id })
+		}
+		
+		if (originalData) {
+			// Build extras from stored retry data so the job can resume
+			const extras = {}
+			const akaveRetry = failedSync.partners?.akave?.retry_data || null
+			const vanaRetry = failedSync.partners?.vana?.retry_data || null
+			if (akaveRetry) {
+				if (akaveRetry.o3Response) extras.o3Response = akaveRetry.o3Response
+				if (akaveRetry.signature) extras.signature = akaveRetry.signature
+			}
+			if (vanaRetry && vanaRetry.vanaState) {
+				extras.vanaState = vanaRetry.vanaState
+			}
+			
+			// Add back to queue for retry with extras
+			await addToQueue(
+				failedSync.data_type === 'checkin' ? QUEUE_TYPES.CHECKIN : QUEUE_TYPES.HEALTH,
+				originalData,
+				null, // We don't have telegramId here, but the queue can handle it
+				failedSync.user_hash,
+				extras
+			)
+		}
+	}
+	
+	return failedSyncs.length
 }
 
 // Utility function to get sync statistics
 async function getSyncStats() {
-  const totalRecords = await DataUnion.countDocuments()
-  const akaveSuccess = await DataUnion.countDocuments({ 'partners.akave.is_synced': true })
-  const vanaSuccess = await DataUnion.countDocuments({ 'partners.vana.is_synced': true })
-  const akaveFailed = await DataUnion.countDocuments({ 'partners.akave.is_synced': false })
-  const vanaFailed = await DataUnion.countDocuments({ 'partners.vana.is_synced': false })
-  
-  return {
-    total: totalRecords,
-    akave: { success: akaveSuccess, failed: akaveFailed, successRate: totalRecords > 0 ? (akaveSuccess / totalRecords) * 100 : 0 },
-    vana: { success: vanaSuccess, failed: vanaFailed, successRate: totalRecords > 0 ? (vanaSuccess / totalRecords) * 100 : 0 }
-  }
+	const totalRecords = await DataUnion.countDocuments()
+	const akaveSuccess = await DataUnion.countDocuments({ 'partners.akave.is_synced': true })
+	const vanaSuccess = await DataUnion.countDocuments({ 'partners.vana.is_synced': true })
+	const akaveFailed = await DataUnion.countDocuments({ 'partners.akave.is_synced': false })
+	const vanaFailed = await DataUnion.countDocuments({ 'partners.vana.is_synced': false })
+	
+	return {
+		total: totalRecords,
+		akave: { success: akaveSuccess, failed: akaveFailed, successRate: totalRecords > 0 ? (akaveSuccess / totalRecords) * 100 : 0 },
+		vana: { success: vanaSuccess, failed: vanaFailed, successRate: totalRecords > 0 ? (vanaSuccess / totalRecords) * 100 : 0 }
+	}
 }
 
 module.exports = {
-  addToQueue,
-  QUEUE_TYPES,
-  retryFailedSyncs,
-  getSyncStats
+	addToQueue,
+	QUEUE_TYPES,
+	retryFailedSyncs,
+	getSyncStats
 } 

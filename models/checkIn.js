@@ -9,7 +9,7 @@ const checkInSchema = new mongoose.Schema({
   health_comment: String,
   doctor_visit: Boolean,
   health_profile_update: Boolean,
-  anxiety_level: String,
+  anxiety_level: Number,
   anxiety_details: String,
   pain_level: Number,
   pain_details: String,
@@ -19,7 +19,6 @@ const checkInSchema = new mongoose.Schema({
 
 // Index for faster lookups by user and date
 checkInSchema.index({ user_hash: 1, timestamp: -1 })
-checkInSchema.index({ checkinId: 1 }, { unique: true })
 
 // Static method to generate unique checkinId
 checkInSchema.statics.generateCheckinId = function() {

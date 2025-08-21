@@ -157,3 +157,12 @@
 {"level":"info","message":"Bot commands and handlers set up successfully","timestamp":"2025-06-20T23:15:14.631Z"}
 {"level":"info","message":"Bot setup completed (leader election disabled)","timestamp":"2025-06-20T23:15:14.632Z"}
 {"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-06-20T23:15:14.640Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T10:03:58.292Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T10:03:58.297Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-08-21T10:03:58.305Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T10:05:53.375Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T10:05:53.382Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-08-21T10:05:53.391Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T10:08:01.706Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T10:08:01.711Z"}
+{"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-08-21T10:08:01.716Z"}
