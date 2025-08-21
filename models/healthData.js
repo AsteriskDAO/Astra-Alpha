@@ -34,7 +34,7 @@ const profileSchema = new mongoose.Schema({
 // })
 
 const healthDataSchema = new mongoose.Schema({
-  healthDataId: { type: String, required: true },
+  healthDataId: { type: String, required: true, unique: true },
   user_hash: { type: String, required: true },
   research_opt_in: { type: Boolean, default: false },
   profile: profileSchema,
