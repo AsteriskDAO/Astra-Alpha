@@ -166,3 +166,305 @@
 {"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T10:08:01.706Z"}
 {"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T10:08:01.711Z"}
 {"level":"info","message":"Server started in development mode on port 3000","timestamp":"2025-08-21T10:08:01.716Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-08-21T14:47:28.992Z"}
+{"level":"info","message":"Found 0 documents to migrate","timestamp":"2025-08-21T14:47:29.127Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-08-21T14:48:56.779Z"}
+{"level":"info","message":"Found 42 documents to migrate","timestamp":"2025-08-21T14:48:56.827Z"}
+{"level":"info","message":"Adding checkinId to document 685689bde5a87e7dc12e90ca: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-21T14:48:56.828Z"}
+{"level":"info","message":"Converting anxiety_level for document 685689bde5a87e7dc12e90ca: \"3\" -> 3","timestamp":"2025-08-21T14:48:56.829Z"}
+{"level":"info","message":"Adding checkinId to document 6856b0ebe5a87e7dc12e90ee: checkin_1755787736861_f0f33b164c2e3456","timestamp":"2025-08-21T14:48:56.861Z"}
+{"level":"info","message":"Converting anxiety_level for document 6856b0ebe5a87e7dc12e90ee: \"1\" -> 1","timestamp":"2025-08-21T14:48:56.863Z"}
+{"level":"info","message":"Adding checkinId to document 6856b703e5a87e7dc12e911e: checkin_1755787736884_a0c8626c296cf1e7","timestamp":"2025-08-21T14:48:56.885Z"}
+{"level":"info","message":"Converting anxiety_level for document 6856b703e5a87e7dc12e911e: \"1\" -> 1","timestamp":"2025-08-21T14:48:56.885Z"}
+{"level":"info","message":"Adding checkinId to document 6857e249e5a87e7dc12e9151: checkin_1755787736906_667b6fcb733795ec","timestamp":"2025-08-21T14:48:56.906Z"}
+{"level":"info","message":"Converting anxiety_level for document 6857e249e5a87e7dc12e9151: \"3\" -> 3","timestamp":"2025-08-21T14:48:56.907Z"}
+{"level":"info","message":"Adding checkinId to document 685924eee5a87e7dc12e9176: checkin_1755787736927_c9781a87b5c4d0f7","timestamp":"2025-08-21T14:48:56.927Z"}
+{"level":"info","message":"Converting anxiety_level for document 685924eee5a87e7dc12e9176: \"1\" -> 1","timestamp":"2025-08-21T14:48:56.928Z"}
+{"level":"info","message":"Adding checkinId to document 68592ea9e5a87e7dc12e91b3: checkin_1755787736954_7c1182af1a8636d4","timestamp":"2025-08-21T14:48:56.954Z"}
+{"level":"info","message":"Converting anxiety_level for document 68592ea9e5a87e7dc12e91b3: \"2\" -> 2","timestamp":"2025-08-21T14:48:56.954Z"}
+{"level":"info","message":"Adding checkinId to document 685a77ade5a87e7dc12e920d: checkin_1755787736974_03b0d6cf26a017fe","timestamp":"2025-08-21T14:48:56.974Z"}
+{"level":"info","message":"Converting anxiety_level for document 685a77ade5a87e7dc12e920d: \"5\" -> 5","timestamp":"2025-08-21T14:48:56.975Z"}
+{"level":"info","message":"Adding checkinId to document 685a78e7e5a87e7dc12e923f: checkin_1755787736996_bbc2ab8d5bea589c","timestamp":"2025-08-21T14:48:56.996Z"}
+{"level":"info","message":"Converting anxiety_level for document 685a78e7e5a87e7dc12e923f: \"1\" -> 1","timestamp":"2025-08-21T14:48:56.997Z"}
+{"level":"info","message":"Adding checkinId to document 685bddede5a87e7dc12e9288: checkin_1755787737017_24d994cbc6a8a201","timestamp":"2025-08-21T14:48:57.017Z"}
+{"level":"info","message":"Converting anxiety_level for document 685bddede5a87e7dc12e9288: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.018Z"}
+{"level":"info","message":"Adding checkinId to document 685bf201e5a87e7dc12e92b7: checkin_1755787737042_3afd45ab6a1556dc","timestamp":"2025-08-21T14:48:57.042Z"}
+{"level":"info","message":"Converting anxiety_level for document 685bf201e5a87e7dc12e92b7: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.043Z"}
+{"level":"info","message":"Adding checkinId to document 685d6942e5a87e7dc12e9300: checkin_1755787737067_f12a5c3f78ad7402","timestamp":"2025-08-21T14:48:57.067Z"}
+{"level":"info","message":"Converting anxiety_level for document 685d6942e5a87e7dc12e9300: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.067Z"}
+{"level":"info","message":"Adding checkinId to document 685e71dae5a87e7dc12e9349: checkin_1755787737088_56c100917a56484e","timestamp":"2025-08-21T14:48:57.088Z"}
+{"level":"info","message":"Converting anxiety_level for document 685e71dae5a87e7dc12e9349: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.089Z"}
+{"level":"info","message":"Adding checkinId to document 685e73f0e5a87e7dc12e937c: checkin_1755787737122_e3d3a10b05b8d1df","timestamp":"2025-08-21T14:48:57.122Z"}
+{"level":"info","message":"Converting anxiety_level for document 685e73f0e5a87e7dc12e937c: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.122Z"}
+{"level":"info","message":"Adding checkinId to document 68627457af40594653ce8d20: checkin_1755787737140_f10587bc1a2a52ac","timestamp":"2025-08-21T14:48:57.140Z"}
+{"level":"info","message":"Converting anxiety_level for document 68627457af40594653ce8d20: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.141Z"}
+{"level":"info","message":"Adding checkinId to document 6862ecd0af40594653ce8d56: checkin_1755787737165_5747bc5daf9bc0a9","timestamp":"2025-08-21T14:48:57.165Z"}
+{"level":"info","message":"Converting anxiety_level for document 6862ecd0af40594653ce8d56: \"4\" -> 4","timestamp":"2025-08-21T14:48:57.165Z"}
+{"level":"info","message":"Adding checkinId to document 6865425baf40594653ce8dce: checkin_1755787737186_23c7423f3d1c75ac","timestamp":"2025-08-21T14:48:57.186Z"}
+{"level":"info","message":"Converting anxiety_level for document 6865425baf40594653ce8dce: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.186Z"}
+{"level":"info","message":"Adding checkinId to document 68656dc0af40594653ce8e09: checkin_1755787737210_58ca834a4ffac286","timestamp":"2025-08-21T14:48:57.210Z"}
+{"level":"info","message":"Converting anxiety_level for document 68656dc0af40594653ce8e09: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.211Z"}
+{"level":"info","message":"Adding checkinId to document 6866a4ae69765eda672aaa20: checkin_1755787737230_9341049ab526f2a0","timestamp":"2025-08-21T14:48:57.230Z"}
+{"level":"info","message":"Converting anxiety_level for document 6866a4ae69765eda672aaa20: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.231Z"}
+{"level":"info","message":"Adding checkinId to document 6867a6f369765eda672aaa6e: checkin_1755787737250_7d4307c49a70f4df","timestamp":"2025-08-21T14:48:57.250Z"}
+{"level":"info","message":"Converting anxiety_level for document 6867a6f369765eda672aaa6e: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.250Z"}
+{"level":"info","message":"Adding checkinId to document 68691fdc69765eda672aaace: checkin_1755787737269_5fd00285a4009acf","timestamp":"2025-08-21T14:48:57.269Z"}
+{"level":"info","message":"Converting anxiety_level for document 68691fdc69765eda672aaace: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.269Z"}
+{"level":"info","message":"Adding checkinId to document 686a62f769765eda672aab2d: checkin_1755787737289_37fc436e6047353d","timestamp":"2025-08-21T14:48:57.289Z"}
+{"level":"info","message":"Converting anxiety_level for document 686a62f769765eda672aab2d: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.289Z"}
+{"level":"info","message":"Adding checkinId to document 686bffa869765eda672aabba: checkin_1755787737308_3e9fa979f66cea11","timestamp":"2025-08-21T14:48:57.309Z"}
+{"level":"info","message":"Converting anxiety_level for document 686bffa869765eda672aabba: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.309Z"}
+{"level":"info","message":"Adding checkinId to document 686d6d91e4680917c527152f: checkin_1755787737329_0f0fa5785d659265","timestamp":"2025-08-21T14:48:57.329Z"}
+{"level":"info","message":"Converting anxiety_level for document 686d6d91e4680917c527152f: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.329Z"}
+{"level":"info","message":"Adding checkinId to document 686f9118e5d0c3edfbb2a1de: checkin_1755787737348_7c7da93484426246","timestamp":"2025-08-21T14:48:57.348Z"}
+{"level":"info","message":"Converting anxiety_level for document 686f9118e5d0c3edfbb2a1de: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.348Z"}
+{"level":"info","message":"Adding checkinId to document 686fcac7d79315a2d4418395: checkin_1755787737367_8172e9bea7d7b676","timestamp":"2025-08-21T14:48:57.367Z"}
+{"level":"info","message":"Converting anxiety_level for document 686fcac7d79315a2d4418395: \"4\" -> 4","timestamp":"2025-08-21T14:48:57.368Z"}
+{"level":"info","message":"Adding checkinId to document 687645e7d79315a2d4418485: checkin_1755787737386_5a3e45116a3b64ec","timestamp":"2025-08-21T14:48:57.386Z"}
+{"level":"info","message":"Converting anxiety_level for document 687645e7d79315a2d4418485: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.387Z"}
+{"level":"info","message":"Adding checkinId to document 687a2924af321dcf3bbf40d9: checkin_1755787737405_8f5ab32724071ccc","timestamp":"2025-08-21T14:48:57.405Z"}
+{"level":"info","message":"Converting anxiety_level for document 687a2924af321dcf3bbf40d9: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.406Z"}
+{"level":"info","message":"Adding checkinId to document 687a3234af321dcf3bbf411f: checkin_1755787737426_09176c6b9757e9a4","timestamp":"2025-08-21T14:48:57.426Z"}
+{"level":"info","message":"Converting anxiety_level for document 687a3234af321dcf3bbf411f: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.426Z"}
+{"level":"info","message":"Adding checkinId to document 687cac87af321dcf3bbf416b: checkin_1755787737445_55aed5f1c1ea5f7c","timestamp":"2025-08-21T14:48:57.445Z"}
+{"level":"info","message":"Converting anxiety_level for document 687cac87af321dcf3bbf416b: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.446Z"}
+{"level":"info","message":"Adding checkinId to document 687e19f3af321dcf3bbf4224: checkin_1755787737466_e24ff55061718d3f","timestamp":"2025-08-21T14:48:57.466Z"}
+{"level":"info","message":"Converting anxiety_level for document 687e19f3af321dcf3bbf4224: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.466Z"}
+{"level":"info","message":"Adding checkinId to document 687f69bbaf321dcf3bbf4299: checkin_1755787737486_35353d517bd7b88d","timestamp":"2025-08-21T14:48:57.486Z"}
+{"level":"info","message":"Converting anxiety_level for document 687f69bbaf321dcf3bbf4299: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.487Z"}
+{"level":"info","message":"Adding checkinId to document 687f980eaf321dcf3bbf42be: checkin_1755787737509_7cd6d91698016c7e","timestamp":"2025-08-21T14:48:57.509Z"}
+{"level":"info","message":"Converting anxiety_level for document 687f980eaf321dcf3bbf42be: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.510Z"}
+{"level":"info","message":"Adding checkinId to document 688362c87133b7996ec0d576: checkin_1755787737531_853c1297d50ce420","timestamp":"2025-08-21T14:48:57.531Z"}
+{"level":"info","message":"Converting anxiety_level for document 688362c87133b7996ec0d576: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.532Z"}
+{"level":"info","message":"Adding checkinId to document 688cb6bb7133b7996ec0d6b7: checkin_1755787737551_9cf904b954637056","timestamp":"2025-08-21T14:48:57.551Z"}
+{"level":"info","message":"Converting anxiety_level for document 688cb6bb7133b7996ec0d6b7: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.551Z"}
+{"level":"info","message":"Adding checkinId to document 688e61727133b7996ec0d721: checkin_1755787737571_c93397c110ea8b62","timestamp":"2025-08-21T14:48:57.571Z"}
+{"level":"info","message":"Converting anxiety_level for document 688e61727133b7996ec0d721: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.571Z"}
+{"level":"info","message":"Adding checkinId to document 6890c134c2571f39e5736e27: checkin_1755787737590_451db9f5231c6697","timestamp":"2025-08-21T14:48:57.590Z"}
+{"level":"info","message":"Converting anxiety_level for document 6890c134c2571f39e5736e27: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.591Z"}
+{"level":"info","message":"Adding checkinId to document 6891f566c2571f39e5736e95: checkin_1755787737610_800bae32c9c8f364","timestamp":"2025-08-21T14:48:57.610Z"}
+{"level":"info","message":"Converting anxiety_level for document 6891f566c2571f39e5736e95: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.611Z"}
+{"level":"info","message":"Adding checkinId to document 689a1d97351e1a31b8aab6e6: checkin_1755787737631_96431ad314a23ad6","timestamp":"2025-08-21T14:48:57.631Z"}
+{"level":"info","message":"Converting anxiety_level for document 689a1d97351e1a31b8aab6e6: \"4\" -> 4","timestamp":"2025-08-21T14:48:57.632Z"}
+{"level":"info","message":"Adding checkinId to document 689b66c01e7c67f334846a79: checkin_1755787737651_0714f11e96563a07","timestamp":"2025-08-21T14:48:57.651Z"}
+{"level":"info","message":"Converting anxiety_level for document 689b66c01e7c67f334846a79: \"3\" -> 3","timestamp":"2025-08-21T14:48:57.651Z"}
+{"level":"info","message":"Adding checkinId to document 68a2fdfb9614774fe791e370: checkin_1755787737670_59e77609f0bf42cc","timestamp":"2025-08-21T14:48:57.670Z"}
+{"level":"info","message":"Converting anxiety_level for document 68a2fdfb9614774fe791e370: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.671Z"}
+{"level":"info","message":"Adding checkinId to document 68a345e39614774fe791e3ab: checkin_1755787737690_1178ce55365739ff","timestamp":"2025-08-21T14:48:57.690Z"}
+{"level":"info","message":"Converting anxiety_level for document 68a345e39614774fe791e3ab: \"1\" -> 1","timestamp":"2025-08-21T14:48:57.691Z"}
+{"level":"info","message":"Adding checkinId to document 68a4ab7bd4e712294b870fce: checkin_1755787737711_d7ff35a539a2433c","timestamp":"2025-08-21T14:48:57.711Z"}
+{"level":"info","message":"Converting anxiety_level for document 68a4ab7bd4e712294b870fce: \"2\" -> 2","timestamp":"2025-08-21T14:48:57.711Z"}
+{"level":"info","message":"Migration completed successfully!","timestamp":"2025-08-21T14:48:57.729Z"}
+{"level":"info","message":"Updated: 42 documents","timestamp":"2025-08-21T14:48:57.730Z"}
+{"level":"info","message":"Errors: 0 documents","timestamp":"2025-08-21T14:48:57.730Z"}
+{"level":"info","message":"Verifying migration...","timestamp":"2025-08-21T14:48:57.730Z"}
+{"level":"info","message":"Document 685689bde5a87e7dc12e90ca:","timestamp":"2025-08-21T14:48:57.748Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-08-21T14:49:09.802Z"}
+{"level":"info","message":"Found 42 existing check-ins","timestamp":"2025-08-21T14:49:09.892Z"}
+{"level":"info","message":"Found 0 existing health data records","timestamp":"2025-08-21T14:49:09.892Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-21T14:49:10.127Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736861_f0f33b164c2e3456","timestamp":"2025-08-21T14:49:10.184Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736884_a0c8626c296cf1e7","timestamp":"2025-08-21T14:49:10.240Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736906_667b6fcb733795ec","timestamp":"2025-08-21T14:49:10.295Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736927_c9781a87b5c4d0f7","timestamp":"2025-08-21T14:49:10.350Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736954_7c1182af1a8636d4","timestamp":"2025-08-21T14:49:10.412Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736974_03b0d6cf26a017fe","timestamp":"2025-08-21T14:49:10.466Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787736996_bbc2ab8d5bea589c","timestamp":"2025-08-21T14:49:10.519Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737017_24d994cbc6a8a201","timestamp":"2025-08-21T14:49:10.577Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737042_3afd45ab6a1556dc","timestamp":"2025-08-21T14:49:10.632Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737067_f12a5c3f78ad7402","timestamp":"2025-08-21T14:49:10.688Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737088_56c100917a56484e","timestamp":"2025-08-21T14:49:10.753Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737122_e3d3a10b05b8d1df","timestamp":"2025-08-21T14:49:10.808Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737140_f10587bc1a2a52ac","timestamp":"2025-08-21T14:49:10.861Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737165_5747bc5daf9bc0a9","timestamp":"2025-08-21T14:49:10.923Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737186_23c7423f3d1c75ac","timestamp":"2025-08-21T14:49:10.977Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737210_58ca834a4ffac286","timestamp":"2025-08-21T14:49:11.029Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737230_9341049ab526f2a0","timestamp":"2025-08-21T14:49:11.082Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737250_7d4307c49a70f4df","timestamp":"2025-08-21T14:49:11.135Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737269_5fd00285a4009acf","timestamp":"2025-08-21T14:49:11.189Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737289_37fc436e6047353d","timestamp":"2025-08-21T14:49:11.260Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737308_3e9fa979f66cea11","timestamp":"2025-08-21T14:49:11.312Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737329_0f0fa5785d659265","timestamp":"2025-08-21T14:49:11.365Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737348_7c7da93484426246","timestamp":"2025-08-21T14:49:11.419Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737367_8172e9bea7d7b676","timestamp":"2025-08-21T14:49:11.471Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737386_5a3e45116a3b64ec","timestamp":"2025-08-21T14:49:11.524Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737405_8f5ab32724071ccc","timestamp":"2025-08-21T14:49:11.576Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737426_09176c6b9757e9a4","timestamp":"2025-08-21T14:49:11.636Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737445_55aed5f1c1ea5f7c","timestamp":"2025-08-21T14:49:11.690Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737466_e24ff55061718d3f","timestamp":"2025-08-21T14:49:11.753Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737486_35353d517bd7b88d","timestamp":"2025-08-21T14:49:11.816Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737509_7cd6d91698016c7e","timestamp":"2025-08-21T14:49:11.884Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737531_853c1297d50ce420","timestamp":"2025-08-21T14:49:11.942Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737551_9cf904b954637056","timestamp":"2025-08-21T14:49:11.995Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737571_c93397c110ea8b62","timestamp":"2025-08-21T14:49:12.047Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737590_451db9f5231c6697","timestamp":"2025-08-21T14:49:12.100Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737610_800bae32c9c8f364","timestamp":"2025-08-21T14:49:12.153Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737631_96431ad314a23ad6","timestamp":"2025-08-21T14:49:12.210Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737651_0714f11e96563a07","timestamp":"2025-08-21T14:49:12.263Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737670_59e77609f0bf42cc","timestamp":"2025-08-21T14:49:12.316Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737690_1178ce55365739ff","timestamp":"2025-08-21T14:49:12.369Z"}
+{"level":"info","message":"Created DataUnion for check-in checkin_1755787737711_d7ff35a539a2433c","timestamp":"2025-08-21T14:49:12.421Z"}
+{"level":"info","message":"DataUnion migration completed successfully!","timestamp":"2025-08-21T14:49:12.421Z"}
+{"level":"info","message":"Check-in DataUnion records created: 42","timestamp":"2025-08-21T14:49:12.421Z"}
+{"level":"info","message":"Health data DataUnion records created: 0","timestamp":"2025-08-21T14:49:12.422Z"}
+{"level":"info","message":"Errors: 0","timestamp":"2025-08-21T14:49:12.422Z"}
+{"level":"info","message":"Verifying migration...","timestamp":"2025-08-21T14:49:12.422Z"}
+{"level":"info","message":"Total DataUnion records: 46","timestamp":"2025-08-21T14:49:12.491Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-08-21T14:53:27.217Z"}
+{"level":"info","message":"Found 42 existing check-ins","timestamp":"2025-08-21T14:53:27.323Z"}
+{"level":"info","message":"Found 28 existing health data records","timestamp":"2025-08-21T14:53:27.324Z"}
+{"level":"info","message":"Created DataUnion for health data 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-21T14:53:27.459Z"}
+{"level":"info","message":"Created DataUnion for health data e5f5bf88-14e9-47ab-abfb-2bdbf27f4e75","timestamp":"2025-08-21T14:53:27.532Z"}
+{"level":"info","message":"Created DataUnion for health data cea7bb52-8bb1-4505-b87b-d16a902a18d3","timestamp":"2025-08-21T14:53:27.604Z"}
+{"level":"info","message":"Created DataUnion for health data bbb2dbdc-2171-4e0c-bacd-bc40ca6f48e3","timestamp":"2025-08-21T14:53:27.673Z"}
+{"level":"info","message":"Created DataUnion for health data 5388ff86-1ab0-4dcb-8645-fdd2fd5c30ee","timestamp":"2025-08-21T14:53:27.737Z"}
+{"level":"info","message":"Created DataUnion for health data bc2d2584-e65b-4a20-8cfe-a56d21c0f931","timestamp":"2025-08-21T14:53:27.803Z"}
+{"level":"info","message":"Created DataUnion for health data f36ec656-8f5d-4683-8087-7091d0c9110d","timestamp":"2025-08-21T14:53:27.867Z"}
+{"level":"info","message":"Created DataUnion for health data b63ef883-6c4a-4674-be9b-cd6cba00db68","timestamp":"2025-08-21T14:53:27.929Z"}
+{"level":"info","message":"Created DataUnion for health data 0428b721-9a4b-4eda-be94-aa2444cfddc0","timestamp":"2025-08-21T14:53:27.993Z"}
+{"level":"info","message":"Created DataUnion for health data 5507d84d-e57e-46fb-8d42-9d701cbb12e2","timestamp":"2025-08-21T14:53:28.057Z"}
+{"level":"info","message":"Created DataUnion for health data 54ce1975-3558-4f1a-b833-ff18a6bf3ded","timestamp":"2025-08-21T14:53:28.118Z"}
+{"level":"info","message":"Created DataUnion for health data ff21555a-022c-43c4-aee8-787641b40fa6","timestamp":"2025-08-21T14:53:28.179Z"}
+{"level":"info","message":"Created DataUnion for health data 6cc1f211-02e4-48d2-ae8d-4f4fe7723bdb","timestamp":"2025-08-21T14:53:28.241Z"}
+{"level":"info","message":"Created DataUnion for health data 596ee115-a45a-40ad-bdab-6cd82ed5e888","timestamp":"2025-08-21T14:53:28.301Z"}
+{"level":"info","message":"Created DataUnion for health data 36c814f8-5dad-49f8-9b38-bc3313a425fe","timestamp":"2025-08-21T14:53:28.364Z"}
+{"level":"info","message":"Created DataUnion for health data 6102f2ac-8d75-4d86-abfe-0c3753bd511a","timestamp":"2025-08-21T14:53:28.430Z"}
+{"level":"info","message":"Created DataUnion for health data 423795e0-126e-4464-ac9f-8bcf4ce93063","timestamp":"2025-08-21T14:53:28.492Z"}
+{"level":"info","message":"Created DataUnion for health data 1ee080b9-d3a9-4784-8259-8922de600898","timestamp":"2025-08-21T14:53:28.553Z"}
+{"level":"info","message":"Created DataUnion for health data a1a9ce66-9f36-466a-a053-eef92a0404e7","timestamp":"2025-08-21T14:53:28.617Z"}
+{"level":"info","message":"Created DataUnion for health data 28de455e-b6b1-4933-9ef6-44785a17502c","timestamp":"2025-08-21T14:53:28.681Z"}
+{"level":"info","message":"Created DataUnion for health data 65c1f29b-1beb-43c6-81c4-91866298df5c","timestamp":"2025-08-21T14:53:28.742Z"}
+{"level":"info","message":"Created DataUnion for health data f8911e32-d303-4f17-98c5-bec21ed0fa5a","timestamp":"2025-08-21T14:53:28.805Z"}
+{"level":"info","message":"Created DataUnion for health data d2ea68db-7119-4968-8b1f-12c8a3b0d036","timestamp":"2025-08-21T14:53:28.867Z"}
+{"level":"info","message":"Created DataUnion for health data 554a0510-a0f3-4e43-ab67-59ae4ae77409","timestamp":"2025-08-21T14:53:28.928Z"}
+{"level":"info","message":"Created DataUnion for health data b2e1278e-2531-4794-af66-97d8a0b3f616","timestamp":"2025-08-21T14:53:28.996Z"}
+{"level":"info","message":"Created DataUnion for health data 015ef6d1-8519-454b-b95b-28d848d21a30","timestamp":"2025-08-21T14:53:29.057Z"}
+{"level":"info","message":"DataUnion already exists for health data aed2061d-406e-41e7-9d93-a63db88e7adb","timestamp":"2025-08-21T14:53:29.079Z"}
+{"level":"info","message":"DataUnion already exists for health data dc9b9bd1-a7df-46bb-aee5-c74d3cc9f9a5","timestamp":"2025-08-21T14:53:29.099Z"}
+{"level":"info","message":"DataUnion migration completed successfully!","timestamp":"2025-08-21T14:53:29.100Z"}
+{"level":"info","message":"Check-in DataUnion records created: 0","timestamp":"2025-08-21T14:53:29.100Z"}
+{"level":"info","message":"Health data DataUnion records created: 26","timestamp":"2025-08-21T14:53:29.100Z"}
+{"level":"info","message":"Errors: 0","timestamp":"2025-08-21T14:53:29.101Z"}
+{"level":"info","message":"Verifying migration...","timestamp":"2025-08-21T14:53:29.101Z"}
+{"level":"info","message":"Total DataUnion records: 72","timestamp":"2025-08-21T14:53:29.183Z"}
+{"level":"info","message":"Akave synced: 69","timestamp":"2025-08-21T14:53:29.183Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-21T14:53:29.184Z"}
+{"level":"info","message":"Vana not synced: 72","timestamp":"2025-08-21T14:53:29.184Z"}
+{"level":"info","message":"Sample DataUnion records:","timestamp":"2025-08-21T14:53:29.207Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-08-21T15:16:49.888Z"}
+{"level":"info","message":"Found 5 sample DataUnion records:","timestamp":"2025-08-21T15:16:50.078Z"}
+{"level":"info","message":"\n--- Record 1 ---","timestamp":"2025-08-21T15:16:50.079Z"}
+{"level":"info","message":"User Hash: 517cbe8c95769b59119bf06bf54652e5c07ec9cefa70a9131e5b7b9261ccb875","timestamp":"2025-08-21T15:16:50.080Z"}
+{"level":"info","message":"Data Type: health","timestamp":"2025-08-21T15:16:50.080Z"}
+{"level":"info","message":"Data ID: aed2061d-406e-41e7-9d93-a63db88e7adb","timestamp":"2025-08-21T15:16:50.082Z"}
+{"level":"info","message":"Akave synced: true","timestamp":"2025-08-21T15:16:50.082Z"}
+{"level":"info","message":"Vana synced: false","timestamp":"2025-08-21T15:16:50.083Z"}
+{"level":"info","message":"Akave retry_data:","timestamp":"2025-08-21T15:16:50.084Z"}
+{"level":"info","message":"Vana retry_data:","timestamp":"2025-08-21T15:16:50.085Z"}
+{"level":"info","message":"\n--- Record 2 ---","timestamp":"2025-08-21T15:16:50.086Z"}
+{"level":"info","message":"User Hash: f66abccded979b4e719ba4a5e27e4ca6b8b674f5e2acf08a75ac1616e43d2913","timestamp":"2025-08-21T15:16:50.086Z"}
+{"level":"info","message":"Data Type: health","timestamp":"2025-08-21T15:16:50.087Z"}
+{"level":"info","message":"Data ID: dc9b9bd1-a7df-46bb-aee5-c74d3cc9f9a5","timestamp":"2025-08-21T15:16:50.087Z"}
+{"level":"info","message":"Akave synced: false","timestamp":"2025-08-21T15:16:50.088Z"}
+{"level":"info","message":"Vana synced: false","timestamp":"2025-08-21T15:16:50.089Z"}
+{"level":"info","message":"Akave retry_data:","timestamp":"2025-08-21T15:16:50.089Z"}
+{"level":"info","message":"Vana retry_data:","timestamp":"2025-08-21T15:16:50.090Z"}
+{"level":"info","message":"\n--- Record 3 ---","timestamp":"2025-08-21T15:16:50.090Z"}
+{"level":"info","message":"User Hash: f66abccded979b4e719ba4a5e27e4ca6b8b674f5e2acf08a75ac1616e43d2913","timestamp":"2025-08-21T15:16:50.091Z"}
+{"level":"info","message":"Data Type: checkin","timestamp":"2025-08-21T15:16:50.091Z"}
+{"level":"info","message":"Data ID: 2025-08-18T10:18:35.389Z","timestamp":"2025-08-21T15:16:50.091Z"}
+{"level":"info","message":"Akave synced: false","timestamp":"2025-08-21T15:16:50.092Z"}
+{"level":"info","message":"Vana synced: false","timestamp":"2025-08-21T15:16:50.092Z"}
+{"level":"info","message":"Akave retry_data:","timestamp":"2025-08-21T15:16:50.093Z"}
+{"level":"info","message":"Vana retry_data:","timestamp":"2025-08-21T15:16:50.093Z"}
+{"level":"info","message":"\n--- Record 4 ---","timestamp":"2025-08-21T15:16:50.093Z"}
+{"level":"info","message":"User Hash: a471582501250b94d620a85f39830b5e47e3e8d828a097c9d73908c72c034171","timestamp":"2025-08-21T15:16:50.094Z"}
+{"level":"info","message":"Data Type: checkin","timestamp":"2025-08-21T15:16:50.094Z"}
+{"level":"info","message":"Data ID: 2025-08-18T15:25:23.391Z","timestamp":"2025-08-21T15:16:50.095Z"}
+{"level":"info","message":"Akave synced: false","timestamp":"2025-08-21T15:16:50.095Z"}
+{"level":"info","message":"Vana synced: false","timestamp":"2025-08-21T15:16:50.096Z"}
+{"level":"info","message":"Akave retry_data:","timestamp":"2025-08-21T15:16:50.097Z"}
+{"level":"info","message":"Vana retry_data:","timestamp":"2025-08-21T15:16:50.098Z"}
+{"level":"info","message":"\n--- Record 5 ---","timestamp":"2025-08-21T15:16:50.098Z"}
+{"level":"info","message":"User Hash: 517cbe8c95769b59119bf06bf54652e5c07ec9cefa70a9131e5b7b9261ccb875","timestamp":"2025-08-21T15:16:50.098Z"}
+{"level":"info","message":"Data Type: checkin","timestamp":"2025-08-21T15:16:50.099Z"}
+{"level":"info","message":"Data ID: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-21T15:16:50.099Z"}
+{"level":"info","message":"Akave synced: true","timestamp":"2025-08-21T15:16:50.099Z"}
+{"level":"info","message":"Vana synced: false","timestamp":"2025-08-21T15:16:50.099Z"}
+{"level":"info","message":"Akave retry_data:","timestamp":"2025-08-21T15:16:50.100Z"}
+{"level":"info","message":"Vana retry_data:","timestamp":"2025-08-21T15:16:50.100Z"}
+{"level":"info","message":"\n--- Overall Status ---","timestamp":"2025-08-21T15:16:50.190Z"}
+{"level":"info","message":"Total DataUnion records: 72","timestamp":"2025-08-21T15:16:50.190Z"}
+{"level":"info","message":"Akave synced: 69","timestamp":"2025-08-21T15:16:50.191Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-21T15:16:50.191Z"}
+{"level":"info","message":"Vana not synced: 72","timestamp":"2025-08-21T15:16:50.191Z"}
+{"level":"info","message":"Records with meaningful Akave retry data: 4","timestamp":"2025-08-21T15:16:50.221Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T15:26:48.555Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T15:26:48.559Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-21T15:26:48.566Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T15:34:06.012Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T15:34:06.015Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-21T15:34:06.020Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-21T15:34:40.819Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T15:34:41.383Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T15:34:41.383Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-21T15:34:41.390Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-21T15:34:41.531Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-21T15:34:41.698Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-21T15:34:41.759Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-21T15:34:41.760Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-21T15:34:41.781Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-21T15:34:41.782Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-21T15:34:41.805Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-21T15:34:41.855Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-21T15:34:41.855Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-21T15:34:41.874Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-21T15:34:41.874Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-21T15:34:41.875Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-21T15:34:41.875Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-21T15:34:41.875Z"}
+{"level":"info","message":"Total DataUnion records: 72","timestamp":"2025-08-21T15:34:41.937Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-21T15:34:41.937Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-21T15:34:41.938Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-21T16:25:33.972Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T16:25:34.579Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T16:25:34.580Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-21T16:25:34.589Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-21T16:25:34.730Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-21T16:25:34.908Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-21T16:25:34.966Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-21T16:25:34.966Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-21T16:25:35.006Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-21T16:25:35.008Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-21T16:25:35.026Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-21T16:25:35.074Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-21T16:25:35.074Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-21T16:25:35.092Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-21T16:25:35.092Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-21T16:25:35.092Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-21T16:25:35.093Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-21T16:25:35.093Z"}
+{"level":"info","message":"Total DataUnion records: 72","timestamp":"2025-08-21T16:25:35.352Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-21T16:25:35.352Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-21T16:25:35.352Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-21T16:47:44.262Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-21T16:47:44.833Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-21T16:47:44.834Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-21T16:47:44.839Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-21T16:47:45.038Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-21T16:47:45.072Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-21T16:47:45.144Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-21T16:47:45.145Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-21T16:47:45.166Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-21T16:47:45.166Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-21T16:47:45.188Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-21T16:47:45.234Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-21T16:47:45.235Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-21T16:47:45.254Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-21T16:47:45.255Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-21T16:47:45.256Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-21T16:47:45.256Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-21T16:47:45.257Z"}
+{"level":"info","message":"Total DataUnion records: 72","timestamp":"2025-08-21T16:47:45.319Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-21T16:47:45.319Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-21T16:47:45.319Z"}

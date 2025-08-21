@@ -25,10 +25,10 @@ const config = {
             registry: process.env.VANA_CONTRACTS_REGISTRY,
             teePool: process.env.VANA_CONTRACTS_TEEP_POOL
         },
-        proofUrl: "https://github.com/Boka44/asterisk-vana-proof/releases/download/v15/my-proof-15.tar.gz",
+        proofUrl: "https://github.com/AsteriskDAO/asterisk-vana-proof/releases/download/v16/my-proof-16.tar.gz",
         refinementUrl: {
-            checkin: "https://github.com/Boka44/vana-asterisk-data-refinement-checkin/releases/download/v10/refiner-10.tar.gz",
-            health: "https://github.com/Boka44/vana-asterisk-data-refinement-health-data/releases/download/v6/refiner-6.tar.gz"
+            checkin: "https://github.com/AsteriskDAO/vana-asterisk-data-refinement-checkin/releases/download/v12/refiner-12.tar.gz",
+            health: "https://github.com/AsteriskDAO/vana-asterisk-data-refinement-health-data/releases/download/v8/refiner-8.tar.gz"
         },
         refinementServiceUrl: process.env.VANA_REFINER_SERVICE_URL,
         refinerIds: {

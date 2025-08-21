@@ -521,13 +521,13 @@ async function setupBot() {
           };
 
           // Store check-in in database
-          const checkIn = await CheckIn.create(checkInData);
+          const checkIn = await CheckIn.createCheckIn(checkInData);
           console.log("Check-in stored in database:", checkIn._id);
 
           // Queue the check-in for upload to akave
           await addToQueue(
             QUEUE_TYPES.CHECKIN,
-            checkInData,
+            checkIn.toObject(), // Use the created check-in object which has checkinId
             ctx.from.id,
             userHash
           )

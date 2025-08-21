@@ -14,7 +14,14 @@
     "test:all": "npx mocha test/*.test.js --exit",
     "start": "node server.js",
     "build:docx": "node scripts/generate-docx.js",
-    "migrate:checkin": "node scripts/migrate-checkin-schema.js"
+    "migrate:checkin": "node scripts/migrate-checkin-schema.js",
+    "migrate:dataunion": "node scripts/migrate-dataunion.js",
+    "resync:existing": "node scripts/resync-existing-data.js",
+    "clean:resync": "node scripts/clean-and-resync-all.js",
+    "test:upload": "node scripts/test-single-upload.js",
+    "vana:refiner": "node scripts/run-vana-refiner.js",
+    "check:status": "node scripts/check-dataunion-status.js",
+    "fix:checkinids": "node scripts/fix-null-checkinids.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",

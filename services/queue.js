@@ -60,6 +60,27 @@ function serializeBigInts(obj) {
   return obj;
 }
 
+/**
+ * Ensures error messages are always strings for DataUnion compatibility
+ * @param {*} errorMessage - The error message to sanitize
+ * @returns {string} - A string error message
+ */
+function sanitizeErrorMessage(errorMessage) {
+  if (errorMessage === null || errorMessage === undefined) {
+    return null;
+  }
+  
+  if (typeof errorMessage === 'string') {
+    return errorMessage;
+  }
+  
+  if (typeof errorMessage === 'object') {
+    return JSON.stringify(errorMessage);
+  }
+  
+  return String(errorMessage);
+}
+
 // Process queue items with concurrency control
 uploadQueue.process(1, async (job) => {
   const { type, data, telegramId, user_hash } = job.data
@@ -107,7 +128,7 @@ uploadQueue.process(1, async (job) => {
 
       if (!o3Response?.url) {
         // Update DataUnion with Akave failure
-        await dataUnionRecord.updatePartnerSync('akave', false, 'Failed to get O3 upload URL', { signature })
+        await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage('Failed to get O3 upload URL'), { signature })
         throw new Error('Failed to get O3 upload URL')
       }
       
@@ -136,17 +157,45 @@ uploadQueue.process(1, async (job) => {
     const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState, job.attemptsMade);
 
     // If upload not complete or has error, store state and retry
-    if (!vanaResponse?.state?.status) {
+    if (!vanaResponse?.status) {
+      console.log("Full vanaResponse:", JSON.stringify(vanaResponse, null, 2));
+      console.log("vanaResponse.status:", vanaResponse?.status);
+      
       // Persist only the inner state for accurate resume (whitelisted fields, no buffers)
-      const { fileId, fixed_iv, fixed_ephemeral_key, file_registered, contribution_proof_requested, jobDetails, tee_proof_submitted, data_refined, reward_claimed } = vanaResponse.state || {};
-      const serializedState = { fileId, fixed_iv, fixed_ephemeral_key, file_registered, contribution_proof_requested, jobDetails, tee_proof_submitted, data_refined, reward_claimed };
+      // Handle case where state might be missing or have different structure
+      let serializedState = {};
+      
+      // Extract state properties from vanaResponse (they're directly on the object, not nested)
+      const { fileId, fixed_iv, fixed_ephemeral_key, file_registered, contribution_proof_requested, jobDetails, tee_proof_submitted, data_refined, reward_claimed, status } = vanaResponse || {};
+      
+      serializedState = { 
+        fileId, 
+        fixed_iv, 
+        fixed_ephemeral_key, 
+        file_registered, 
+        contribution_proof_requested, 
+        jobDetails, 
+        tee_proof_submitted, 
+        data_refined, 
+        reward_claimed,
+        status
+      };
+      
+      console.log("Serialized state:", serializedState);
+      
       job.data.vanaState = serializedState;
       await job.update(job.data);
       
       // Update DataUnion with Vana failure and retry data
-      await dataUnionRecord.updatePartnerSync('vana', false, vanaResponse.message || 'Vana upload in progress', { 
+      const errorMessage = sanitizeErrorMessage(vanaResponse.message || 'Vana upload in progress');
+      const errorDetails = vanaResponse.error ? JSON.stringify(vanaResponse.error) : null;
+      
+      console.log("Vana error message (sanitized):", errorMessage);
+      console.log("Vana error details:", errorDetails);
+      
+      await dataUnionRecord.updatePartnerSync('vana', false, errorMessage, { 
         vanaState: serializedState,
-        error: vanaResponse.error,
+        error: errorDetails,
         message: vanaResponse.message
       })
       
@@ -154,7 +203,16 @@ uploadQueue.process(1, async (job) => {
       console.log("vanaResponse.message", vanaResponse.message);
       
       // Create error object with state information
-      const error = new Error(vanaResponse.message || 'Vana upload in progress');
+      let errorMsg = 'Vana upload in progress';
+      if (vanaResponse?.message) {
+        if (typeof vanaResponse.message === 'string') {
+          errorMsg = vanaResponse.message;
+        } else {
+          errorMsg = JSON.stringify(vanaResponse.message);
+        }
+      }
+      
+      const error = new Error(errorMsg);
       error.state = serializedState;
       throw error;
     }
@@ -212,11 +270,11 @@ async function handleFailure(job, dataUnionRecord) {
     if (dataUnionRecord) {
       try {
         if (type === QUEUE_TYPES.CHECKIN) {
-          await dataUnionRecord.updatePartnerSync('akave', false, 'Final attempt failed - check-in rolled back')
-          await dataUnionRecord.updatePartnerSync('vana', false, 'Final attempt failed - check-in rolled back')
+          await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage('Final attempt failed - check-in rolled back'))
+          await dataUnionRecord.updatePartnerSync('vana', false, sanitizeErrorMessage('Final attempt failed - check-in rolled back'))
         } else {
-          await dataUnionRecord.updatePartnerSync('akave', false, 'Final attempt failed - health data sync failed')
-          await dataUnionRecord.updatePartnerSync('vana', false, 'Final attempt failed - health data sync failed')
+          await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage('Final attempt failed - health data sync failed'))
+          await dataUnionRecord.updatePartnerSync('vana', false, sanitizeErrorMessage('Final attempt failed - health data sync failed'))
         }
       } catch (updateError) {
         console.error('Failed to update DataUnion on final failure:', updateError)
