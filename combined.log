@@ -468,3 +468,135 @@
 {"level":"info","message":"Total DataUnion records: 72","timestamp":"2025-08-21T16:47:45.319Z"}
 {"level":"info","message":"Akave synced: 67","timestamp":"2025-08-21T16:47:45.319Z"}
 {"level":"info","message":"Vana synced: 0","timestamp":"2025-08-21T16:47:45.319Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-22T17:01:44.094Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-22T17:01:44.567Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-22T17:01:44.568Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-22T17:01:44.576Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-22T17:01:44.718Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:01:44.889Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:01:44.948Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:01:44.949Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-22T17:01:44.971Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-22T17:01:44.971Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:01:44.991Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:01:45.035Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:01:45.036Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-22T17:01:45.055Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-22T17:01:45.055Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-22T17:01:45.056Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-22T17:01:45.056Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-22T17:01:45.056Z"}
+{"level":"info","message":"Total DataUnion records: 75","timestamp":"2025-08-22T17:01:45.116Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-22T17:01:45.117Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-22T17:01:45.117Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-22T17:10:47.345Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-22T17:10:47.931Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-22T17:10:47.932Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-22T17:10:47.944Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-22T17:10:48.084Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:10:48.255Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:10:48.321Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:10:48.322Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-22T17:10:48.350Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-22T17:10:48.351Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:10:48.372Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:10:48.425Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:10:48.426Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-22T17:10:48.445Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-22T17:10:48.446Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-22T17:10:48.446Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-22T17:10:48.446Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-22T17:10:48.447Z"}
+{"level":"info","message":"Total DataUnion records: 75","timestamp":"2025-08-22T17:10:48.510Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-22T17:10:48.511Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-22T17:10:48.512Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-22T17:12:28.084Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-22T17:12:28.492Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-22T17:12:28.493Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-22T17:12:28.500Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-22T17:12:28.624Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:12:28.812Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:12:28.869Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:12:28.869Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-22T17:12:28.890Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-22T17:12:28.890Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:12:28.917Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:12:28.964Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:12:28.964Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-22T17:12:28.983Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-22T17:12:28.984Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-22T17:12:28.984Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-22T17:12:28.984Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-22T17:12:28.985Z"}
+{"level":"info","message":"Total DataUnion records: 75","timestamp":"2025-08-22T17:12:29.044Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-22T17:12:29.044Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-22T17:12:29.044Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-22T17:13:45.038Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-22T17:13:45.593Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-22T17:13:45.594Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-22T17:13:45.601Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-22T17:13:45.739Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:13:45.929Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:13:45.987Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:13:45.987Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-22T17:13:46.008Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-22T17:13:46.009Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:13:46.032Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:13:46.077Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:13:46.077Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-22T17:13:46.096Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-22T17:13:46.097Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-22T17:13:46.097Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-22T17:13:46.097Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-22T17:13:46.098Z"}
+{"level":"info","message":"Total DataUnion records: 75","timestamp":"2025-08-22T17:13:46.155Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-22T17:13:46.156Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-22T17:13:46.156Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-22T17:16:40.081Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-22T17:16:40.705Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-22T17:16:40.707Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-22T17:16:40.719Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-22T17:16:40.869Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:16:41.055Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:16:41.120Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:16:41.120Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-22T17:16:41.144Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-22T17:16:41.146Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-22T17:16:41.167Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-22T17:16:41.213Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-22T17:16:41.213Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-22T17:16:41.233Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-22T17:16:41.234Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-22T17:16:41.235Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-22T17:16:41.235Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-22T17:16:41.235Z"}
+{"level":"info","message":"Total DataUnion records: 75","timestamp":"2025-08-22T17:16:41.604Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-22T17:16:41.605Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-22T17:16:41.605Z"}
+{"level":"info","message":"=== TESTING SINGLE FILE UPLOAD ===","timestamp":"2025-08-29T16:17:12.941Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-29T16:17:13.427Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-29T16:17:13.428Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-29T16:17:13.436Z"}
+{"level":"info","message":"\n🧪 Testing with check-in: checkin_1755787736828_5dc7cf24e631b8d0","timestamp":"2025-08-29T16:17:13.577Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-29T16:17:13.743Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-29T16:17:13.798Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-29T16:17:13.799Z"}
+{"level":"info","message":"✅ Check-in added to queue","timestamp":"2025-08-29T16:17:13.822Z"}
+{"level":"info","message":"\n🧪 Testing with health data: 5381d4e0-6799-495a-9ec9-2eb43fbcfda5","timestamp":"2025-08-29T16:17:13.822Z"}
+{"level":"info","message":"Found existing DataUnion record, resetting for test","timestamp":"2025-08-29T16:17:13.843Z"}
+{"level":"info","message":"✅ DataUnion record reset","timestamp":"2025-08-29T16:17:14.059Z"}
+{"level":"info","message":"Adding to queue for test...","timestamp":"2025-08-29T16:17:14.059Z"}
+{"level":"info","message":"✅ Health data added to queue","timestamp":"2025-08-29T16:17:14.077Z"}
+{"level":"info","message":"\n🎯 TEST SETUP COMPLETE!","timestamp":"2025-08-29T16:17:14.078Z"}
+{"level":"info","message":"\nThe queue is now processing these test records...","timestamp":"2025-08-29T16:17:14.078Z"}
+{"level":"info","message":"Monitor progress with: npm run check:status","timestamp":"2025-08-29T16:17:14.078Z"}
+{"level":"info","message":"\nCurrent test status:","timestamp":"2025-08-29T16:17:14.079Z"}
+{"level":"info","message":"Total DataUnion records: 85","timestamp":"2025-08-29T16:17:14.139Z"}
+{"level":"info","message":"Akave synced: 67","timestamp":"2025-08-29T16:17:14.139Z"}
+{"level":"info","message":"Vana synced: 0","timestamp":"2025-08-29T16:17:14.139Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-29T16:17:45.105Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-29T16:17:45.111Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-29T16:17:45.118Z"}
+{"level":"info","message":"MongoDB connected","timestamp":"2025-08-29T21:28:23.461Z"}
+{"level":"info","message":"Leader election initialized","timestamp":"2025-08-29T21:28:23.465Z"}
+{"level":"info","message":"Server started in production mode on port 3000","timestamp":"2025-08-29T21:28:23.473Z"}

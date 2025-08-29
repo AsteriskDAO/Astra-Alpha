@@ -51,4 +51,15 @@ router.post('/submit-voucher-code',
 router.get('/admin/sync-stats', userController.getSyncStats)
 router.post('/admin/retry-failed-syncs', userController.retryFailedSyncs)
 
+// Leaderboard endpoints
+router.get('/:userHash/rank', 
+  validateTelegramWebApp, 
+  userController.getUserRank
+)
+
+router.get('/leaderboard/top', 
+  validateTelegramWebApp, 
+  userController.getTopUsers
+)
+
 module.exports = router 

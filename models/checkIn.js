@@ -2,6 +2,12 @@ const mongoose = require('mongoose')
 const crypto = require('crypto')
 
 const checkInSchema = new mongoose.Schema({
+  schema_version: { 
+    type: String, 
+    default: 'v1',
+    enum: ['v1'],
+    required: true
+  },
   user_hash: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
   checkinId: { type: String, required: true, unique: true },

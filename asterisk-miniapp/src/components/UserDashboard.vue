@@ -10,7 +10,7 @@ const userStore = useUserStore()
 const showContent = ref(false)
 const showFirstLoginModal = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
   setTimeout(() => {
     showContent.value = true
   }, 100)
@@ -23,11 +23,22 @@ onMounted(() => {
     // Reset the first login state after showing
     userStore.setFirstLogin(false)
   }
+
+  // Fetch user rank if we have user data
+  if (userStore.userData?.user_hash) {
+    try {
+      await userStore.fetchUserRank(userStore.userData.user_hash)
+    } catch (error) {
+      console.error('Failed to fetch user rank:', error)
+    }
+  }
 })
 
 const nickname = computed(() => userStore.userData?.nickname || 'User')
-const averageCheckins = computed(() => userStore.userData?.averageWeeklyCheckIns || 0)
+// const averageCheckins = computed(() => userStore.userData?.averageWeeklyCheckIns || 0)
 const points = computed(() => userStore.userData?.points || 0)
+const rank = computed(() => userStore.userRank?.rank || null)
+// const totalUsers = computed(() => userStore.userRank?.totalUsers || null)
 
 function goToProfile() {
   console.log('Navigating to profile')
@@ -48,8 +59,10 @@ function goToProfile() {
       <h2 class="section-title">My Stats</h2>
       <div class="stats">
         <div class="stat-card">
-          <div class="stat-value">{{ averageCheckins }}</div>
-          <div class="stat-label">average weekly check-ins</div>
+          <div class="stat-value rank-value">#{{ rank }}</div>
+          <div class="stat-label">
+            rank
+          </div>
         </div>
 
         <div class="stat-card">

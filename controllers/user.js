@@ -356,6 +356,110 @@ class UserController {
       res.status(500).json({ error: 'Failed to retry failed syncs' })
     }
   }
+
+  /**
+   * Get user's rank based on points
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} JSON response with user rank
+   */
+  async getUserRank(req, res) {
+    try {
+      const { userHash } = req.params
+      
+      // Get user's points first
+      const user = await User.findOne({ user_hash: userHash }, 'points')
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+
+      // Count users with more points (this gives us the rank)
+      // Using aggregation for better performance
+      const rankResult = await User.aggregate([
+        {
+          $match: {
+            points: { $gt: user.points }
+          }
+        },
+        {
+          $count: "rank"
+        }
+      ])
+
+      // Rank is count + 1 (since we're counting users ABOVE this user)
+      const rank = (rankResult[0]?.rank || 0) + 1
+      
+      res.json({
+        userHash,
+        points: user.points,
+        rank,
+        totalUsers: await User.countDocuments()
+      })
+    } catch (error) {
+      console.error('Failed to get user rank:', error)
+      res.status(500).json({ error: 'Failed to get user rank' })
+    }
+  }
+
+  /**
+   * Get top N users for leaderboard display
+   * @param {Request} req - Express request object
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} JSON response with top users
+   */
+  async getTopUsers(req, res) {
+    try {
+      const limit = parseInt(req.query.limit) || 10
+      const offset = parseInt(req.query.offset) || 0
+      
+      // Validate limits to prevent abuse
+      if (limit > 100) {
+        return res.status(400).json({ error: 'Limit cannot exceed 100' })
+      }
+      if (offset > 1000) {
+        return res.status(400).json({ error: 'Offset cannot exceed 1000' })
+      }
+
+      // Get top users with pagination
+      const topUsers = await User.aggregate([
+        {
+          $sort: { points: -1 }
+        },
+        {
+          $skip: offset
+        },
+        {
+          $limit: limit
+        },
+        {
+          $project: {
+            user_hash: 1,
+            name: 1,
+            nickname: 1,
+            points: 1,
+            checkIns: 1,
+            averageWeeklyCheckIns: 1
+          }
+        }
+      ])
+
+      // Get total count for pagination info
+      const totalUsers = await User.countDocuments()
+
+      res.json({
+        users: topUsers,
+        pagination: {
+          limit,
+          offset,
+          total: totalUsers,
+          hasMore: offset + limit < totalUsers
+        }
+      })
+    } catch (error) {
+      console.error('Failed to get top users:', error)
+      res.status(500).json({ error: 'Failed to get top users' })
+    }
+  }
 }
 
 module.exports = new UserController() 

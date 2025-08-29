@@ -1,6 +1,12 @@
 const mongoose = require('mongoose')
 
 const dataUnionSchema = new mongoose.Schema({
+  schema_version: { 
+    type: String, 
+    default: 'v1',
+    enum: ['v1'],
+    required: true
+  },
   user_hash: { 
     type: String, 
     required: [true, 'user_hash is required'],
@@ -24,12 +30,15 @@ const dataUnionSchema = new mongoose.Schema({
     akave: {
       is_synced: { type: Boolean, default: false },
       error_message: { type: String, default: null },
-      retry_data: { type: Object, default: null } // Store encryption keys, signatures, etc. for retries
+      retry_data: { type: Object, default: null }, // Store encryption keys, signatures, etc. for retries
+      key: { type: String, default: null },
+      url: { type: String, default: null }
     },
     vana: {
       is_synced: { type: Boolean, default: false },
       error_message: { type: String, default: null },
-      retry_data: { type: Object, default: null }
+      retry_data: { type: Object, default: null },
+      file_id: { type: String, default: null }
     }
   },
   
@@ -75,9 +84,24 @@ dataUnionSchema.methods.updatePartnerSync = async function(partner, isSynced, er
   try {
     this.partners[partner].is_synced = isSynced
     this.partners[partner].error_message = errorMessage
+    
+    // Handle dedicated fields for specific partners
     if (retryData) {
       this.partners[partner].retry_data = retryData
+      
+      // Extract dedicated fields for akave
+      if (partner === 'akave') {
+        if (retryData.key !== undefined) this.partners[partner].key = retryData.key
+        if (retryData.url !== undefined) this.partners[partner].url = retryData.url
+      }
+      
+      // Extract dedicated fields for vana
+      if (partner === 'vana') {
+        if (retryData.file_id !== undefined) this.partners[partner].file_id = retryData.file_id
+        if (retryData.fileId !== undefined) this.partners[partner].file_id = retryData.fileId // Also check for fileId
+      }
     }
+    
     this.updated_at = new Date()
     return await this.save()
   } catch (error) {

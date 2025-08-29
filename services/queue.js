@@ -81,170 +81,174 @@ function sanitizeErrorMessage(errorMessage) {
   return String(errorMessage);
 }
 
+/**
+ * Handles Vana upload failure or incomplete state
+ * @param {Object} vanaResponse - Response from Vana service
+ * @param {Object} dataUnionRecord - DataUnion record to update
+ * @param {Object} job - Bull job object
+ * @returns {Object} - Serialized state for retry
+ */
+async function handleVanaFailure(vanaResponse, dataUnionRecord, job) {
+  if (vanaResponse?.error) {
+    console.log("❌ Vana upload failed with error");
+  } else {
+    console.log("⚠️ Vana upload incomplete - storing state for retry");
+  }
+  
+  console.log("Full vanaResponse:", JSON.stringify(serializeBigInts(vanaResponse), null, 2));
+  console.log("vanaResponse.state.status:", vanaResponse?.state?.status);
+  
+  // Store state in job for retry
+  job.data.vanaState = vanaResponse?.state || {};
+  await job.update(job.data);
+  
+  // Update DataUnion with failure details
+  const errorMessage = sanitizeErrorMessage(vanaResponse.message || 'Vana upload in progress');
+  const errorDetails = vanaResponse.error ? JSON.stringify(vanaResponse.error) : null;
+  
+  console.log("Vana error message (sanitized):", errorMessage);
+  console.log("Vana error details:", errorDetails);
+  
+  await dataUnionRecord.updatePartnerSync('vana', false, errorMessage, { 
+    vanaState: vanaResponse?.state || {},
+    error: errorDetails,
+    message: vanaResponse.message,
+    file_id: vanaResponse.fileId || null
+  });
+  
+  // Create error object with state information
+  const error = new Error(errorMessage);
+  error.state = vanaResponse?.state || {};
+  throw error;
+}
+
+/**
+ * Handles Vana upload success
+ * @param {Object} vanaResponse - Response from Vana service
+ * @param {Object} dataUnionRecord - DataUnion record to update
+ * @returns {Object} - Serialized state for storage
+ */
+async function handleVanaSuccess(vanaResponse, dataUnionRecord) {
+  console.log("✅ Vana upload successful");
+  console.log("  fileId:", vanaResponse.state?.fileId);
+  console.log("  status:", vanaResponse.state?.status);
+  
+  // Update DataUnion with success
+  await dataUnionRecord.updatePartnerSync('vana', true, null, { 
+    fileId: vanaResponse.state?.fileId,
+    vanaState: vanaResponse.state || {},
+    vanaResponse,
+    file_id: vanaResponse.state?.fileId || null
+  });
+  
+  return vanaResponse.state || {};
+}
+
+/**
+ * Handles Akave upload
+ * @param {Object} data - Data to upload
+ * @param {string} type - Data type (checkin/health)
+ * @param {string} user_hash - User hash
+ * @param {Object} dataUnionRecord - DataUnion record to update
+ * @param {Object} job - Bull job object
+ * @returns {Object} - Akave response
+ */
+async function handleAkaveUpload(data, type, user_hash, dataUnionRecord, job) {
+  const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
+  const provider = new ethers.JsonRpcProvider("https://rpc.moksha.vana.org");
+  const wallet = new ethers.Wallet(privateKey, provider);
+  const signature = await wallet.signMessage("Please sign to retrieve your encryption key");
+
+  // Upload to Akave with signature
+  let o3Response;
+  if (type === QUEUE_TYPES.CHECKIN) {
+    o3Response = await akave.uploadCheckinData(user_hash, data, signature);
+  } else {
+    o3Response = await akave.uploadHealthData(user_hash, data, signature);
+  }
+
+  if (!o3Response?.url) {
+    // Update DataUnion with Akave failure
+    await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage('Failed to get O3 upload URL'), { signature });
+    throw new Error('Failed to get O3 upload URL');
+  }
+  
+  // Store successful Akave upload in job data for potential retries
+  job.data.o3Response = o3Response;
+  job.data.signature = signature;
+  await job.update(job.data);
+  
+  // Update DataUnion with Akave success
+  await dataUnionRecord.updatePartnerSync('akave', true, null, { 
+    signature, 
+    o3Response,
+    key: o3Response.key,
+    url: o3Response.url,
+    akaveResponse: o3Response
+  });
+  
+  return o3Response;
+}
+
 // Process queue items with concurrency control
 uploadQueue.process(1, async (job) => {
-  const { type, data, telegramId, user_hash } = job.data
-  const results = {}
-  let dataUnionRecord = null
-
-  console.log("**********************************************************\n")
-  console.log("**********************************************************\n")
-  console.log("job.data", job.data);
-  console.log("**********************************************************\n")
-  console.log("**********************************************************\n")
+  const { type, data, telegramId, user_hash } = job.data;
+  const results = {};
+  let dataUnionRecord = null;
 
   try {
     // Create or find DataUnion record for tracking
-    const dataType = type === QUEUE_TYPES.CHECKIN ? 'checkin' : 'health'
-    const dataId = type === QUEUE_TYPES.CHECKIN ? data.checkinId : data.healthDataId
+    const dataType = type === QUEUE_TYPES.CHECKIN ? 'checkin' : 'health';
+    const dataId = type === QUEUE_TYPES.CHECKIN ? data.checkinId : data.healthDataId;
     
-    dataUnionRecord = await DataUnion.findByDataReference(user_hash, dataType, dataId)
+    dataUnionRecord = await DataUnion.findByDataReference(user_hash, dataType, dataId);
     
     if (!dataUnionRecord) {
-      // Create new DataUnion record
       dataUnionRecord = await DataUnion.createDataUnion({
         user_hash,
         data_type: dataType,
         data_id: dataId
-      })
+      });
     }
 
-    // Check if we already have an Akave upload from a previous attempt
+    // Handle Akave upload (if not already done)
     let o3Response = job.data.o3Response;
-    
     if (!o3Response) {
-      // Only do Akave upload if we don't have a previous successful upload
-      const privateKey = process.env.DEPLOYER_PRIVATE_KEY
-      const provider = new ethers.JsonRpcProvider("https://rpc.moksha.vana.org")
-      const wallet = new ethers.Wallet(privateKey, provider)
-      const signature = await wallet.signMessage("Please sign to retrieve your encryption key")
-
-      // First upload to Akave with signature
-      if (type === QUEUE_TYPES.CHECKIN) {
-        o3Response = await akave.uploadCheckinData(user_hash, data, signature)
-      } else {
-        o3Response = await akave.uploadHealthData(user_hash, data, signature)
-      }
-
-      if (!o3Response?.url) {
-        // Update DataUnion with Akave failure
-        await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage('Failed to get O3 upload URL'), { signature })
-        throw new Error('Failed to get O3 upload URL')
-      }
-      
-      // Store successful Akave upload in job data for potential retries
-      job.data.o3Response = o3Response;
-      job.data.signature = signature;
-      await job.update(job.data);
-      
-      // Update DataUnion with Akave success
-      await dataUnionRecord.updatePartnerSync('akave', true, null, { signature, o3Response })
-      
-      results.akave = o3Response
-      // console.log("o3Response", o3Response);
+      o3Response = await handleAkaveUpload(data, type, user_hash, dataUnionRecord, job);
+      results.akave = o3Response;
     }
 
-    // Check if we have a previous Vana upload state
-    let vanaState = job.data.vanaState;
-    
-    // Reconstruct buffers from hex if present in state
-    if (vanaState && vanaState.fixed_iv && vanaState.fixed_ephemeral_key) {
-		  vanaState.fixed_iv_buffer = Buffer.from(vanaState.fixed_iv, 'hex')
-		  vanaState.fixed_ephemeral_key_buffer = Buffer.from(vanaState.fixed_ephemeral_key, 'hex')
-    }
-    
-    // Then upload to Vana with same signature
-    const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, vanaState, job.attemptsMade);
+    // Handle Vana upload
+    const vanaResponse = await vana.handleFileUpload(o3Response.url, job.data.signature, type, job.data.vanaState, job.attemptsMade);
 
-    // If upload not complete or has error, store state and retry
-    if (!vanaResponse?.status) {
-      console.log("Full vanaResponse:", JSON.stringify(vanaResponse, null, 2));
-      console.log("vanaResponse.status:", vanaResponse?.status);
-      
-      // Persist only the inner state for accurate resume (whitelisted fields, no buffers)
-      // Handle case where state might be missing or have different structure
-      let serializedState = {};
-      
-      // Extract state properties from vanaResponse (they're directly on the object, not nested)
-      const { fileId, fixed_iv, fixed_ephemeral_key, file_registered, contribution_proof_requested, jobDetails, tee_proof_submitted, data_refined, reward_claimed, status } = vanaResponse || {};
-      
-      serializedState = { 
-        fileId, 
-        fixed_iv, 
-        fixed_ephemeral_key, 
-        file_registered, 
-        contribution_proof_requested, 
-        jobDetails, 
-        tee_proof_submitted, 
-        data_refined, 
-        reward_claimed,
-        status
-      };
-      
-      console.log("Serialized state:", serializedState);
-      
-      job.data.vanaState = serializedState;
-      await job.update(job.data);
-      
-      // Update DataUnion with Vana failure and retry data
-      const errorMessage = sanitizeErrorMessage(vanaResponse.message || 'Vana upload in progress');
-      const errorDetails = vanaResponse.error ? JSON.stringify(vanaResponse.error) : null;
-      
-      console.log("Vana error message (sanitized):", errorMessage);
-      console.log("Vana error details:", errorDetails);
-      
-      await dataUnionRecord.updatePartnerSync('vana', false, errorMessage, { 
-        vanaState: serializedState,
-        error: errorDetails,
-        message: vanaResponse.message
-      })
-      
-      console.log("vanaResponse.error", vanaResponse.error);
-      console.log("vanaResponse.message", vanaResponse.message);
-      
-      // Create error object with state information
-      let errorMsg = 'Vana upload in progress';
-      if (vanaResponse?.message) {
-        if (typeof vanaResponse.message === 'string') {
-          errorMsg = vanaResponse.message;
-        } else {
-          errorMsg = JSON.stringify(vanaResponse.message);
-        }
-      }
-      
-      const error = new Error(errorMsg);
-      error.state = serializedState;
-      throw error;
+    // Check Vana upload status and handle accordingly
+    if (!vanaResponse?.state?.status || vanaResponse?.error) {
+      await handleVanaFailure(vanaResponse, dataUnionRecord, job);
+    } else {
+      await handleVanaSuccess(vanaResponse, dataUnionRecord);
     }
-    
-    // Update DataUnion with Vana success
-    await dataUnionRecord.updatePartnerSync('vana', true, null, { vanaResponse })
     
     results.vana = vanaResponse;
-    console.log("vanaResponse", vanaResponse);
 
     // Send success message
     const successMsg = type === QUEUE_TYPES.CHECKIN 
       ? '✅ Your check-in has been successfully recorded and processed!'
-      : '✅ Your health profile has been successfully updated and processed!'
+      : '✅ Your health profile has been successfully updated and processed!';
     
     // await sendTelegramMessage(telegramId, successMsg)
-    job.moveToCompleted()
-    return results
+    job.moveToCompleted();
+    return results;
 
   } catch (error) {
-    console.error(`Upload failed for ${type}:`, error)
-
-    // On final attempt, handle failure
-    await handleFailure(job, dataUnionRecord)
+    console.error(`Upload failed for ${type}:`, error);
+    await handleFailure(job, dataUnionRecord);
     throw error;
   }
-})
+});
 
 async function handleFailure(job, dataUnionRecord) {
-  const { type, telegramId, user_hash } = job.data
-  console.log("job.attemptsMade", job.attemptsMade);
-  console.log("job.opts.attempts", job.opts.attempts);
+  const { type, user_hash } = job.data;
+  
   if (job.attemptsMade >= job.opts.attempts - 1) {
     if (type === QUEUE_TYPES.CHECKIN) {
       // Rollback check-in
@@ -266,92 +270,132 @@ async function handleFailure(job, dataUnionRecord) {
       // )
     }
     
-    // Update DataUnion with final failure status if we have a record
+    // Update DataUnion with final failure status
     if (dataUnionRecord) {
       try {
-        if (type === QUEUE_TYPES.CHECKIN) {
-          await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage('Final attempt failed - check-in rolled back'))
-          await dataUnionRecord.updatePartnerSync('vana', false, sanitizeErrorMessage('Final attempt failed - check-in rolled back'))
-        } else {
-          await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage('Final attempt failed - health data sync failed'))
-          await dataUnionRecord.updatePartnerSync('vana', false, sanitizeErrorMessage('Final attempt failed - health data sync failed'))
-        }
+        const failureMessage = type === QUEUE_TYPES.CHECKIN 
+          ? 'Final attempt failed - check-in rolled back'
+          : 'Final attempt failed - health data sync failed';
+        
+        await dataUnionRecord.updatePartnerSync('akave', false, sanitizeErrorMessage(failureMessage));
+        await dataUnionRecord.updatePartnerSync('vana', false, sanitizeErrorMessage(failureMessage));
       } catch (updateError) {
-        console.error('Failed to update DataUnion on final failure:', updateError)
+        console.error('Failed to update DataUnion on final failure:', updateError);
       }
     }
     
     job.moveToFailed({
       message: 'Upload failed',
       failedReason: 'Upload failed'
-    })
+    });
   }
 }
 
 // Add to queue
 async function addToQueue(type, data, telegramId, user_hash, extraJobData = {}) {
-	return uploadQueue.add({
-		type,
-		data,
-		telegramId,
-		user_hash,
-		...extraJobData
-	})
+  return uploadQueue.add({
+    type,
+    data,
+    telegramId,
+    user_hash,
+    ...extraJobData
+  });
 }
 
 // Utility function to retry failed syncs
 async function retryFailedSyncs(partner, dataType = null) {
-	const failedSyncs = await DataUnion.findFailedSyncs(partner, dataType)
-	
-	for (const failedSync of failedSyncs) {
-		// Find the original data to retry
-		let originalData
-		if (failedSync.data_type === 'checkin') {
-			originalData = await CheckIn.findOne({ checkinId: failedSync.data_id })
-		} else {
-			originalData = await HealthData.findOne({ healthDataId: failedSync.data_id })
-		}
-		
-		if (originalData) {
-			// Build extras from stored retry data so the job can resume
-			const extras = {}
-			const akaveRetry = failedSync.partners?.akave?.retry_data || null
-			const vanaRetry = failedSync.partners?.vana?.retry_data || null
-			if (akaveRetry) {
-				if (akaveRetry.o3Response) extras.o3Response = akaveRetry.o3Response
-				if (akaveRetry.signature) extras.signature = akaveRetry.signature
-			}
-			if (vanaRetry && vanaRetry.vanaState) {
-				extras.vanaState = vanaRetry.vanaState
-			}
-			
-			// Add back to queue for retry with extras
-			await addToQueue(
-				failedSync.data_type === 'checkin' ? QUEUE_TYPES.CHECKIN : QUEUE_TYPES.HEALTH,
-				originalData,
-				null, // We don't have telegramId here, but the queue can handle it
-				failedSync.user_hash,
-				extras
-			)
-		}
-	}
-	
-	return failedSyncs.length
+  try {
+    const failedSyncs = await DataUnion.findFailedSyncs(partner, dataType);
+    console.log(`Found ${failedSyncs.length} failed syncs for ${partner}${dataType ? ` (${dataType})` : ''}`);
+    
+    for (const failedSync of failedSyncs) {
+      try {
+        // Find the original data to retry
+        let originalData;
+        if (failedSync.data_type === 'checkin') {
+          originalData = await CheckIn.findOne({ checkinId: failedSync.data_id });
+        } else {
+          originalData = await HealthData.findOne({ healthDataId: failedSync.data_id });
+        }
+        
+        if (!originalData) {
+          console.warn(`Original data not found for ${failedSync.data_type} ${failedSync.data_id}`);
+          continue;
+        }
+        
+        // Build extras from stored retry data so the job can resume
+        const extras = buildRetryExtras(failedSync);
+        
+        // Add back to queue for retry with extras
+        await addToQueue(
+          failedSync.data_type === 'checkin' ? QUEUE_TYPES.CHECKIN : QUEUE_TYPES.HEALTH,
+          originalData,
+          null, // We don't have telegramId here, but the queue can handle it
+          failedSync.user_hash,
+          extras
+        );
+        
+        console.log(`✅ Queued retry for ${failedSync.data_type} ${failedSync.data_id}`);
+      } catch (syncError) {
+        console.error(`Failed to retry sync for ${failedSync.data_type} ${failedSync.data_id}:`, syncError);
+      }
+    }
+    
+    return failedSyncs.length;
+  } catch (error) {
+    console.error(`Failed to retry failed syncs for ${partner}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Builds retry extras from stored retry data
+ * @param {Object} failedSync - Failed sync record
+ * @returns {Object} - Extras object for retry
+ */
+function buildRetryExtras(failedSync) {
+  const extras = {};
+  const akaveRetry = failedSync.partners?.akave?.retry_data || null;
+  const vanaRetry = failedSync.partners?.vana?.retry_data || null;
+  
+  if (akaveRetry) {
+    if (akaveRetry.o3Response) extras.o3Response = akaveRetry.o3Response;
+    if (akaveRetry.signature) extras.signature = akaveRetry.signature;
+  }
+  
+  if (vanaRetry && vanaRetry.vanaState) {
+    extras.vanaState = vanaRetry.vanaState;
+  }
+  
+  return extras;
 }
 
 // Utility function to get sync statistics
 async function getSyncStats() {
-	const totalRecords = await DataUnion.countDocuments()
-	const akaveSuccess = await DataUnion.countDocuments({ 'partners.akave.is_synced': true })
-	const vanaSuccess = await DataUnion.countDocuments({ 'partners.vana.is_synced': true })
-	const akaveFailed = await DataUnion.countDocuments({ 'partners.akave.is_synced': false })
-	const vanaFailed = await DataUnion.countDocuments({ 'partners.vana.is_synced': false })
-	
-	return {
-		total: totalRecords,
-		akave: { success: akaveSuccess, failed: akaveFailed, successRate: totalRecords > 0 ? (akaveSuccess / totalRecords) * 100 : 0 },
-		vana: { success: vanaSuccess, failed: vanaFailed, successRate: totalRecords > 0 ? (vanaSuccess / totalRecords) * 100 : 0 }
-	}
+  try {
+    const totalRecords = await DataUnion.countDocuments();
+    const akaveSuccess = await DataUnion.countDocuments({ 'partners.akave.is_synced': true });
+    const vanaSuccess = await DataUnion.countDocuments({ 'partners.vana.is_synced': true });
+    const akaveFailed = await DataUnion.countDocuments({ 'partners.akave.is_synced': false });
+    const vanaFailed = await DataUnion.countDocuments({ 'partners.vana.is_synced': false });
+    
+    return {
+      total: totalRecords,
+      akave: { 
+        success: akaveSuccess, 
+        failed: akaveFailed, 
+        successRate: totalRecords > 0 ? (akaveSuccess / totalRecords) * 100 : 0 
+      },
+      vana: { 
+        success: vanaSuccess, 
+        failed: vanaFailed, 
+        successRate: totalRecords > 0 ? (vanaSuccess / totalRecords) * 100 : 0 
+      }
+    };
+  } catch (error) {
+    console.error('Failed to get sync statistics:', error);
+    throw error;
+  }
 }
 
 module.exports = {

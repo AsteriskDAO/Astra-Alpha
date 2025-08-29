@@ -21,7 +21,8 @@
     "test:upload": "node scripts/test-single-upload.js",
     "vana:refiner": "node scripts/run-vana-refiner.js",
     "check:status": "node scripts/check-dataunion-status.js",
-    "fix:checkinids": "node scripts/fix-null-checkinids.js"
+    "fix:checkinids": "node scripts/fix-null-checkinids.js",
+    "migrate:schema": "node scripts/add-schema-versioning.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",

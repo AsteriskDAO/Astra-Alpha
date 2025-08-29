@@ -83,10 +83,10 @@ const startServer = async () => {
     process.exit(1)
   }
 }
-console.log('Running test single upload')
-// run script to test single upload
-const { testSingleUpload } = require('./scripts/test-single-upload');
-testSingleUpload();
+// console.log('Running test single upload')
+// // run script to test single upload
+// const { testSingleUpload } = require('./scripts/test-single-upload');
+// testSingleUpload();
 
 startServer().catch(error => {
   logger.error('Fatal error during startup:', error)

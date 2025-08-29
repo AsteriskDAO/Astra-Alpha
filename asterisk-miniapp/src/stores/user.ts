@@ -48,6 +48,15 @@ export interface UserData {
   healthData: HealthData;
   timestamp: string;
   isGenderVerified: boolean;
+  user_hash?: string; // Add user_hash for rank lookup
+}
+
+// Add rank interface
+export interface UserRank {
+  userHash: string;
+  points: number;
+  rank: number;
+  totalUsers: number;
 }
 
 export const useUserStore = defineStore('user', {
@@ -64,7 +73,8 @@ export const useUserStore = defineStore('user', {
       loading: false,
       error: null as string | null,
       isFirstLogin: false,
-      isGenderVerified: storedIsGenderVerified ? JSON.parse(storedIsGenderVerified) : false
+      isGenderVerified: storedIsGenderVerified ? JSON.parse(storedIsGenderVerified) : false,
+      userRank: null as UserRank | null // Add rank state
     }
   },
 
@@ -223,6 +233,20 @@ export const useUserStore = defineStore('user', {
         voucherCode
       })
       return response.data
+    },
+
+    async fetchUserRank(userHash: string): Promise<UserRank> {
+      try {
+        this.loading = true
+        const response = await api.get(`/api/users/${userHash}/rank`)
+        this.userRank = response.data
+        return response.data
+      } catch (error) {
+        this.error = 'Failed to fetch user rank'
+        throw error
+      } finally {
+        this.loading = false
+      }
     }
   }
 }) 
