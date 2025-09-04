@@ -40,6 +40,14 @@ const checkInMessages = [
   "💚 Astra needs to know how you are to help you with your health. Time to check in. \n\nType /checkin to start.",
 ]
 
+function isAdmin(telegramId) {
+  const admins = [
+    '1777752685',
+    '1822599597'
+  ]
+  return admins.includes(telegramId);
+}
+
 async function setupBot() {
   try {
     // Initialize bot instance
@@ -580,12 +588,191 @@ async function setupBot() {
         }
       }
 
-      // Register the conversation
+      // Send all users conversation
+      async function sendAllUsers(conversation, ctx) {
+        try {
+          // Ask for message input
+          await ctx.reply("Type in message to send to all users:");
+          
+          // Wait for text input
+          const messageResponse = await conversation.waitFor(":text");
+          const messageToSend = messageResponse.message.text;
+          
+          // Send preview to admin first
+          await ctx.reply("📋 Message preview (sent to you first):");
+          await ctx.reply(messageToSend);
+          
+          // Show confirmation buttons
+          await ctx.reply("Do you want to send this message to all verified users?", {
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: "✅ Confirm Send", callback_data: "confirm_send" }],
+                [{ text: "❌ Cancel", callback_data: "cancel_send" }]
+              ]
+            }
+          });
+          
+          // Wait for confirmation
+          const confirmResponse = await conversation.waitFor("callback_query");
+          
+          if (confirmResponse.callbackQuery.data === "confirm_send") {
+            // Query all users with isGenderVerified = true
+            const verifiedUsers = await User.find({ isGenderVerified: true });
+            
+            await ctx.reply(`📤 Sending message to ${verifiedUsers.length} verified users...`);
+            
+            let successCount = 0;
+            let errorCount = 0;
+            
+            // Send message to each user
+            for (const user of verifiedUsers) {
+              try {
+                await bot.api.sendMessage(user.telegram_id, messageToSend);
+                successCount++;
+                
+                // Add small delay to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 100));
+              } catch (error) {
+                console.error(`Failed to send message to user ${user.telegram_id}:`, error);
+                errorCount++;
+              }
+            }
+            
+            // Report results
+            await ctx.reply(
+              `✅ Message sending completed!\n\n` +
+              `📊 Results:\n` +
+              `• Successfully sent: ${successCount}\n` +
+              `• Failed: ${errorCount}\n` +
+              `• Total users: ${verifiedUsers.length}`
+            );
+            
+          } else if (confirmResponse.callbackQuery.data === "cancel_send") {
+            await ctx.reply("❌ Message sending cancelled.");
+          }
+          
+        } catch (error) {
+          console.error('Send all users conversation error:', error);
+          await ctx.reply("I'm sorry, something went wrong. Please try the /sendAll command again.");
+        }
+      }
+      
+      
+
+      // Register the conversations
       bot.use(createConversation(dailyCheckIn));
+      bot.use(createConversation(sendAllUsers));
 
       // Command to start daily check-in
       bot.command("checkin", async (ctx) => {
         await ctx.conversation.enter("dailyCheckIn");
+      });
+
+      // Admin command to send message to all verified users
+      bot.command("sendAll", async (ctx) => {
+        // Check if user is admin
+        if (!isAdmin(ctx.from.id.toString())) {
+          await ctx.reply("❌ This command is only available to administrators.");
+          return;
+        }
+        
+        await ctx.conversation.enter("sendAllUsers");
+      });
+
+      // Admin command to display comprehensive statistics
+      bot.command("stats", async (ctx) => {
+        // Check if user is admin
+        if (!isAdmin(ctx.from.id.toString())) {
+          await ctx.reply("❌ This command is only available to administrators.");
+          return;
+        }
+
+        try {
+          // Get current date and start of week (Monday)
+          const now = new Date();
+          const startOfToday = new Date(now);
+          startOfToday.setHours(0, 0, 0, 0);
+          
+          const startOfWeek = new Date(now);
+          const dayOfWeek = startOfWeek.getDay();
+          const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Handle Sunday as -6
+          startOfWeek.setDate(startOfWeek.getDate() + daysToMonday);
+          startOfWeek.setHours(0, 0, 0, 0);
+
+          // General Overview queries
+          const totalUsers = await User.countDocuments();
+          const verifiedUsers = await User.countDocuments({ isGenderVerified: true });
+          const totalCheckIns = await CheckIn.countDocuments();
+          const totalHealthData = await HealthData.countDocuments();
+          const totalDataPoints = totalCheckIns + totalHealthData;
+
+          // Daily Activity queries
+          const checkInsToday = await CheckIn.countDocuments({
+            timestamp: { $gte: startOfToday }
+          });
+
+          const newVerifiedUsersThisWeek = await User.countDocuments({
+            isGenderVerified: true,
+            updated_at: { $gte: startOfWeek }
+          });
+
+          // Areas for Attention queries
+          const oneWeekAgo = new Date(now);
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+          const verifiedUsersWithZeroCheckIns = await User.countDocuments({
+            isGenderVerified: true,
+            checkIns: 0
+          });
+
+          const inactiveUsers = await User.countDocuments({
+            isGenderVerified: true,
+            $or: [
+              { lastCheckIn: { $lt: oneWeekAgo } },
+              { lastCheckIn: null }
+            ]
+          });
+
+          // Additional useful metrics
+          const usersNeverCheckedIn = await User.countDocuments({
+            isGenderVerified: true,
+            checkIns: 0
+          });
+
+          const averageCheckInsPerVerifiedUser = verifiedUsers > 0 ? (totalCheckIns / verifiedUsers).toFixed(1) : 0;
+
+          // Active notifications count
+          const activeNotifications = await Notification.countDocuments({
+            is_active: true
+          });
+
+          // Format the statistics report
+          const statsReport = `📊 **Astra Health Dashboard**\n\n` +
+            `**📈 General Overview**\n` +
+            `• Verified Users: ${verifiedUsers.toLocaleString()}\n` +
+            `• Active Notifications: ${activeNotifications.toLocaleString()}\n` +
+            `• Total Check-ins: ${totalCheckIns.toLocaleString()}\n` +
+            `• Total Health Data Entries: ${totalHealthData.toLocaleString()}\n` +
+            `• Total Data Points: ${totalDataPoints.toLocaleString()}\n\n` +
+            `**📅 Daily Activity Report**\n` +
+            `• Check-ins Today: ${checkInsToday.toLocaleString()}\n` +
+            `• New Verified Users (This Week): ${newVerifiedUsersThisWeek.toLocaleString()}\n\n` +
+            `**⚠️ Engagement Insights**\n` +
+            `• Verified Users (Zero Check-ins): ${verifiedUsersWithZeroCheckIns.toLocaleString()}\n` +
+            `• Inactive Users (>1 week): ${inactiveUsers.toLocaleString()}\n` +
+            `• Users Never Checked In: ${usersNeverCheckedIn.toLocaleString()}\n\n` +
+            `**📊 Engagement Metrics**\n` +
+            `• Avg Check-ins per Verified User: ${averageCheckInsPerVerifiedUser}\n` +
+            `• Notification Coverage: ${verifiedUsers > 0 ? ((activeNotifications / verifiedUsers) * 100).toFixed(1) : 0}%\n\n` +
+            `• Note: All metrics are based on verified users only.\n` +
+            `_Report generated: ${now.toLocaleString()}_`;
+
+          await ctx.reply(statsReport, { parse_mode: 'Markdown' });
+
+        } catch (error) {
+          console.error('Stats command error:', error);
+          await ctx.reply("❌ Error generating statistics. Please try again.");
+        }
       });
 
       // generate menu
