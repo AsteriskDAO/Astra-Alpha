@@ -746,24 +746,56 @@ async function setupBot() {
             is_active: true
           });
 
+          // Users who updated health data in the last week
+          const usersWithRecentHealthData = await User.aggregate([
+            {
+              $match: { isGenderVerified: true }
+            },
+            {
+              $lookup: {
+                from: 'healthdatas',
+                localField: 'user_hash',
+                foreignField: 'user_hash',
+                as: 'healthDataEntries'
+              }
+            },
+            {
+              $addFields: {
+                latestHealthData: {
+                  $max: '$healthDataEntries.timestamp'
+                }
+              }
+            },
+            {
+              $match: {
+                latestHealthData: { $gte: oneWeekAgo }
+              }
+            },
+            {
+              $count: 'count'
+            }
+          ]);
+
+          const recentHealthDataUpdates = usersWithRecentHealthData.length > 0 ? usersWithRecentHealthData[0].count : 0;
+
           // Format the statistics report
           const statsReport = `📊 **Astra Health Dashboard**\n\n` +
             `**📈 General Overview**\n` +
             `• Verified Users: ${verifiedUsers.toLocaleString()}\n` +
-            `• Active Notifications: ${activeNotifications.toLocaleString()}\n` +
+            `• Users with Active Notifications: ${activeNotifications.toLocaleString()}\n` +
             `• Total Check-ins: ${totalCheckIns.toLocaleString()}\n` +
             `• Total Health Data Entries: ${totalHealthData.toLocaleString()}\n` +
             `• Total Data Points: ${totalDataPoints.toLocaleString()}\n\n` +
             `**📅 Daily Activity Report**\n` +
             `• Check-ins Today: ${checkInsToday.toLocaleString()}\n` +
-            `• New Verified Users (This Week): ${newVerifiedUsersThisWeek.toLocaleString()}\n\n` +
+            `• New Verified Users (This Week): ${newVerifiedUsersThisWeek.toLocaleString()}\n` +
+            `• Users with Updated Health Data (This Week): ${recentHealthDataUpdates.toLocaleString()}\n\n` +
             `**⚠️ Engagement Insights**\n` +
             `• Verified Users (Zero Check-ins): ${verifiedUsersWithZeroCheckIns.toLocaleString()}\n` +
-            `• Inactive Users (>1 week): ${inactiveUsers.toLocaleString()}\n` +
-            `• Users Never Checked In: ${usersNeverCheckedIn.toLocaleString()}\n\n` +
+            `• Inactive Users (>1 week): ${inactiveUsers.toLocaleString()}\n\n` +
             `**📊 Engagement Metrics**\n` +
             `• Avg Check-ins per Verified User: ${averageCheckInsPerVerifiedUser}\n` +
-            `• Notification Coverage: ${verifiedUsers > 0 ? ((activeNotifications / verifiedUsers) * 100).toFixed(1) : 0}%\n\n` +
+            `• Notification Coverage: ${verifiedUsers > 0 ? ((activeNotifications / verifiedUsers) * 100).toFixed(1) : 0}% of users with active notifications\n\n` +
             `• Note: All metrics are based on verified users only.\n` +
             `_Report generated: ${now.toLocaleString()}_`;
 
